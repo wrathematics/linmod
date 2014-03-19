@@ -1,0 +1,9 @@
+#! /bin/sh
+
+### Remove me before distributing the library FIXME
+
+find ./ -name '*~' | xargs rm
+
+rm -rf ./test/*.o
+rm -rf ./benchmark/*.o
+
