@@ -10,151 +10,22 @@ module glm_loglik_utils
   
   contains
   
-  ! model deviance calculator
-  function glm_deviance(family, n, y, mu) &
-  result(dev)
-  double precision :: dev
+  
+  
+  ! null model deviance
+  subroutine glm_nulldev(family, n, y, mu, dev)
     ! in/out
-    character*8         family
-    integer             n
-    double precision    mu(n), y(n)
+    character*8, intent(in) :: family
+    integer, intent(in) :: n
+    double precision, intent(in) :: y(*)
+    double precision, intent(out) :: mu(*), dev
     ! local
-    integer             i
-    double precision    tmp
-    ! parameter
-    double precision    zero, one, two
-    parameter ( zero = 0.0d0, one = 1.0d0, two = 2.0d0 )
+    integer :: i
+    double precision :: tmp
+    double precision :: glm_deviance
     
     
-    dev = zero
-    
-    !!! normal
-    if (family == 'gaussian') then
-      do i = 1, n
-        tmp = y(i) - mu(i)
-        dev = dev + tmp*tmp
-      end do
-      
-    !!! poisson
-    else if (family == 'poisson') then
-      do i = 1, n
-        if (y(i).gt.zero) then
-          dev = dev + y(i)*dlog(y(i)/mu(i)) 
-        end if
-        dev = dev + mu(i) - y(i)
-      end do
-      
-      dev = two*dev
-      
-    !!! binomial
-    else if (family == 'binomial') then
-      do i = 1, n
-        if (y(i).gt.zero) then
-          dev = dev + dlog(mu(i))
-        else
-          dev = dev + dlog(one-mu(i))
-        end if
-      end do
-      
-      dev = -two*dev
-    
-    !!! gamma
-    else if (family == 'gamma') then
-      do i = 1, n
-        if (y(i).gt.zero) then
-          dev = dev - dlog(y(i)/mu(i))
-        end if
-        dev = dev + (y(i) - mu(i))/mu(i)
-      end do
-      
-      dev = -two*dev
-    
-    end if
-    
-    return
-  end
-
-
-
-  ! loglikelihood calculator
-  function glm_loglik(family, n, y, mu) &
-  result(llik)
-  double precision llik
-    ! in/out
-    character*8         family
-    integer             n
-    double precision    mu(n), y(n)
-    ! local
-    integer             i
-    double precision    tmp
-    ! parameter
-    double precision    zero, one, two
-    parameter ( zero = 0.0d0, one = 1.0d0, two = 2.0d0 )
-    
-    
-    llik = zero
-    
-    !!! gaussian
-    if (family == 'gaussian') then
-      do i = 1, n
-        tmp = y(i) - mu(i)
-        llik = llik - tmp*tmp
-      end do
-      
-      llik = llik / two
-    
-    !!! poisson
-    else if (family == 'poisson') then
-      do i = 1, n
-        if (y(i).gt.zero) then
-          llik = llik - y(i)*dlog(y(i)/mu(i)) 
-        end if
-        llik = llik + y(i) - mu(i)
-      end do
-      
-    !!! binomial
-    else if (family == 'binomial') then
-      do i = 1, n
-        if (y(i).gt.zero) then
-          llik = llik + dlog(mu(i))
-        else
-          llik = llik + dlog(one-mu(i))
-        end if
-      end do
-      
-    else if (family == 'gamma') then
-      do i = 1, n
-        if (y(i).gt.zero) then
-          llik = llik + dlog(y(i)/mu(i))
-        end if
-        llik = llik - (y(i) - mu(i))/mu(i)
-      end do
-      
-    end if
-    
-    return
-  end
-
-
-
-  function glm_nulldev(family, n, y, mu) &
-  result(dev)
-  double precision dev
-    ! in/out
-    character*8         family
-    integer             n
-    double precision    mu(*), y(*)
-    ! local
-    integer             i
-    double precision    tmp
-    ! parameter
-    double precision    zero, one, two
-    parameter ( zero = 0.0d0, one = 1.0d0, two = 2.0d0 )
-    ! functions
-    double precision    glm_deviance
-    
-    
-    tmp = zero
+    tmp = 0.0d0
     do i = 1, n
       tmp = tmp + y(i)/n
     end do
@@ -168,47 +39,165 @@ module glm_loglik_utils
     
     return
   end
-
-
-
-  subroutine glm_loglik_stats(family, link, incpt, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
-    implicit none
+  
+  
+  
+  ! model deviance calculator
+  function glm_deviance(family, n, y, mu) &
+  result(dev)
     ! in/out
-    character*1         incpt
-    character*8         family, link
-    integer             n, p
-    double precision    x(*), y(n), eta(n), mu(*), beta(*), beta_old(p), dev, aic, nulldev
+    double precision :: dev
+    character*8, intent(in) :: family
+    integer, intent(in) :: n
+    double precision, intent(in) :: mu(n), y(n)
     ! local
-    integer             i
-    double precision    tmp
-    ! parameter
-    double precision    zero, one, two, negtwo
-    parameter ( zero = 0.0d0, one = 1.0d0, two = 2.0d0, negtwo = -2.0d0 )
+    integer :: i
+    double precision :: tmp
+    
+    
+    dev = 0.0d0
+    
+    !!! normal
+    if (family == 'gaussian') then
+      do i = 1, n
+        tmp = y(i) - mu(i)
+        dev = dev + tmp*tmp
+      end do
+      
+    !!! poisson
+    else if (family == 'poisson') then
+      do i = 1, n
+        if (y(i) > 0.0d0) then
+          dev = dev + y(i)*dlog(y(i)/mu(i)) 
+        end if
+        dev = dev + mu(i) - y(i)
+      end do
+      
+      dev = 2.0d0 * dev
+      
+    !!! binomial
+    else if (family == 'binomial') then
+      do i = 1, n
+        if (y(i) > 0.0d0) then
+          dev = dev + dlog(mu(i))
+        else
+          dev = dev + dlog(1.0d0 - mu(i))
+        end if
+      end do
+      
+      dev = -2.0d0 * dev
+    
+    !!! gamma
+    else if (family == 'gamma') then
+      do i = 1, n
+        if (y(i) > 0.0d0) then
+          dev = dev - dlog(y(i)/mu(i))
+        end if
+        dev = dev + (y(i) - mu(i))/mu(i)
+      end do
+      
+      dev = -2.0d0 * dev
+    
+    end if
+    
+    return
+  end
+  
+  
+  
+  ! loglikelihood calculator
+  function glm_loglik(family, n, y, mu) &
+  result(llik)
+    ! in/out
+    double precision :: llik
+    character*8, intent(in) :: family
+    integer, intent(in) :: n
+    double precision, intent(in) :: mu(n), y(n)
+    ! local
+    integer :: i
+    double precision :: tmp
+    
+    
+    llik = 0.0d0
+    
+    !!! gaussian
+    if (family == 'gaussian') then
+      do i = 1, n
+        tmp = y(i) - mu(i)
+        llik = llik - tmp*tmp
+      end do
+      
+      llik = llik / 2.0d0
+    
+    !!! poisson
+    else if (family == 'poisson') then
+      do i = 1, n
+        if (y(i) > 0.0d0) then
+          llik = llik - y(i)*dlog(y(i)/mu(i)) 
+        end if
+        llik = llik + y(i) - mu(i)
+      end do
+      
+    !!! binomial
+    else if (family == 'binomial') then
+      do i = 1, n
+        if (y(i) > 0.0d0) then
+          llik = llik + dlog(mu(i))
+        else
+          llik = llik + dlog(1.0d0 - mu(i))
+        end if
+      end do
+      
+    else if (family == 'gamma') then
+      do i = 1, n
+        if (y(i) > 0.0d0) then
+          llik = llik + dlog(y(i)/mu(i))
+        end if
+        llik = llik - (y(i) - mu(i))/mu(i)
+      end do
+      
+    end if
+    
+    return
+  end
+  
+  
+  
+  subroutine glm_loglik_stats(family, link, incpt, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
+    ! in/out
+    character*1, intent(in) ::incpt
+    character*8, intent(in) :: family, link
+    integer, intent(in) :: n, p
+    double precision, intent(in) :: x(*), y(n), beta(*), beta_old(p)
+    double precision, intent(out) :: dev, aic, nulldev
+    double precision, intent(out) :: eta(n), mu(*)
+    ! local
+    integer :: i
+    double precision :: tmp
     ! intrinsic
-    double precision    glm_loglik, glm_deviance, glm_nulldev
-    intrinsic           dble, sum
+    intrinsic :: dble, sum
     
     
     ! model deviance
-  !      dev = negtwo * glm_loglik(family, n, y, mu)
+  !      dev = -2.0d0 * glm_loglik(family, n, y, mu)
     dev = glm_deviance(family, n, y, mu)
     
     ! model aic
-    aic = two * dble(p) + dev
+    aic = 2.0d0 * dble(p) + dev
     
     !!! null deviance
     ! null deviance for model with no intercept
     if (incpt == 'n') then
       do i = 1, n
-        eta(i) = zero
+        eta(i) = 0.0d0
       end do
       
       call glm_linkinv(link, n, eta, mu)
-      nulldev = negtwo * glm_loglik(family, n, y, mu)
+      nulldev = -2.0d0 * glm_loglik(family, n, y, mu)
     
     ! null deviance (deviance for intercept-only model)
     else
-      nulldev = glm_nulldev(family, n, y, mu)
+      call glm_nulldev(family, n, y, mu, nulldev)
       
     end if
     

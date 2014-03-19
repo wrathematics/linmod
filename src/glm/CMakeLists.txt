@@ -41,6 +41,8 @@ set(GLM_FILES
   src/glm_link_utils.f90
   src/glm_loglik_utils.f90
   src/glm_mu_var.f90
+  src/glm_residuals_utils.f90
+  src/glm_update_utils.f90
 )
 
 

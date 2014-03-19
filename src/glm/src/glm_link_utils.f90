@@ -14,22 +14,20 @@ module glm_link_utils
   ! link function
   subroutine glm_link(link, n, x, y)
     ! in/out
-    character*8         link
-    integer             n
-    double precision    x(*), y(*)
+    character*8, intent(in) :: link
+    integer, intent(in) :: n
+    double precision, intent(in) :: x(*)
+    double precision, intent(out) :: y(*)
     ! local
-    integer             i
-    double precision    tmp
-    ! parameter
-    double precision    one
-    parameter ( one = 1.0d0 )
+    integer :: i
+    double precision :: tmp
     ! intrinsic
-    intrinsic           dlog, dsqrt
+    intrinsic :: dlog, dsqrt
     
     
     if (link == 'cloglog') then
       do i = 1, n
-        y(i) = dlog(-dlog(one-x(i)))
+        y(i) = dlog(-dlog(1.0d0-x(i)))
       end do
     
     else if (link == 'identity') then
@@ -39,7 +37,7 @@ module glm_link_utils
     
     else if (link == 'inverse') then
       do i = 1, n
-        y(i) = one/x(i)
+        y(i) = 1.0d0/x(i)
       end do
     
     else if (link == 'log') then
@@ -50,7 +48,7 @@ module glm_link_utils
     else if (link == 'logit') then
       do i = 1, n
         tmp = x(i)
-        y(i) = dlog(tmp / (one-tmp))
+        y(i) = dlog(tmp / (1.0d0-tmp))
       end do
     
     else if (link == 'sqrt') then
@@ -66,15 +64,13 @@ module glm_link_utils
   ! inverse link function
   subroutine glm_linkinv(link, n, x, y)
     ! in/out
-    character*8         link
-    integer             n
-    double precision    x(*), y(*)
+    character*8, intent(in) :: link
+    integer, intent(in) :: n
+    double precision, intent(in) :: x(*)
+    double precision, intent(out) :: y(*)
     ! local
-    integer             i
-    double precision    tmp
-    ! parameter
-    double precision    zero, one
-    parameter ( zero = 0.0d0, one = 1.0d0 )
+    integer :: i
+    double precision :: tmp
     ! intrinsic
     intrinsic           dexp, dsqrt
     
@@ -82,7 +78,7 @@ module glm_link_utils
     if (link == 'cloglog') then
       do i = 1, n
         tmp = -dexp(x(i))
-        y(i) = -dexp(tmp)-one
+        y(i) = -dexp(tmp) - 1.0d0
       end do
     
     else if (link == 'identity') then
@@ -92,10 +88,10 @@ module glm_link_utils
     
     else if (link == 'inverse') then
       do i = 1, n
-        if (x(i).gt.zero) then
-          y(i) = one/x(i)
+        if (x(i) > 0.0d0) then
+          y(i) = 1.0d0/x(i)
         else
-          y(i) = zero
+          y(i) = 0.0d0
         end if
       end do
       
@@ -107,7 +103,7 @@ module glm_link_utils
     else if (link == 'logit') then
       do i = 1, n
         tmp = dexp(x(i))
-        y(i) = tmp / (one + tmp)
+        y(i) = tmp / (1.0d0 + tmp)
       end do
     
     else if (link == 'sqrt') then
@@ -130,9 +126,9 @@ module glm_link_utils
 
   function glm_check_fam_link(family, link) &
   result(check)
-    integer :: check
     ! in/out
-    character*8         family, link
+    integer :: check
+    character*8, intent(in) :: family, link
     ! parameters
     integer             bad_fam, bad_link
     parameter ( bad_fam = -1, bad_link = -2 )
