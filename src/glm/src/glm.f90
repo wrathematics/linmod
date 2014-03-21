@@ -109,15 +109,15 @@ module glm
   
   
   subroutine glm_fit(family, link, incpt, stoprule, n, p, x, y, &
-                     beta, wt, offset, resids, maxiter, tol, info) &
-  bind(c, name='glm_fit_')
+                     beta, wt, offset, resids, maxiter, tol, info)
+!  bind(c, name='glm_fit_')
     ! in/out
-    character(len=1), intent(in) :: family, link
+    character(len=8), intent(in) :: family, link
     character(len=1), intent(in) :: incpt
     integer, intent(in) :: stoprule, n, p, maxiter
     integer, intent(out) :: info
-    double precision, intent(in) :: x(n,p), y(n), offset(n), resids(n), tol
-    double precision, intent(out) :: beta(p), wt(n)
+    double precision, intent(in) :: x(n,p), y(n), offset(n), tol
+    double precision, intent(out) :: beta(p), wt(n), resids(n)
     ! local
     integer :: converged, i, j, iter, allocerr, rank, lwork
     double precision :: aic, dev, nulldev, tmp, dev_old

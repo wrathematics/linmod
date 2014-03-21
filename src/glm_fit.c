@@ -1,4 +1,11 @@
-#include "rscasapack.h"
+/*#include <SEXPtools.h> */
+
+#include <R.h>
+#include <Rinternals.h>
+
+// character pointers
+#define CHARPT(x,i) ((char*)CHAR(STRING_ELT(x,i)))
+
 
 #define PTCT(X) PROTECT(X);protect_ct++;
 

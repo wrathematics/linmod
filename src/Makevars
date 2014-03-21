@@ -1,0 +1,54 @@
+#################################################################
+
+### SEXPtools
+SEXPTOOLS_CPPFLAGS = -I/home/mschmid3/R/x86_64-pc-linux-gnu-library/3.0/SEXPtools/include
+SEXPTOOLS_LDFLAGS = /home/mschmid3/R/x86_64-pc-linux-gnu-library/3.0/SEXPtools/lib/libsexptools.a
+
+
+### Package flags.
+PKG_CPPFLAGS = $(SEXPTOOLS_CPPFLAGS)
+PKG_CFLAGS = $(SHLIB_OPENMP_CFLAGS) -w
+PKG_FCFLAGS = $(SHLIB_OPENMP_FCFLAGS) -w
+#PKG_FCFLAGS = $(SAFE_FCFLAGS) $(SHLIB_OPENMP_FCFLAGS) -w -Wfatal-errors
+
+
+### FIXME
+PKG_LIBS = $(FLIBS) $(SEXPTOOLS_LDFLAGS) $(SHLIB_OPENMP_CFLAGS) -llapack
+
+
+### Setup R source code and objects.
+
+GLM = \
+    glm/src/glm.o \
+    glm/src/glm_link_utils.o \
+    glm/src/glm_loglik_utils.o \
+    glm/src/glm_mu_var.o \
+    glm/src/glm_residuals_utils.o \
+    glm/src/glm_update_utils.o
+
+
+R_OBJS = glm_fit.o
+
+
+OBJECTS = $(R_OBJS) $(GLM)
+
+
+### Start making here.
+all: $(SHLIB)
+
+
+# Fortran module dependencies
+glm/src/glm.o: glm/src/glm_link_utils.o \
+               glm/src/glm_loglik_utils.o \
+               glm/src/glm_mu_var.o \
+               glm/src/glm_residuals_utils.o \
+               glm/src/glm_update_utils.o
+
+
+$(SHLIB): $(OBJECTS)
+
+
+clean:
+	@rm -rf *.o *.mod *.d *.rc *.so *.dylib *.dll *.a *.lib \
+		Makedeps Makevars $(SHLIB) $(OBJECTS) \
+		glm/src/*.o \

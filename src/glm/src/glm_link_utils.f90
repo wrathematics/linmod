@@ -6,6 +6,8 @@
 
 
 module glm_link_utils
+  use iso_c_binding
+  
   implicit none
   
   
