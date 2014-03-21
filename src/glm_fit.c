@@ -122,7 +122,8 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INCPT, SEXP STOPRULE,
   
   
   // call fortran
-  glm_fit_(CHARPT(FAMILY, 0), CHARPT(LINK, 0), 
+/*  glm_fit_*/
+  __glm_MOD_glm_fit(CHARPT(FAMILY, 0), CHARPT(LINK, 0), 
     CHARPT(INCPT, 0), INTEGER(STOPRULE), &n, &p, REAL(CP_X), 
     REAL(Y), REAL(BETA), REAL(WT), REAL(OFFSET), REAL(RESIDS), 
     INTEGER(MAXITER), REAL(TOL), &info);

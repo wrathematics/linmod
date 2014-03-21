@@ -6,41 +6,12 @@
 
 
 module glm_loglik_utils
+  use glm_link_utils
+  
   implicit none
   
+  
   contains
-  
-  
-  
-  ! null model deviance
-  subroutine glm_nulldev(family, n, y, mu, dev)
-    ! in/out
-    character*8, intent(in) :: family
-    integer, intent(in) :: n
-    double precision, intent(in) :: y(*)
-    double precision, intent(out) :: mu(*), dev
-    ! local
-    integer :: i
-    double precision :: tmp
-    double precision :: glm_deviance
-    
-    
-    tmp = 0.0d0
-    do i = 1, n
-      tmp = tmp + y(i)/n
-    end do
-    
-    do i = 1, n
-      mu(i) = tmp
-    end do
-    
-    dev = glm_deviance(family, n, y, mu)
-      
-    
-    return
-  end
-  
-  
   
   ! model deviance calculator
   function glm_deviance(family, n, y, mu) &
@@ -99,6 +70,35 @@ module glm_loglik_utils
       dev = -2.0d0 * dev
     
     end if
+    
+    return
+  end
+  
+  
+  
+  ! null model deviance
+  subroutine glm_nulldev(family, n, y, mu, dev)
+    ! in/out
+    character*8, intent(in) :: family
+    integer, intent(in) :: n
+    double precision, intent(in) :: y(*)
+    double precision, intent(out) :: mu(*), dev
+    ! local
+    integer :: i
+    double precision :: tmp
+    
+    
+    tmp = 0.0d0
+    do i = 1, n
+      tmp = tmp + y(i)/n
+    end do
+    
+    do i = 1, n
+      mu(i) = tmp
+    end do
+    
+    dev = glm_deviance(family, n, y, mu)
+      
     
     return
   end

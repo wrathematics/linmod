@@ -10,7 +10,7 @@ module glm_mu_var
   
   
   contains
-
+  
   subroutine glm_check_mu(family, n, mu, tol, info)
     ! in/out
     character*8, intent(in) :: family

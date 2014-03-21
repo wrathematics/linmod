@@ -6,23 +6,24 @@
 
 
 module glm_update_utils
+  use lapack
+  
   implicit none
   
   
   contains
-  
   
   ! Linear model iteration
   subroutine glm_update_beta(n, p, beta, beta_old, x, y, work, lwork, info)
     ! in/out
     integer, intent(in) :: n, p, lwork
     integer, intent(out) :: info
-    double precision, intent(in) :: x(n,p), y(n)
+    double precision, intent(in) :: x(n,p)
+    double precision, intent(inout) :: y(n)
     double precision, intent(out) :: beta(p), beta_old(p), work(lwork)
     ! local
     integer :: k, i
     ! external
-    external :: dgels
     intrinsic :: min
     
     
@@ -55,7 +56,6 @@ module glm_update_utils
     double precision :: tmp1, tmp2
     ! intrinsic
     intrinsic :: dabs
-    logical :: disnan ! from LAPACK
     
     
     converged = 0

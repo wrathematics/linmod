@@ -11,7 +11,6 @@ module glm_residuals_utils
   
   contains
   
-  
   subroutine glm_residuals(link, n, y, mu, eta, resids)
     ! in/out
     character*8, intent(in) :: link

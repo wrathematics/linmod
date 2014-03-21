@@ -96,6 +96,8 @@
 module glm
   use iso_c_binding
   
+  use lapack
+  
   use glm_loglik_utils
   use glm_link_utils
   use glm_mu_var
@@ -106,7 +108,6 @@ module glm
   
   
   contains
-  
   
   subroutine glm_fit(family, link, incpt, stoprule, n, p, x, y, &
                      beta, wt, offset, resids, maxiter, tol, info)
@@ -120,7 +121,7 @@ module glm
     double precision, intent(out) :: beta(p), wt(n), resids(n)
     ! local
     integer :: converged, i, j, iter, allocerr, rank, lwork
-    double precision :: aic, dev, nulldev, tmp, dev_old
+    double precision :: aic, dev, nulldev, dev_old, tmp
     double precision, allocatable :: beta_old(:)
     double precision, allocatable :: eta(:)
     double precision, allocatable :: mu(:)
@@ -130,12 +131,13 @@ module glm
     double precision, allocatable :: work(:)
     ! intrinsic
     intrinsic :: min, max, dble, dsqrt
-    external :: dgemm
     
+    
+    print *, family
     
     ! quick return if possible
     info = glm_check_fam_link(family, link)
-    if (info.lt.0) return
+    if (info < 0) return
     
     info = check_response(family, n, y)
     if (info == -8) return
@@ -163,7 +165,7 @@ module glm
     
     
     ! empty model case
-    if (n.lt.1 .or. p.lt.1) then
+    if (n < 1 .or. p < 1) then
       do i = 1, n
         eta(i) = 0.0d0 + offset(i)
       end do
@@ -196,7 +198,7 @@ module glm
     
     
     !!! main loop
-    main: do iter = 0, maxiter
+    IRLS_LOOP: do iter = 0, maxiter
       
       
       ! compute eta = x*beta and mu = inverse_link( eta )
@@ -248,17 +250,19 @@ module glm
       
       
       ! check for convergence
-      if (iter.gt.0) then
+      if (iter > 0) then
         converged = glm_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter)
       end if
       
       if (converged == 1) then
+        ! converged: break loop and compute likelihood statistics and residuals
         goto 10 ! converged
       else if (converged == 2) then
-        goto 1 ! infinite parameter values detected
+        ! infinite parameter values detected: deallocate and return with error
+        goto 1
       end if
       
-    end do main
+    end do IRLS_LOOP
     
     
     !!! success --- now do all the other stuff
@@ -271,8 +275,6 @@ module glm
     call glm_residuals(link, n, y, mu, eta, resids)
     
     write (*,*) "iter=",iter
-    
-    goto 1
     
     ! exit subroutine
   1    continue

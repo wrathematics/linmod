@@ -6,13 +6,11 @@
 
 
 module glm_link_utils
-  use iso_c_binding
-  
   implicit none
   
   
   contains
-
+  
   ! link function
   subroutine glm_link(link, n, x, y)
     ! in/out
