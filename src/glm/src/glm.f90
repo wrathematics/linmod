@@ -133,8 +133,6 @@ module glm
     intrinsic :: min, max, dble, dsqrt
     
     
-    print *, family
-    
     ! quick return if possible
     info = glm_check_fam_link(family, link)
     if (info < 0) return

@@ -27,11 +27,15 @@ GLM = \
     glm/src/glm_residuals_utils.o \
     glm/src/glm_update_utils.o
 
+LAPACK = \
+    glm/src/lapack/dgels.o \
+    glm/src/lapack/dgeqpf.o \
+    glm/src/lapack/dormqr.o
 
 R_OBJS = glm_fit.o
 
 
-OBJECTS = $(R_OBJS) $(GLM)
+OBJECTS = $(R_OBJS) $(GLM) $(LAPACK)
 
 
 ### Start making here.

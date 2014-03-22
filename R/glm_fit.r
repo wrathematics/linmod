@@ -34,8 +34,8 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
   fam <- string_c2f(family$family, 8L)
   link <- string_c2f(family$link, 8L)
   
-  fam <- toupper(fam)
-  link <- toupper(link)
+  fam <- tolower(fam)
+  link <- tolower(link)
   
   fit <- .Call("R_GLM_FIT", 
                as.character(fam), as.character(link),
