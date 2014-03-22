@@ -1,8 +1,8 @@
 #################################################################
 
 ### SEXPtools
-SEXPTOOLS_CPPFLAGS = @SEXPTOOLS_CPPFLAGS@
-SEXPTOOLS_LDFLAGS = @SEXPTOOLS_LDFLAGS@
+SEXPTOOLS_CPPFLAGS = -I/home/iao/R/x86_64-pc-linux-gnu-library/3.0/SEXPtools/include
+SEXPTOOLS_LDFLAGS = /home/iao/R/x86_64-pc-linux-gnu-library/3.0/SEXPtools/lib/libsexptools.a
 
 
 ### Package flags.

@@ -5,7 +5,7 @@
 
 
 
-subroutine dgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
+subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !     .. scalar arguments ..
   character          trans
   integer            info, lda, ldb, lwork, m, n, nrhs

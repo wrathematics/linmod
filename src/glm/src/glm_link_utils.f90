@@ -41,9 +41,11 @@ module glm_link_utils
       end do
     
     else if (link == 'log') then
-      do i = 1, n
-        y(i) = dlog(x(i))
-      end do
+      !$omp parallel do private(i) default(shared)
+        do i = 1, n
+          y(i) = dlog(x(i))
+        end do
+      !$omp end parallel do
     
     else if (link == 'logit') then
       do i = 1, n
@@ -58,9 +60,9 @@ module glm_link_utils
     
     return
   end
-
-
-
+  
+  
+  
   ! inverse link function
   subroutine glm_linkinv(link, n, x, y)
     ! in/out
@@ -96,9 +98,11 @@ module glm_link_utils
       end do
       
     else if (link == 'log') then
+      !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = dexp(x(i))
         end do
+      !$omp end parallel do
     
     else if (link == 'logit') then
       do i = 1, n
@@ -116,55 +120,56 @@ module glm_link_utils
     
     return
   end
-
-
-
-  ! check the family and link arguments for valid/supported possibilities
-  ! 0: no problem
-  ! -1 family is invalid or unsupported
-  ! -2 link is invalid or unsupported
-
-  function glm_check_fam_link(family, link) &
-  result(check)
+  
+  
+  
+  subroutine glm_residuals(link, n, y, mu, eta, resids)
     ! in/out
-    integer :: check
-    character*8, intent(in) :: family, link
-    ! parameters
-    integer             bad_fam, bad_link
-    parameter ( bad_fam = -1, bad_link = -2 )
+    character*8, intent(in) :: link
+    integer, intent(in) :: n
+    double precision, intent(in) :: y(*), mu(*), eta(*)
+    double precision, intent(out) :: resids(*)
+    ! local
+    integer :: i
+    double precision :: tmp
+    ! intrinsic
+    intrinsic           dexp
     
     
-    if (family == 'binomial') then
-        if (link /= 'cloglog'  .and. &
-            link /= 'log'      .and. &
-            link /= 'logit')    then
-                check = bad_link
-        end if
+    ! "working" residuals
     
-    else if (family == 'gamma') then
-        if (link /= 'identity'   .and. &
-            link /= 'log'        .and. &
-            link /= 'inverse')   then
-                check = bad_link
-        end if
+    if (link == 'cloglog') then
+      do i = 1, n
+        tmp = dexp(eta(i))
+        resids(i) = (y(i) - mu(i)) / (tmp * dexp(-tmp))
+      end do
     
-    else if (family == 'gaussian') then
-        if (link /= 'identity'      .and. &
-            link /= 'log'           .and. &
-            link /= 'inverse')       then
-                check = bad_link
-        end if
+    else if (link == 'identity') then
+      do i = 1, n
+        resids(i) = y(i) - mu(i)
+      end do
     
-    else if (family == 'poisson') then
-        if (link /= 'identity'     .and. &
-            link /= 'log'          .and. &
-            link /= 'sqrt')         then
-                check = bad_link
-        end if
+    else if (link == 'inverse') then
+      do i = 1, n
+        tmp = eta(i)
+        resids(i) = -1.0d0 * tmp*tmp * (y(i) - mu(i))
+      end do
     
-    else
-        ! family not supported
-        check = bad_fam
+    else if (link == 'log') then
+      do i = 1, n
+        resids(i) = (y(i) - mu(i)) / mu(i)
+      end do
+    
+    else if (link == 'logit') then
+      do i = 1, n
+        tmp = mu(i)
+        resids(i) = (y(i) - tmp) / tmp / (1.0d0 - tmp)
+      end do
+    
+    else if (link == 'sqrt') then
+      do i = 1, n
+        resids(i) = (y(i) - mu(i)) / (2.0d0 * eta(i))
+      end do
     end if
     
     return

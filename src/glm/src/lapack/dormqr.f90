@@ -3,7 +3,7 @@
 !     november 2006
 
 
-subroutine dormqr( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
+subroutine rdormqr( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
 !     .. scalar arguments ..
       character          side, trans
       integer            info, k, lda, ldc, lwork, m, n

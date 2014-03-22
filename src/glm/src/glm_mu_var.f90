@@ -6,6 +6,8 @@
 
 
 module glm_mu_var
+  use lapack
+  
   implicit none
   
   
@@ -38,6 +40,7 @@ module glm_mu_var
           return
         end if
       end do
+       
     end if
     
     
@@ -55,8 +58,6 @@ module glm_mu_var
     double precision, intent(out) :: mu(*)
     ! local
     integer :: i
-    ! external
-    external :: dgels
     
     
     if (family == 'binomial') then
@@ -70,9 +71,11 @@ module glm_mu_var
       end do
     
     else if (family == 'poisson') then
-      do i = 1, n
-        mu(i) = y(i) + 0.1d0
-      end do
+      !$omp parallel do private(i) default(shared)
+        do i = 1, n
+          mu(i) = y(i) + 0.1d0
+        end do
+      !$omp end parallel do
     end if
     
     return
@@ -109,9 +112,11 @@ module glm_mu_var
       end do
     
     else if (family == 'poisson') then
-      do i = 1, n
-        var(i) = mu(i)
-      end do
+      !$omp parallel do private(i) default(shared)
+        do i = 1, n
+          var(i) = mu(i)
+        end do
+      !$omp end parallel do
     end if
     
     return

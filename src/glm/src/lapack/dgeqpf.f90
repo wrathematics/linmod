@@ -3,7 +3,7 @@
 !     november 2006
 
 
-subroutine dgeqpf( m, n, a, lda, jpvt, tau, work, info )
+subroutine rdgeqpf( m, n, a, lda, jpvt, tau, work, info )
 !     .. scalar arguments ..
   integer            info, lda, m, n
 !     ..

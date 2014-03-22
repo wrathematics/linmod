@@ -98,11 +98,11 @@ module glm
   
   use lapack
   
+  use glm_check
   use glm_loglik_utils
   use glm_link_utils
   use glm_mu_var
   use glm_update_utils
-  use glm_residuals_utils
   
   implicit none
   
@@ -188,9 +188,11 @@ module glm
       beta_old(i) = 0.0d0
     end do
     
+!$omp parallel do
     do i = 1, n
       wt(i) = 1.0d0
     end do
+!$omp end parallel do
     
     dev = 0.0d0
     
@@ -217,9 +219,6 @@ module glm
       ! update wt
       call glm_variance(family, n, mu, wt)
       
-      do i = 1, n
-        sqwt(i) = dsqrt(wt(i))
-      end do
       
       if (stoprule == 3) then
         dev_old = dev
@@ -227,20 +226,32 @@ module glm
       end if
       
       
-      ! prepare lhs:  x_tw = x*wt
-      do j = 1, p
+!!! Parallel block
+      !$omp parallel private(i) default(shared) 
+      !$omp do private(i)
         do i = 1, n
-          x_tw(i,j) = sqwt(i) * x(i,j)
+          sqwt(i) = dsqrt(wt(i))
         end do
-      end do
+      
+      
+      ! prepare lhs:  x_tw = x*wt
+      !$omp do private(i, j)
+        do j = 1, p
+          do i = 1, n
+            x_tw(i,j) = sqwt(i) * x(i,j)
+          end do
+        end do
       
       
       ! prepare rhs:  z = sqrt(wt) * (x*beta + 1/wt*(y-mu))
       !                 = sqwt * eta + 1/sqwt*(y-mu)
-      do i = 1, n
-        tmp = sqwt(i)
-        z(i) = tmp*eta(i) + 1.0d0/(tmp)*(y(i)-mu(i))
-      end do
+      !$omp do private(i, tmp)
+        do i = 1, n
+          tmp = sqwt(i)
+          z(i) = tmp*eta(i) + 1.0d0/(tmp)*(y(i)-mu(i))
+        end do
+      !$omp end parallel
+!!! End parallel block
       
       
       ! update beta:  fit z ~ x_tw

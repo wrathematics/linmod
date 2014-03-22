@@ -31,10 +31,12 @@ module glm_update_utils
     
     k = min(n, p)
     
-    do i = 1, k
-      beta_old(i) = beta(i)
-      beta(i) = y(i)
-    end do
+    !$omp parallel do private(i) default(shared)
+      do i = 1, k
+        beta_old(i) = beta(i)
+        beta(i) = y(i)
+      end do
+    !$omp end parallel do
     
     return
   end
@@ -100,44 +102,6 @@ module glm_update_utils
         converged = -1
       end if
     end if
-    
-    return
-  end
-  
-  
-  
-  function check_response(family, n, y) &
-  result(check)
-    ! in/out
-    integer :: check
-    character*8, intent(in) :: family
-    integer, intent(in) :: n
-    double precision, intent(in) :: y(*)
-    ! local
-    integer :: i
-    ! parameter
-    integer, parameter :: fail = -8
-    
-    
-    if (family == 'binomial') then
-      do i = 1, n
-        if (y(i) < 0.0d0 .or. y(i) > 1.0d0) then
-          check = fail
-          return
-        end if
-      end do
-    
-    else if (family == 'poisson' .or. family == 'gamma') then
-      do i = 1, n
-        if (y(i) < 0.0d0) then
-          check = fail
-          return
-        end if
-      end do
-    
-    end if
-    
-    check = 0
     
     return
   end
