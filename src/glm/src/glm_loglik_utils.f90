@@ -30,10 +30,12 @@ module glm_loglik_utils
     
     !!! normal
     if (family == 'gaussian') then
-      do i = 1, n
-        tmp = y(i) - mu(i)
-        dev = dev + tmp*tmp
-      end do
+      !$omp parallel do private(i, tmp) default(shared) reduction(+:dev)
+        do i = 1, n
+          tmp = y(i) - mu(i)
+          dev = dev + tmp*tmp
+        end do
+      !$omp end parallel do
       
     !!! poisson
     else if (family == 'poisson') then
@@ -50,24 +52,28 @@ module glm_loglik_utils
       
     !!! binomial
     else if (family == 'binomial') then
-      do i = 1, n
-        if (y(i) > 0.0d0) then
-          dev = dev + dlog(mu(i))
-        else
-          dev = dev + dlog(1.0d0 - mu(i))
-        end if
-      end do
+      !$omp parallel do private(i) default(shared) reduction(+:dev)
+        do i = 1, n
+          if (y(i) > 0.0d0) then
+            dev = dev + dlog(mu(i))
+          else
+            dev = dev + dlog(1.0d0 - mu(i))
+          end if
+        end do
+      !$omp end parallel do
       
       dev = -2.0d0 * dev
     
     !!! gamma
     else if (family == 'gamma') then
-      do i = 1, n
-        if (y(i) > 0.0d0) then
-          dev = dev - dlog(y(i)/mu(i))
-        end if
-        dev = dev + (y(i) - mu(i))/mu(i)
-      end do
+      !$omp parallel do private(i) default(shared) reduction(+:dev)
+        do i = 1, n
+          if (y(i) > 0.0d0) then
+            dev = dev - dlog(y(i)/mu(i))
+          end if
+          dev = dev + (y(i) - mu(i))/mu(i)
+        end do
+      !$omp end parallel do
       
       dev = -2.0d0 * dev
     
@@ -129,12 +135,15 @@ module glm_loglik_utils
     
     !!! gaussian
     if (family == 'gaussian') then
-      do i = 1, n
-        tmp = y(i) - mu(i)
-        llik = llik - tmp*tmp
-      end do
+      !$omp parallel do private(i, tmp) default(shared) reduction(+:llik)
+        do i = 1, n
+          tmp = y(i) - mu(i)
+          llik = llik - tmp*tmp
+        end do
+      !$omp end parallel do
       
       llik = llik / 2.0d0
+    
     
     !!! poisson
     else if (family == 'poisson') then
@@ -147,23 +156,30 @@ module glm_loglik_utils
         end do
       !$omp end parallel do
       
+      
     !!! binomial
     else if (family == 'binomial') then
-      do i = 1, n
-        if (y(i) > 0.0d0) then
-          llik = llik + dlog(mu(i))
-        else
-          llik = llik + dlog(1.0d0 - mu(i))
-        end if
-      end do
-      
+      !$omp parallel do private(i) default(shared) reduction(+:llik)
+        do i = 1, n
+          if (y(i) > 0.0d0) then
+            llik = llik + dlog(mu(i))
+          else
+            llik = llik + dlog(1.0d0 - mu(i))
+          end if
+        end do
+      !$omp end parallel do
+    
+    
+    !!! gamma
     else if (family == 'gamma') then
-      do i = 1, n
-        if (y(i) > 0.0d0) then
-          llik = llik + dlog(y(i)/mu(i))
-        end if
-        llik = llik - (y(i) - mu(i))/mu(i)
-      end do
+      !$omp parallel do private(i) default(shared) reduction(+:llik)
+        do i = 1, n
+          if (y(i) > 0.0d0) then
+            llik = llik + dlog(y(i)/mu(i))
+          end if
+          llik = llik - (y(i) - mu(i))/mu(i)
+        end do
+      !$omp end parallel do
       
     end if
     

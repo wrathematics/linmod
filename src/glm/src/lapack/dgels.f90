@@ -4,8 +4,8 @@
 !  -- april 2011
 
 
-
 subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
+  use lapack
 !     .. scalar arguments ..
   character          trans
   integer            info, lda, ldb, lwork, m, n, nrhs
@@ -24,14 +24,14 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !     .. local arrays ..
   double precision   rwork( 1 )
 !     ..
-!     .. external functions ..
-  logical            lsame
-  integer            ilaenv
-  double precision   dlamch, dlange
-  external           lsame, ilaenv, dlabad, dlamch, dlange
-!     ..
-!     .. external subroutines ..
-  external           dgelqf, dgeqrf, dlascl, dlaset, dormlq, dormqr, dtrtrs, xerbla
+!!     .. external functions ..
+!  logical            lsame
+!  integer            ilaenv
+!  double precision   dlamch, dlange
+!  external           lsame, ilaenv, dlabad, dlamch, dlange
+!!     ..
+!!     .. external subroutines ..
+!  external           dgelqf, dgeqrf, dlascl, dlaset, dormlq, dormqr, dtrtrs, xerbla
 !     ..
 !     .. intrinsic functions ..
   intrinsic          dble, max, min
@@ -163,7 +163,7 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !
 !           b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
 !
-        call dormqr('left', 'transpose', m, nrhs, n, a, lda, work( 1 ), b, ldb, work( mn+1 ), lwork-mn, info)
+        call rdormqr('left', 'transpose', m, nrhs, n, a, lda, work( 1 ), b, ldb, work( mn+1 ), lwork-mn, info)
 !
 !           workspace at least nrhs, optimally nrhs*nb
 !
@@ -199,7 +199,7 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !
 !           b(1:m,1:nrhs) := q(1:n,:) * b(1:n,1:nrhs)
 !
-        call dormqr('left', 'no transpose', m, nrhs, n, a, lda, work( 1 ), b, ldb, work( mn+1 ), lwork-mn, info)
+        call rdormqr('left', 'no transpose', m, nrhs, n, a, lda, work( 1 ), b, ldb, work( mn+1 ), lwork-mn, info)
 !
 !           workspace at least nrhs, optimally nrhs*nb
 !
@@ -211,7 +211,7 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !
 !        compute lq factorization of a
 !
-     call dgelqf( m, n, a, lda, work( 1 ), work( mn+1 ), lwork-mn, info )
+     call rdgelqf( m, n, a, lda, work( 1 ), work( mn+1 ), lwork-mn, info )
 !
 !        workspace at least m, optimally m*nb.
 !
@@ -280,6 +280,27 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
   work( 1 ) = dble( wsize )
   
   return
+  
+  
+  
+  
+  contains
+    subroutine rdgelqf(m, n, a, lda, tau, work, lwork, info)
+    integer, intent(in) :: m, n, lda, lwork
+    integer, intent(out) :: info
+    double precision, intent(out) :: tau
+    double precision, intent(inout) :: a(*), work(*)
+  end subroutine
+  
+  
+  
+  subroutine rdormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
+    character(len=1), intent(in) :: side, trans
+    integer, intent(in) :: m, n, k, lda, ldc, lwork
+    integer, intent(out) :: info
+    double precision, intent(in) :: a(*), tau(*)
+    double precision, intent(out) :: c(*), work(*)
+  end subroutine
 end
 
 

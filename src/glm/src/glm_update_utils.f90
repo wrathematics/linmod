@@ -7,6 +7,7 @@
 
 module glm_update_utils
   use lapack
+  use lmfit
   
   implicit none
   

@@ -4,6 +4,7 @@
 
 ! Copyright 2013-2014, Schmidt
 
+!FIXME rename to glm_family_utils
 
 module glm_mu_var
   use lapack
@@ -61,14 +62,20 @@ module glm_mu_var
     
     
     if (family == 'binomial') then
-      do i = 1, n
-        mu(i) = (wt(i) * y(i) + 0.5d0) / (wt(i) + 1.0d0)
-      end do
+      !$omp parallel do private(i) default(shared)
+        do i = 1, n
+          mu(i) = (wt(i) * y(i) + 0.5d0) / (wt(i) + 1.0d0)
+        end do
+      !$omp end parallel do
+    
     
     else if (family == 'gamma' .or. family == 'gaussian') then
-      do i = 1, n
-        mu(i) = y(i)
-      end do
+      !$omp parallel do private(i) default(shared)
+        do i = 1, n
+          mu(i) = y(i)
+        end do
+      !$omp end parallel do
+    
     
     else if (family == 'poisson') then
       !$omp parallel do private(i) default(shared)
@@ -95,21 +102,30 @@ module glm_mu_var
     
     
     if (family == 'binomial') then
+      !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = mu(i)
           var(i) = tmp * (1.0d0 - tmp)
         end do
+      !$omp end parallel do
+    
     
     else if (family == 'gamma') then
-      do i = 1, n
-        tmp = mu(i)
-        var(i) = tmp*tmp
-      end do
+      !$omp parallel do private(i, tmp) default(shared)
+        do i = 1, n
+          tmp = mu(i)
+          var(i) = tmp*tmp
+        end do
+      !$omp end parallel do
+    
     
     else if (family == 'gaussian') then
-      do i = 1, n
-        var(i) = 1.0d0
-      end do
+      !$omp parallel do private(i) default(shared)
+        do i = 1, n
+          var(i) = 1.0d0
+        end do
+      !$omp end parallel do
+    
     
     else if (family == 'poisson') then
       !$omp parallel do private(i) default(shared)

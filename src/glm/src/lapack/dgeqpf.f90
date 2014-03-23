@@ -4,6 +4,7 @@
 
 
 subroutine rdgeqpf( m, n, a, lda, jpvt, tau, work, info )
+  use lapack
 !     .. scalar arguments ..
   integer            info, lda, m, n
 !     ..
@@ -20,15 +21,15 @@ subroutine rdgeqpf( m, n, a, lda, jpvt, tau, work, info )
   double precision   aii, temp, temp2, tol3z
 !     ..
 !     .. external subroutines ..
-  external           dgeqr2, dlarf, dlarfg, dorm2r, dswap, xerbla
+!  external           dgeqr2, dlarf, dlarfg, dorm2r, dswap, xerbla
 !     ..
 !     .. intrinsic functions ..
   intrinsic          abs, max, min, sqrt
 !     ..
 !     .. external functions ..
-  integer            idamax
-  double precision   dlamch, dnrm2
-  external           idamax, dlamch, dnrm2
+!  integer            idamax
+!  double precision   dlamch, dnrm2
+!  external           idamax, dlamch, dnrm2
 !     ..
 !     .. executable statements ..
 !

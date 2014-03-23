@@ -4,6 +4,7 @@
 
 
 subroutine rdormqr( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
+  use lapack
 !     .. scalar arguments ..
       character          side, trans
       integer            info, k, lda, ldc, lwork, m, n
@@ -25,12 +26,12 @@ subroutine rdormqr( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info
       double precision   t( ldt, nbmax )
 !     ..
 !     .. external functions ..
-      logical            lsame
-      integer            ilaenv
-      external           lsame, ilaenv
-!     ..
-!     .. external subroutines ..
-      external           dlarfb, dlarft, dorm2r, xerbla
+!      logical            lsame
+!      integer            ilaenv
+!      external           lsame, ilaenv
+!!     ..
+!!     .. external subroutines ..
+!      external           dlarfb, dlarft, dorm2r, xerbla
 !     ..
 !     .. intrinsic functions ..
       intrinsic          max, min
