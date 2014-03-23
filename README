@@ -1,0 +1,19 @@
+== About ==
+This is a Generalized Linear Models (GLM) impelentation entirely in Fortran.
+
+
+== Requirements ==
+* A Fortran 2003 compiler
+* Cmake (if not installing the R package)
+* R (if installing the R package)
+
+
+== Installation Instructions == 
+For the R package, simply execute
+R CMD INSTALL glm_0.1-0.tar.gz
+
+For the library install, go to
+glm/src/glm/
+and enter 'make'.  A static and dynamic library will be placed in the
+glm/src/glm/build
+tree.
