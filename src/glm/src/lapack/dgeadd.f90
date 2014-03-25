@@ -25,23 +25,35 @@ subroutine dgeadd(trans, m, n, alpha, a, lda, beta, c, ldc)
   integer :: i, j
   integer :: ind, tind
   
+  logical :: use_openmp = .false.
+  
+  !$ use_openmp = .true.
+  !$ print *, "OpenMP program"
+  if( .not. use_openmp) then
+     print *, "Non-OpenMP program"
+  end if
+  
   
   if (trans == 'N' .or. trans == 'n') then
-    do j = 1, n
-      do i = 1, m
-        ind = i + (j-1)*n
-        c(ind) = alpha*a(ind) + beta*c(ind)
+    !$omp parallel do private(i, j, ind) default(shared) 
+      do j = 1, n
+        do i = 1, m
+          ind = i + (j-1)*n
+          c(ind) = alpha*a(ind) + beta*c(ind)
+        end do
       end do
-    end do
+    !$omp end parallel do
     
   else if (trans == 'T' .or. trans == 't') then
-    do j = 1, n
-      do i = 1, m
-        ind = i + (j-1)*n
-        tind = j + (i-1)*m
-        c(ind) = alpha*a(tind) + beta*c(ind)
+    !$omp parallel do private(i, j, ind, tind) default(shared) 
+      do j = 1, n
+        do i = 1, m
+          ind = i + (j-1)*n
+          tind = j + (i-1)*m
+          c(ind) = alpha*a(tind) + beta*c(ind)
+        end do
       end do
-    end do
+    !$omp end parallel do
   end if
   
   return

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+gfortran dgeadd.f90 -fopenmp
