@@ -52,6 +52,24 @@ module lapack
     
     
     !!! Other LAPACK routines
+    subroutine dlacpy( uplo, m, n, a, lda, b, ldb )
+      character(len=1), intent(in) :: uplo
+      integer, intent(in) :: m, n, lda, ldb
+      double precision, intent(in) :: a(*)
+      double precision, intent(out) :: b(*)
+    end subroutine
+    
+    
+    
+    subroutine dtrmm(side, uplo, transa, diag, m, n, alpha, a, lda, b, ldb)
+      character(len=1), intent(in) :: side, uplo, transa, diag
+      integer, intent(in) :: m, n, lda, ldb
+      double precision, intent(in) :: alpha, a(*)
+      double precision, intent(inout) :: b(*)
+    end subroutine
+    
+    
+    
     subroutine dgemm(transa, transb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc)
       character(len=1), intent(in) :: transa, transb
       integer, intent(in) :: m, n, k, lda, ldb, ldc

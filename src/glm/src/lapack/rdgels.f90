@@ -1,11 +1,27 @@
+! This Source Code Form is subject to the terms of the Mozilla Public
+! License, v. 2.0. If a copy of the MPL was not distributed with this
+! file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+! Copyright 2014, Schmidt
+
+
+
+! Modified LAPACK routine dgels, original copyright:
 !  -- lapack driver routine (version 3.3.1) --
 !  -- lapack is a software package provided by univ. of tennessee,    --
 !  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
 !  -- april 2011
 
 
-subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
+subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
+                  tol, eff, ft, rsd, tau, rank)
   use lapack
+  use lmfit_utils
+  ! new arguments
+  integer, intent(out) :: rank
+  double precision, intent(in) :: tol
+  double precision, intent(out) :: ft(*), eff(*), rsd(*), tau(*)
+  
 !     .. scalar arguments ..
   character          trans
   integer            info, lda, ldb, lwork, m, n, nrhs
@@ -153,7 +169,17 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !
 !        compute qr factorization of a
 !
-     call dgeqrf( m, n, a, lda, work( 1 ), work( mn+1 ), lwork-mn, info )
+!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Copy B over to RSD for later residual calculation
+    call dlacpy('All', m, nrhs, b, ldb, rsd, ldb)
+    
+    call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+    
+!     ! Adjust number of columns to fit numerical rank
+!     ITMP = N ! original N
+!     N = RANK
+!     DESCA(4) = N
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !        workspace at least n, optimally n*nb
 !
@@ -163,13 +189,27 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
 !
 !           b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
 !
-        call rdormqr('left', 'transpose', m, nrhs, n, a, lda, work( 1 ), b, ldb, work( mn+1 ), lwork-mn, info)
+        call rdormqr('left', 'transpose', m, nrhs, n, a, lda, work(1), b, ldb, work( mn+1 ), lwork-mn, info)
 !
 !           workspace at least nrhs, optimally nrhs*nb
 !
 !           b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
 !
         call dtrtrs( 'upper', 'no transpose', 'non-unit', n, nrhs, a, lda, b, ldb, info )
+        
+! Produce fitted.values = Ax = Q*(R*x)
+        ! Copy over the first RANK elements of numerical soln X
+        call dlacpy('All', m, nrhs, b, ldb, ft, ldb)
+        
+        ! Pretend A="QR" is the upper triangular R and compute R*x
+        call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
+        
+        ! Compute fitted FT = Q*(R*x)
+        call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work(1), lwork-ltau, info)
+        
+        ! Compute residual RSD = FT-b
+        call dgeadd('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+        
 !
         if( info > 0 ) then
            return
@@ -280,6 +320,9 @@ subroutine rdgels( trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info )
   work( 1 ) = dble( wsize )
   
   return
+  
+  
+  
   
   
   
