@@ -26,6 +26,9 @@ GLM = \
     glm/src/glm_mu_var.o \
     glm/src/glm_update_utils.o
 
+LM = \
+    glm/src/c_interface/lm_fit.o
+
 LAPACK = \
     glm/src/lapack/dgeadd.o \
     glm/src/lapack/lapack.o \
@@ -36,10 +39,10 @@ LAPACK = \
     glm/src/lapack/rdormqr.o
     
 
-R_OBJS = glm_fit.o
+R_OBJS = glm_fit.o lm_fit.o
 
 
-OBJECTS = $(R_OBJS) $(GLM) $(LAPACK)
+OBJECTS = $(R_OBJS) $(GLM) $(LM) $(LAPACK)
 
 
 ### Start making here.
@@ -47,19 +50,21 @@ all: $(SHLIB)
 
 
 # Fortran module dependencies
-glm/src/glm_loglik_utils.o: glm/src/glm_link_utils.o
+glm/src/glm_loglik_utils.o:   glm/src/glm_link_utils.o
 
-glm/src/glm_update_utils.o: glm/src/lapack/lapack.o \
-                            glm/src/lapack/lmfit.o
+glm/src/glm_update_utils.o:   glm/src/lapack/lapack.o \
+                              glm/src/lapack/lmfit.o
 
-glm/src/lapack/rdgels.o: glm/src/lapack/lmfit_utils.o
+glm/src/glm_mu_var.o:         glm/src/lapack/lapack.o
 
-glm/src/glm.o: glm/src/lapack/lapack.o \
-               glm/src/glm_check.o \
-               glm/src/glm_link_utils.o \
-               glm/src/glm_loglik_utils.o \
-               glm/src/glm_mu_var.o \
-               glm/src/glm_update_utils.o
+glm/src/lapack/rdgels.o:      glm/src/lapack/lmfit_utils.o
+
+glm/src/glm.o:                glm/src/lapack/lapack.o \
+                              glm/src/glm_check.o \
+                              glm/src/glm_link_utils.o \
+                              glm/src/glm_loglik_utils.o \
+                              glm/src/glm_mu_var.o \
+                              glm/src/glm_update_utils.o
 
 
 $(SHLIB): $(OBJECTS)
