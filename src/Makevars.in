@@ -33,14 +33,14 @@ CINTERFACE = \
 
 
 LAPACK = \
-		linmod/src/lapack/dgeadd.o \
+		linmod/src/lapack/dgeadd_omp.o \
 		linmod/src/lapack/dlacpy.o \
-		linmod/src/lapack/lapack.o
+		linmod/src/lapack/lapack.o \
+		linmod/src/lapack/lapack_omp.o
 
 
 LM = \
 		linmod/src/lm/lmfit.o \
-		linmod/src/lm/lmfit_utils.o \
 		linmod/src/lm/rdgels.o \
 		linmod/src/lm/rdgeqpf.o \
 		linmod/src/lm/rdormqr.o
@@ -65,7 +65,7 @@ all: $(SHLIB)
 
 # Fortran module dependencies
 linmod/src/lm/rdgels.o: \
-		linmod/src/lm/lmfit_utils.o
+		linmod/src/lapack/lapack_omp.o
 
 linmod/src/lapack/dlacpy.o: \
 		linmod/src/utils/string_tools.o

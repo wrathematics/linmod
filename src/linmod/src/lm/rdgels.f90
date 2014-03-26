@@ -16,7 +16,7 @@
 subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, rank)
   use lapack
-  use lmfit_utils
+  use lapack_omp
   
   implicit none
   
@@ -25,6 +25,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   double precision, intent(in) :: tol
   double precision, intent(out) :: coef(n, *)
   double precision, intent(out), dimension(ldb, *) :: ft, eff, rsd, tau
+  integer :: jpvt(n)
   
   double precision :: qraux1
   
@@ -174,7 +175,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   ! Copy B over to RSD for later residual calculation
-  call dlacpy('All', m, nrhs, b, ldb, rsd, ldb)
+  call dlacpy_omp('All', m, nrhs, b, ldb, rsd, ldb)
   
   
   if(m >= n) then
@@ -182,7 +183,8 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !        compute qr factorization of a
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!
-    call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+!    call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+    call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), info)
     
      if(.not.tpsd) then
 !
@@ -190,9 +192,8 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !
 !           b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
 !
-        call rdormqr('left', 'transpose', m, nrhs, n, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+        call dormqr('left', 'transpose', m, nrhs, n, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
         
-        call dlacpy('All', n, nrhs, b, ldb, coef, ldb)
 !!!!!!!        ! Effects array
 !!!!!!!        call dlacpy('All', m, nrhs, b, ldb, eff, ldb)
 !
@@ -205,20 +206,23 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
         
         call dtrtrs('upper', 'no transpose', 'non-unit', n, nrhs, a, lda, b, ldb, info)
         
-! Produce fitted.values = Ax = Q*(R*x)
-        ! Copy over the first RANK elements of numerical soln X
-        call dlacpy('All', m, nrhs, b, ldb, ft, ldb)
         
-        ! Pretend A="QR" is the upper triangular R and compute R*x
+! Produce fitted.values = Ax = Q*(R*x)
+        ! Copy over the first RANK elements of numerical solution X
+        call dlacpy_omp('All', m, nrhs, b, ldb, ft, ldb)
+        
+        ! Compute fitted FT = Q*(R*fitted)
         call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
         
-        ! Compute fitted FT = Q*(R*x)
-        call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work(1), lwork, info)
+        tau(1:m, 1) = work(1:m)
+        call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
         
         ! Compute residual RSD = FT-b
-        call dgeadd('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+        call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
         
-!
+        call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
+        
+        
         if(info > 0) then
            return
         end if

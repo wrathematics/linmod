@@ -42,7 +42,7 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
                as.character(incpt), as.integer(stoprule), 
                as.integer(n), as.integer(p),
                x, y, offset, as.integer(maxiter), as.double(tol),
-               PACKAGE = "glm")
+               PACKAGE = "linmod")
   
   return(fit)
 }

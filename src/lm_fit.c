@@ -28,11 +28,11 @@ SEXP R_LM_FIT(SEXP a, SEXP b)
   
   if (nrhs == 1)
   {
-    newRvec(b_out, n, "dbl");
+    newRvec(b_out, m, "dbl");
   }
   else
   {
-    newRmat(b_out, n, nrhs, "dbl");
+    newRmat(b_out, m, nrhs, "dbl");
   }
   
   memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
@@ -43,6 +43,10 @@ SEXP R_LM_FIT(SEXP a, SEXP b)
   
   if (info != 0)
     Rprintf("WARNING : returned info = %d\n", info);
+  
+  // FIXME
+/*  coef_names = make_dataframe_default_colnames(n);*/
+/*  setAttrib(coef, R_NamesSymbol, coef_names);*/
   
   ret_names = make_list_names(2, "qr", "coefficients");
   ret = make_list(ret_names, 2, a_out, b_out);
@@ -79,7 +83,8 @@ SEXP R_LM_FIT_R(SEXP a, SEXP b, SEXP tol)
   SEXP qr, qr_names;
   SEXP rank;
   SEXP a_out, b_out;
-  SEXP coef, eff, ft, rsd, tau, qraux;
+  SEXP coef, coef_names;
+  SEXP eff, ft, rsd, tau, qraux;
   
   
   newRvec(rank, 1, "int");
@@ -128,6 +133,9 @@ SEXP R_LM_FIT_R(SEXP a, SEXP b, SEXP tol)
   // Manage return
   qr_names = make_list_names(5, "qr", "qraux", "pivot", "tol", "rank");
   qr = make_list(qr_names, 5, a_out, tau, RNULL, tol, rank);
+  
+  coef_names = make_dataframe_default_colnames(n);
+  setAttrib(coef, R_NamesSymbol, coef_names);
   
   ret_names = make_list_names(7, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr");
   ret = make_list(ret_names, 7, coef, rsd, eff, rank, ft, RNULL, qr);

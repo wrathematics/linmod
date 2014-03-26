@@ -48,7 +48,7 @@ subroutine dlacpy_omp(uplo, m, n, a, lda, b, ldb)
   double precision, intent(in) :: a(lda, *)
   double precision, intent(out) :: b(ldb, *)
   ! local
-  integer            i, j, itmp
+  integer :: i, j, itmp
   intrinsic          min
   
   

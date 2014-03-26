@@ -14,7 +14,7 @@
 !
 ! if trans = 'N', then dim(a) == (m, n)
 ! if trans = 'T', then dim(a) == (n, m)
-subroutine dgeadd(trans, m, n, alpha, a, lda, beta, c, ldc)
+subroutine dgeadd_omp(trans, m, n, alpha, a, lda, beta, c, ldc)
   !$ use omp_lib
   
   implicit none

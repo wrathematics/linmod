@@ -5,17 +5,28 @@
 ! Copyright 2014, Schmidt
 
 
-module lmfit_utils
+module lapack_omp
   implicit none
   
   
   interface
     
-    subroutine dgeadd(trans, m, n, alpha, a, lda, beta, c, ldc)
+    subroutine dgeadd_omp(trans, m, n, alpha, a, lda, beta, c, ldc)
       character(len=1), intent(in) :: trans
       integer, intent(in) :: m, n, lda, ldc
       double precision, intent(in) :: a(*), alpha, beta
       double precision, intent(inout) :: c(*)
+    end subroutine
+    
+    subroutine dlacpy_omp(uplo, m, n, a, lda, b, ldb)
+      use string_tools
+      character(len=1), intent(in) :: uplo
+      integer, intent(in) :: lda, ldb, m, n
+      double precision, intent(in) :: a(lda, *)
+      double precision, intent(out) :: b(ldb, *)
+      ! local
+      integer            i, j, itmp
+      intrinsic          min
     end subroutine
     
   end interface

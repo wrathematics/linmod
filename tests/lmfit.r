@@ -6,22 +6,28 @@ n <- 3
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
 
-stats::lm.fit(x, y)
+#x[, 3] <- x[, 2]
+
+#stats::lm.fit(x, y)$coefficients
+stats::lm.fit(x, y)$fitted
 cat("-------------------------------------------------------\n\n")
 
 #lm_fit(x, y)
 #cat("-------------------------------------------------------\n\n")
 
-glm::lm_fit_R(x, y)
+#linmod::lm_fit(x, y)$coefficients[1:3]
+
+#linmod::lm_fit_R(x, y)$coefficients
+linmod::lm_fit_R(x, y)$fitted
 
 
 
 
-m <- 10000
-n <- 30
-x <- matrix(rnorm(m*n), m, n)
-y <- rnorm(m)
+#m <- 10000
+#n <- 300
+#x <- matrix(rnorm(m*n), m, n)
+#y <- rnorm(m)
 
-system.time(lm.fit(x, y))[3]
+#system.time(lm.fit(x, y))[3]
 
-system.time(lm_fit_R(x, y))[3]
+#system.time(lm_fit_R(x, y))[3]
