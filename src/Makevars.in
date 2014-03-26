@@ -19,30 +19,44 @@ PKG_LIBS = $(FLIBS) $(SEXPTOOLS_LDFLAGS) $(SHLIB_OPENMP_CFLAGS) -llapack
 ### Setup R source code and objects.
 
 GLM = \
-    glm/src/glm.o \
-    glm/src/glm_check.o \
-    glm/src/glm_link_utils.o \
-    glm/src/glm_loglik_utils.o \
-    glm/src/glm_mu_var.o \
-    glm/src/glm_update_utils.o
+		linmod/src/glm/glm_check.o \
+		linmod/src/glm/glm_link_utils.o \
+		linmod/src/glm/glm_loglik_utils.o \
+		linmod/src/glm/glm_mu_var.o \
+		linmod/src/glm/glm_residuals_utils.o \
+		linmod/src/glm/glm_update_utils.o \
+		linmod/src/glm/glm.o 
 
-LM = \
-    glm/src/c_interface/lm_fit.o
+
+CINTERFACE = \
+		linmod/src/c_interface/lm_fit.o
+
 
 LAPACK = \
-    glm/src/lapack/dgeadd.o \
-    glm/src/lapack/lapack.o \
-    glm/src/lapack/lmfit.o \
-    glm/src/lapack/lmfit_utils.o \
-    glm/src/lapack/rdgels.o \
-    glm/src/lapack/rdgeqpf.o \
-    glm/src/lapack/rdormqr.o
-    
+		linmod/src/lapack/dgeadd.o \
+		linmod/src/lapack/dlacpy.o \
+		linmod/src/lapack/lapack.o
+
+
+LM = \
+		linmod/src/lm/lmfit.o \
+		linmod/src/lm/lmfit_utils.o \
+		linmod/src/lm/rdgels.o \
+		linmod/src/lm/rdgeqpf.o \
+		linmod/src/lm/rdormqr.o
+
+
+UTILS = \
+		linmod/src/utils/string_tools.o
+
 
 R_OBJS = glm_fit.o lm_fit.o
 
 
-OBJECTS = $(R_OBJS) $(GLM) $(LM) $(LAPACK)
+
+OBJECTS = $(UTILS) $(LAPACK) $(LM) $(GLM) $(CINTERFACE) $(R_OBJS) 
+
+
 
 
 ### Start making here.
@@ -50,21 +64,30 @@ all: $(SHLIB)
 
 
 # Fortran module dependencies
-glm/src/glm_loglik_utils.o:   glm/src/glm_link_utils.o
+linmod/src/lm/rdgels.o: \
+		linmod/src/lm/lmfit_utils.o
 
-glm/src/glm_update_utils.o:   glm/src/lapack/lapack.o \
-                              glm/src/lapack/lmfit.o
+linmod/src/lapack/dlacpy.o: \
+		linmod/src/utils/string_tools.o
 
-glm/src/glm_mu_var.o:         glm/src/lapack/lapack.o
+linmod/src/glm/glm_loglik_utils.o: \
+		linmod/src/glm/glm_link_utils.o
 
-glm/src/lapack/rdgels.o:      glm/src/lapack/lmfit_utils.o
+linmod/src/glm/glm_update_utils.o: \
+		linmod/src/lapack/lapack.o \
+		linmod/src/lm/lmfit.o
 
-glm/src/glm.o:                glm/src/lapack/lapack.o \
-                              glm/src/glm_check.o \
-                              glm/src/glm_link_utils.o \
-                              glm/src/glm_loglik_utils.o \
-                              glm/src/glm_mu_var.o \
-                              glm/src/glm_update_utils.o
+linmod/src/glm_mu_var.o: \
+		linmod/src/lapack/lapack.o
+
+linmod/src/glm.o: \
+		linmod/src/lapack/lapack.o \
+		linmod/src/glm/glm_check.o \
+		linmod/src/glm/glm_link_utils.o \
+		linmod/src/glm/glm_loglik_utils.o \
+		linmod/src/glm/glm_mu_var.o \
+		linmod/src/glm/glm_residuals_utils.o
+		linmod/src/glm/glm_update_utils.o
 
 
 $(SHLIB): $(OBJECTS)
@@ -73,4 +96,4 @@ $(SHLIB): $(OBJECTS)
 clean:
 	@rm -rf *.o *.mod *.d *.rc *.so *.dylib *.dll *.a *.lib \
 		Makedeps Makevars $(SHLIB) $(OBJECTS) \
-		glm/src/*.o \
+		linmod/src/*.o 

@@ -1,4 +1,4 @@
-library(glm)
+library(linmod)
 
 set.seed(1234)
 m <- 10

@@ -1,4 +1,4 @@
-library(glm, quiet=T)
+library(linmod, quiet=T)
 
 
 #library(R330)
