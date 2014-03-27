@@ -21,3 +21,6 @@ find ./ -type f -name '*.mod' -delete
 rm -rf ./src-*
 rm -rf ./inst/etc*
 rm -rf ./man/*.pdf
+
+rm -rf ./src/build
+rm -rf ./src/linmod/build/

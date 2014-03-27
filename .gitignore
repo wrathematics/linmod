@@ -2,6 +2,9 @@
 *.o
 *.mod
 *.so
+*.a
 *.log
 *.status
 *~
+
+src/build/*

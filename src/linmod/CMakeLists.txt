@@ -37,18 +37,40 @@ endif()
 
 ### Source files
 set(GLM_FILES
-  src/glm.f90
-  src/glm_link_utils.f90
-  src/glm_loglik_utils.f90
-  src/glm_mu_var.f90
-  src/glm_residuals_utils.f90
-  src/glm_update_utils.f90
+	src/glm/glm_check.f90
+	src/glm/glm_link_utils.f90
+	src/glm/glm_loglik_utils.f90
+	src/glm/glm_mu_var.f90
+	src/glm/glm_residuals_utils.f90
+	src/glm/glm_update_utils.f90
+	src/glm/glm.f90
+)
+
+set(CINTERFACE_FILES
+  src/c_interface/lm_fit.c
+)
+
+set(LAPACK_FILES
+	src/lapack/dgeadd_omp.f90
+	src/lapack/dlacpy.f90
+	src/lapack/lapack.f90
+	src/lapack/lapack_omp.f90
+)
+
+set(LM_FILES
+	src/lm/lmfit.f90
+	src/lm/rdgels.f90
+	src/lm/rdgeqpf.f90
+	src/lm/rdormqr.f90
+)
+
+set(UTILS_FILES
+	src/utils/string_tools.f90
 )
 
 
-
-add_library(glm SHARED ${GLM_FILES})
-add_library(glm_static STATIC ${GLM_FILES})
+add_library(glm SHARED ${UTILS_FILES} ${LAPACK_FILES} ${LM_FILES} ${GLM_FILES} ${CINTERFACE_FILES})
+add_library(glm_static STATIC ${UTILS_FILES} ${LAPACK_FILES} ${LM_FILES} ${GLM_FILES} ${CINTERFACE_FILES})
 
 
 target_link_libraries (glm ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
