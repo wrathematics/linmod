@@ -13,6 +13,46 @@
 !  -- april 2011
 
 
+
+! Purpose
+! =======
+!
+! Linear model fitter using a QR (or LQ if m<n) decomposition.
+!
+!
+! Arguments
+! =========
+!
+! trans    (input) character(len=1)
+!           
+! 
+! m         (input) integer
+!           The number of rows of the data matrix a.  m>=0.
+! 
+! n         (input) integer
+!           The number of columns of the data matrix a.  n>=0.
+! 
+! nrhs      (input) integer
+!           The number of 'right hand sides', i.e. the number of 
+!           columns of b.  nrhs>=0.
+! 
+! a         (input/output) double precision array, dimension (m,n).
+!           On entry, the input data matrix.  On exit, the output
+!           of a lapack QR factorization is stored for a.
+! 
+! b         (input) double precision array, dimension (m,nrhs).
+!           The response variable.
+! 
+! resids    (output)
+!           
+! 
+! tol       (input) double precision
+!           Tolerance for the qr decomposition.
+! 
+! info      (output) integer
+!           = 0: successful exit.
+!           < 0: if info = -i, the i-th argument had an illegal value.
+
 subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, rank)
   use lapack
@@ -20,49 +60,28 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   
   implicit none
   
-  ! new arguments
-  integer, intent(out) :: rank
+  ! in/out
+  character(len=1), intent(in) :: trans
+  integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
+  integer, intent(out) :: info
+  integer, intent(inout) :: rank
   double precision, intent(in) :: tol
-  double precision, intent(out) :: coef(n, *)
+  double precision, intent(out) :: work(*), coef(n, *)
   double precision, intent(out), dimension(ldb, *) :: ft, eff, rsd, tau
+  double precision, intent(inout) :: a(lda, *), b(ldb, *)
   integer :: jpvt(n)
-  
+  ! FIXME
   double precision :: qraux1
+  ! local
+  logical :: lquery, tpsd
+  integer :: brow, i, iascl, ibscl, j, mn, nb, scllen, wsize
+  double precision :: anrm, bignum, bnrm, smlnum
+  double precision :: rwork(1)
+  ! functions
+  intrinsic :: dble, max, min
   
-!     .. scalar arguments ..
-  character          trans
-  integer            info, lda, ldb, lwork, m, n, nrhs
-!     ..
-!     .. array arguments ..
-  double precision   a(lda, *), b(ldb, *), work(*)
-!     .. parameters ..
-  double precision   zero, one
-  parameter          (zero = 0.0d0, one = 1.0d0)
-!     ..
-!     .. local scalars ..
-  logical            lquery, tpsd
-  integer            brow, i, iascl, ibscl, j, mn, nb, scllen, wsize
-  double precision   anrm, bignum, bnrm, smlnum
-!     ..
-!     .. local arrays ..
-  double precision   rwork(1)
-!     ..
-!!     .. external functions ..
-!  logical            lsame
-!  integer            ilaenv
-!  double precision   dlamch, dlange
-!  external           lsame, ilaenv, dlabad, dlamch, dlange
-!!     ..
-!!     .. external subroutines ..
-!  external           dgelqf, dgeqrf, dlascl, dlaset, dormlq, dormqr, dtrtrs, xerbla
-!     ..
-!     .. intrinsic functions ..
-  intrinsic          dble, max, min
-!     ..
-!     .. executable statements ..
-!
-!     test the input arguments.
-!
+  
+  ! test the input arguments.
   info = 0
   mn = min(m, n)
   lquery = (lwork == -1)
@@ -81,155 +100,150 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   else if(lwork < max(1, mn+max(mn, nrhs)) .and. .not.lquery) then
      info = -10
   end if
-!
-!     figure out optimal block size
-!
+  
+  
+  ! figure out optimal block size
   if(info == 0 .or. info == -10) then
-!
-     tpsd = .true.
-     if(lsame(trans, 'n')) tpsd = .false.
-!
-     if(m >= n) then
-        nb = ilaenv(1, 'dgeqrf', ' ', m, n, -1, -1)
-        if(tpsd) then
-           nb = max(nb, ilaenv(1, 'dormqr', 'ln', m, nrhs, n, -1))
-        else
-           nb = max(nb, ilaenv(1, 'dormqr', 'lt', m, nrhs, n, -1))
-        end if
-     else
-        nb = ilaenv(1, 'dgelqf', ' ', m, n, -1, -1)
-        if(tpsd) then
-           nb = max(nb, ilaenv(1, 'dormlq', 'lt', n, nrhs, m, -1))
-        else
-           nb = max(nb, ilaenv(1, 'dormlq', 'ln', n, nrhs, m, -1))
-        end if
-     end if
-!
-     wsize = max(1, mn+max(mn, nrhs)*nb)
-     work(1) = dble(wsize)
-!
+    tpsd = .true.
+    if(lsame(trans, 'n')) tpsd = .false.
+    
+    if(m >= n) then
+      nb = ilaenv(1, 'dgeqrf', ' ', m, n, -1, -1)
+      
+      if(tpsd) then
+        nb = max(nb, ilaenv(1, 'dormqr', 'ln', m, nrhs, n, -1))
+      else
+        nb = max(nb, ilaenv(1, 'dormqr', 'lt', m, nrhs, n, -1))
+      end if
+    else
+      nb = ilaenv(1, 'dgelqf', ' ', m, n, -1, -1)
+      
+      if(tpsd) then
+        nb = max(nb, ilaenv(1, 'dormlq', 'lt', n, nrhs, m, -1))
+      else
+        nb = max(nb, ilaenv(1, 'dormlq', 'ln', n, nrhs, m, -1))
+      end if
+    end if
+    
+    wsize = max(1, mn+max(mn, nrhs)*nb)
+    work(1) = dble(wsize)
+    
   end if
-!
+  
   if(info /= 0) then
      call xerbla('dgels ', -info)
      return
   else if(lquery) then
      return
   end if
-!
-!     quick return if possible
-!
+  
+  
+  ! quick return if possible
   if(min(m, n, nrhs) == 0) then
-     call dlaset('full', max(m, n), nrhs, zero, zero, b, ldb)
+     call dlaset('full', max(m, n), nrhs, 0.0d0, 0.0d0, b, ldb)
      return
   end if
-!
-!     get machine parameters
-!
+  
+  
+  ! get machine parameters
   smlnum = dlamch('s') / dlamch('p')
-  bignum = one / smlnum
+  bignum = 1.0d0 / smlnum
   call dlabad(smlnum, bignum)
-!
-!     scale a, b if max element outside range [smlnum,bignum]
-!
+  
+  
+  ! scale a, b if max element outside range [smlnum,bignum]
   anrm = dlange('m', m, n, a, lda, rwork)
   iascl = 0
-  if(anrm > zero .and. anrm < smlnum) then
-!
-!        scale matrix norm up to smlnum
-!
-     call dlascl('g', 0, 0, anrm, smlnum, m, n, a, lda, info)
-     iascl = 1
+  
+  ! scale matrix norm up to smlnum
+  if(anrm > 0.0d0 .and. anrm < smlnum) then
+    call dlascl('g', 0, 0, anrm, smlnum, m, n, a, lda, info)
+    iascl = 1
   else if(anrm > bignum) then
-!
-!        scale matrix norm down to bignum
-!
-     call dlascl('g', 0, 0, anrm, bignum, m, n, a, lda, info)
-     iascl = 2
-  else if(anrm == zero) then
-!
-!        matrix all zero. return zero solution.
-!
-     call dlaset('f', max(m, n), nrhs, zero, zero, b, ldb)
-     go to 50
+    ! scale matrix norm down to bignum
+    call dlascl('g', 0, 0, anrm, bignum, m, n, a, lda, info)
+    iascl = 2
+  else if(anrm == 0.0d0) then
+  ! matrix all zero. return zero solution.
+    call dlaset('f', max(m, n), nrhs, 0.0d0, 0.0d0, b, ldb)
+    go to 50
   end if
-!
+  
+  
   brow = m
   if(tpsd) brow = n
+  
   bnrm = dlange('m', brow, nrhs, b, ldb, rwork)
   ibscl = 0
-  if(bnrm > zero .and. bnrm < smlnum) then
-!
-!        scale matrix norm up to smlnum
-!
-     call dlascl('g', 0, 0, bnrm, smlnum, brow, nrhs, b, ldb, info)
-     ibscl = 1
-  else if(bnrm > bignum) then
-!
-!        scale matrix norm down to bignum
-!
-     call dlascl('g', 0, 0, bnrm, bignum, brow, nrhs, b, ldb, info)
-     ibscl = 2
-  end if
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
+  ! scale matrix norm up to smlnum
+  if(bnrm > 0.0d0 .and. bnrm < smlnum) then
+    call dlascl('g', 0, 0, bnrm, smlnum, brow, nrhs, b, ldb, info)
+    ibscl = 1
+  ! scale matrix norm down to bignum
+  else if(bnrm > bignum) then
+    call dlascl('g', 0, 0, bnrm, bignum, brow, nrhs, b, ldb, info)
+    ibscl = 2
+  end if
+  
+  
+!--------------------------------------------------------------------
   ! Copy B over to RSD for later residual calculation
   call dlacpy_omp('All', m, nrhs, b, ldb, rsd, ldb)
   
   
   if(m >= n) then
-!
-!        compute qr factorization of a
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!
-!    call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
-    call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), info)
+    !!! compute qr factorization of a
+    if (rank == -1) then ! Assume model matrix is full rank
+      rank = n
+      call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+    else ! RRQR
+      call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), info)
+    end if
     
-     if(.not.tpsd) then
-!
-!           least-squares problem min || a * x - b ||
-!
-!           b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
-!
-        call dormqr('left', 'transpose', m, nrhs, n, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-        
+    
+    if(.not.tpsd) then
+      ! least-squares problem min || a * x - b ||
+      !  b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
+      call dormqr('left', 'transpose', m, nrhs, n, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+      
 !!!!!!!        ! Effects array
 !!!!!!!        call dlacpy('All', m, nrhs, b, ldb, eff, ldb)
-!
-!           workspace at least nrhs, optimally nrhs*nb
-!
-!           b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
-!
-        ! Store qraux(1) == work(1) 
-        qraux1 = work(1)
-        
-        call dtrtrs('upper', 'no transpose', 'non-unit', n, nrhs, a, lda, b, ldb, info)
-        
-        
-! Produce fitted.values = Ax = Q*(R*x)
-        ! Copy over the first RANK elements of numerical solution X
-        call dlacpy_omp('All', m, nrhs, b, ldb, ft, ldb)
-        
-        ! Compute fitted FT = Q*(R*fitted)
-        call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
-        
-        tau(1:m, 1) = work(1:m)
-        call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
-        
-        ! Compute residual RSD = FT-b
-        call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
-        
-        call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
-        
-        
-        if(info > 0) then
-           return
-        end if
-!
-        scllen = n
-!
-     else
+      
+      ! workspace at least nrhs, optimally nrhs*nb
+      ! b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
+      
+      ! Store qraux(1) == work(1) 
+      qraux1 = work(1)
+      
+      call dtrtrs('upper', 'no transpose', 'non-unit', n, nrhs, a, lda, b, ldb, info)
+      
+      
+      !!! Produce fitted.values = Ax = Q*(R*x)
+      
+      ! Copy over the first RANK elements of numerical solution X
+      call dlacpy_omp('All', m, nrhs, b, ldb, ft, ldb)
+      
+      ! Compute fitted FT = Q*(R*fitted)
+      call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
+      
+      tau(1:m, 1) = work(1:m)
+      call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
+      
+      ! Compute residual RSD = FT-b
+      call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+      
+      call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
+      
+      
+      if(info > 0) then
+         return
+      end if
+      
+      scllen = n
+      
+!--------------------------------------------------------------------
+    else
 !
 !           overdetermined system of equations a**t * x = b
 !
@@ -245,7 +259,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !
         do j = 1, nrhs
            do i = n + 1, m
-              b(i, j) = zero
+              b(i, j) = 0.0d0
            end do
         end do
 !
@@ -263,7 +277,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !
 !        compute lq factorization of a
 !
-     call rdgelqf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+     call dgelqf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
 !
 !        workspace at least m, optimally m*nb.
 !
@@ -283,7 +297,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !
         do j = 1, nrhs
            do i = m + 1, n
-              b(i, j) = zero
+              b(i, j) = 0.0d0
            end do
         end do
 !
@@ -315,6 +329,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
         scllen = m
      end if
   end if
+  
   
   ! undo scaling
   if(iascl == 1) then

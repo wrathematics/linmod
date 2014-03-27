@@ -66,7 +66,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b)
 
 
 
-SEXP R_LM_FIT_R(SEXP a, SEXP b, SEXP tol)
+SEXP R_LM_FIT_R(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
 {
   R_INIT;
   
@@ -112,6 +112,12 @@ SEXP R_LM_FIT_R(SEXP a, SEXP b, SEXP tol)
   }
   
   memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
+  
+  
+  if (INT(checkrank, 0) == 0)
+    INT(rank, 0) = -1;
+  else
+    INT(rank, 0) = 0;
   
   
   // Workspace query

@@ -31,3 +31,4 @@ linmod::lm_fit_R(x, y)$fitted
 #system.time(lm.fit(x, y))[3]
 
 #system.time(lm_fit_R(x, y))[3]
+#system.time(lm_fit_R(x, y, checkrank=FALSE))[3]
