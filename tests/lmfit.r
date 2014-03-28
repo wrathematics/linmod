@@ -35,7 +35,12 @@ n <- 300
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
 
-system.time(lm.fit(x, y))[3]
+#system.time(lm.fit(x, y))[3]
+library(RcppEigen)
+system.time(fastLm(X=x, y=y, method=0))[3]
+system.time(fastLm(X=x, y=y, method=1))[3]
 
 system.time(lm_fit(x, y))[3]
 system.time(lm_fit(x, y, checkrank=FALSE))[3]
+
+
