@@ -201,7 +201,6 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
       call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), info)
     end if
     
-    print *, jpvt
     
     if(.not.tpsd) then
       ! least-squares problem min || a * x - b ||

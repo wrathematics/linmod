@@ -1,72 +1,7 @@
 #include <SEXPtools.h> 
 
-int lmfit_classic(char trans, int m, int n, int nrhs, double *a, double *b);
-int lmfit_R(char trans, int m, int n, int nrhs, double *a, double *b,
-  double tol, double **coef, double **eff, double **ft, double **rsd, double **tau, 
-  int rank);
 
-
-SEXP R_LM_FIT(SEXP a, SEXP b)
-{
-  R_INIT;
-  
-  int m = nrows(a), n = ncols(a);
-  int nrhs = ncols(b);
-  
-  char trans = 'n';
-  int info = 0;
-  
-  double *work, tmpwork;
-  int lwork = -1;
-  
-  SEXP ret, ret_names;
-  SEXP a_out, b_out;
-  
-  
-  newRmat(a_out, m, n, "dbl");
-  memcpy(DBLP(a_out), DBLP(a), m*n*sizeof(double));
-  
-  if (nrhs == 1)
-  {
-    newRvec(b_out, m, "dbl");
-  }
-  else
-  {
-    newRmat(b_out, m, nrhs, "dbl");
-  }
-  
-  memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
-  
-  
-  info = lmfit_classic(trans, m, n, nrhs, DBLP(a_out), DBLP(b_out));
-  
-  
-  if (info != 0)
-    Rprintf("WARNING : returned info = %d\n", info);
-  
-  // FIXME
-/*  coef_names = make_dataframe_default_colnames(n);*/
-/*  setAttrib(coef, R_NamesSymbol, coef_names);*/
-  
-  ret_names = make_list_names(2, "qr", "coefficients");
-  ret = make_list(ret_names, 2, a_out, b_out);
-  
-  R_END;
-  return ret;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-SEXP R_LM_FIT_R(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
+SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
 {
   R_INIT;
   

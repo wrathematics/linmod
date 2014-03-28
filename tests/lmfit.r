@@ -10,9 +10,9 @@ y <- rnorm(m)
 
 #stats::lm.fit(x, y)$coefficients
 #stats::lm.fit(x, y)$fitted
-#stats::lm.fit(x, y)$residuals
+stats::lm.fit(x, y)$residuals
 #stats::lm.fit(x, y)$effects
-stats::lm.fit(x, y)$qr
+#stats::lm.fit(x, y)$qr
 
 cat("-------------------------------------------------------\n\n")
 
@@ -21,21 +21,21 @@ cat("-------------------------------------------------------\n\n")
 
 #linmod::lm_fit(x, y)$coefficients[1:3]
 
-#linmod::lm_fit_R(x, y)$coefficients
-#linmod::lm_fit_R(x, y)$fitted
-#linmod::lm_fit_R(x, y, checkrank=FALSE)$residuals
-#linmod::lm_fit_R(x, y)$effects
-linmod::lm_fit_R(x, y)$qr
+#linmod::lm_fit(x, y)$coefficients
+#linmod::lm_fit(x, y)$fitted
+linmod::lm_fit(x, y)$residuals
+#linmod::lm_fit(x, y)$effects
+#linmod::lm_fit(x, y)$qr
 
 
 
 
-#m <- 10000
-#n <- 300
-#x <- matrix(rnorm(m*n), m, n)
-#y <- rnorm(m)
+m <- 10000
+n <- 300
+x <- matrix(rnorm(m*n), m, n)
+y <- rnorm(m)
 
-#system.time(lm.fit(x, y))[3]
+system.time(lm.fit(x, y))[3]
 
-#system.time(lm_fit_R(x, y))[3]
-#system.time(lm_fit_R(x, y, checkrank=FALSE))[3]
+system.time(lm_fit(x, y))[3]
+system.time(lm_fit(x, y, checkrank=FALSE))[3]
