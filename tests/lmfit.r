@@ -9,7 +9,11 @@ y <- rnorm(m)
 #x[, 3] <- x[, 2]
 
 #stats::lm.fit(x, y)$coefficients
-stats::lm.fit(x, y)$fitted
+#stats::lm.fit(x, y)$fitted
+#stats::lm.fit(x, y)$residuals
+#stats::lm.fit(x, y)$effects
+stats::lm.fit(x, y)$qr
+
 cat("-------------------------------------------------------\n\n")
 
 #lm_fit(x, y)
@@ -18,7 +22,10 @@ cat("-------------------------------------------------------\n\n")
 #linmod::lm_fit(x, y)$coefficients[1:3]
 
 #linmod::lm_fit_R(x, y)$coefficients
-linmod::lm_fit_R(x, y)$fitted
+#linmod::lm_fit_R(x, y)$fitted
+#linmod::lm_fit_R(x, y, checkrank=FALSE)$residuals
+#linmod::lm_fit_R(x, y)$effects
+linmod::lm_fit_R(x, y)$qr
 
 
 
