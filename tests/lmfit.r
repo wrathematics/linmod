@@ -8,39 +8,42 @@ y <- rnorm(m)
 
 #x[, 3] <- x[, 2]
 
-#stats::lm.fit(x, y)$coefficients
-#stats::lm.fit(x, y)$fitted
-stats::lm.fit(x, y)$residuals
-#stats::lm.fit(x, y)$effects
-#stats::lm.fit(x, y)$qr
 
-cat("-------------------------------------------------------\n\n")
-
-#lm_fit(x, y)
-#cat("-------------------------------------------------------\n\n")
-
-#linmod::lm_fit(x, y)$coefficients[1:3]
-
-#linmod::lm_fit(x, y)$coefficients
-#linmod::lm_fit(x, y)$fitted
-linmod::lm_fit(x, y)$residuals
-#linmod::lm_fit(x, y)$effects
-#linmod::lm_fit(x, y)$qr
+stats::lm.fit(x, y)$qr
+linmod::lm_fit(x, y)$qr
 
 
 
+f <- function(x, y, check.rank=TRUE){
+  cat("-------------------------------------------------------\n\n")
+  
+  a <- stats::lm.fit(x, y)$coefficients
+  b <- linmod::lm_fit(x, y)$coefficients
+  test <- all.equal(sort(a), sort(b), check.names=FALSE)
+  print(test)
+  
+  a <- stats::lm.fit(x, y)$fitted
+  b <- linmod::lm_fit(x, y)$fitted
+  test <- all.equal(a, b, check.names=FALSE)
+  print(test)
+  
+  a <- stats::lm.fit(x, y)$residuals
+  b <- linmod::lm_fit(x, y)$residuals
+  test <- all.equal(a, b, check.names=FALSE)
+  print(test)
+  
+  a <- stats::lm.fit(x, y)$effects
+  b <- linmod::lm_fit(x, y)$effects
+  test <- all.equal(a, b, check.names=FALSE)
+  print(test)
+  print(a)
+  print(b)
+  
+  invisible()
+}
 
-m <- 10000
-n <- 300
-x <- matrix(rnorm(m*n), m, n)
-y <- rnorm(m)
+#f(x, y, TRUE)
+#f(x, y, FALSE)
 
-#system.time(lm.fit(x, y))[3]
-library(RcppEigen)
-system.time(fastLm(X=x, y=y, method=0))[3]
-system.time(fastLm(X=x, y=y, method=1))[3]
-
-system.time(lm_fit(x, y))[3]
-system.time(lm_fit(x, y, checkrank=FALSE))[3]
 
 
