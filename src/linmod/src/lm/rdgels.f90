@@ -387,7 +387,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
     double precision, intent(in) :: a(*), tau(*)
     double precision, intent(out) :: c(*), work(*)
   end subroutine
-end
+end subroutine
 
 
 
