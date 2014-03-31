@@ -66,7 +66,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   
   
   // Fit y~x
-  rdgels_(&trans, &m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &m, work, &lwork, &info, &tol, DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
+  rdgels_(&trans, &m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &m, work, &lwork, &info, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
   
   
   if (info != 0)

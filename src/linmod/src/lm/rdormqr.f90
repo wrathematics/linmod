@@ -31,11 +31,10 @@ subroutine rdormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
   
   
   ! test the input arguments
-  
-      info = 0
-      left = lsame(side, 'l')
-      notran = lsame(trans, 'n')
-      lquery = (lwork == -1)
+  info = 0
+  left = lsame(side, 'l')
+  notran = lsame(trans, 'n')
+  lquery = (lwork == -1)
   
   ! nq is the order of q and nw is the minimum dimension of work
   if(left) then

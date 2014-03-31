@@ -3,8 +3,20 @@ library(RcppEigen)
 library(rbenchmark)
 
 
-m <- 10000
-n <- 300
+burnin <- function(reps=10)
+{
+  x <- matrix(rnorm(30), 10)
+  y <- rnorm(10)
+  
+  replicate(fastLm(X=x, y=y), n=reps)
+  replicate(lm_fit(x=x, y=y), n=reps)
+  
+  invisible()
+}
+burnin()
+
+m <- 40000
+n <- 500
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
 
@@ -15,11 +27,11 @@ y <- rnorm(m)
 #cat("\n")
 
 
-#cat("------------------ RRQR ------------------\n")
-#t1 <- system.time(fastLm(X=x, y=y, method=0))[3]
-#t2 <- system.time(lm_fit(x, y))[3]
-#cat(paste("fastLm:", round(t1, 3), "\n"))
-#cat(paste("linmod:", round(t2, 3), "\n"))
+cat("------------------ RRQR ------------------\n")
+t1 <- system.time(fastLm(X=x, y=y, method=0))[3]
+cat(paste("fastLm:", round(t1, 3), "\n"))
+t2 <- system.time(lm_fit(x, y))[3]
+cat(paste("linmod:", round(t2, 3), "\n"))
 
 #cat("\n")
 
@@ -35,7 +47,16 @@ y <- rnorm(m)
 
 
 
-cols <- c("test", "replications", "elapsed")
+
+
+#m <- 10000
+#n <- 300
+#x <- matrix(rnorm(m*n), m, n)
+#y <- rnorm(m)
+
+
+
+#cols <- c("test", "replications", "elapsed")
 
 
 #benchmark(fastLm(X=x, y=y, method=0), 
@@ -43,6 +64,6 @@ cols <- c("test", "replications", "elapsed")
 #          replications=10, columns=cols)
 
 
-benchmark(fastLm(X=x, y=y, method=1), 
-          lm_fit(x, y, check.rank=FALSE),
-          replications=10, columns=cols)
+#benchmark(fastLm(X=x, y=y, method=1), 
+#          lm_fit(x, y, check.rank=FALSE),
+#          replications=10, columns=cols)

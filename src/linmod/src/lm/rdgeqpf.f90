@@ -10,13 +10,14 @@
 !     november 2006
 
 
-subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, info)
+subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, tol, rank, info)
   use lapack
   implicit none
   
   ! in/out
   integer, intent(in) :: m, n, lda
-  integer, intent(out) :: info, jpvt(*)
+  integer, intent(out) :: rank, info, jpvt(*)
+  double precision, intent(in) :: tol
   double precision, intent(out) :: tau(*), work(*)
   double precision, intent(inout) :: a(lda, *)
   ! local
@@ -50,11 +51,11 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, info)
   do i = 1, n
      if(jpvt(i) /= 0) then
         if(i /= itemp) then
-           call dswap(m, a(1, i), 1, a(1, itemp), 1)
-           jpvt(i) = jpvt(itemp)
-           jpvt(itemp) = i
+          call dswap(m, a(1, i), 1, a(1, itemp), 1)
+          jpvt(i) = jpvt(itemp)
+          jpvt(itemp) = i
         else
-           jpvt(i) = i
+          jpvt(i) = i
         end if
         itemp = itemp + 1
      else
@@ -69,7 +70,7 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, info)
      ma = min(itemp, m)
      call dgeqr2(m, ma, a, lda, tau, work, info)
      if(ma < n) then
-        call dorm2r('left', 'transpose', m, n-ma, ma, a, lda, tau, a(1, ma+1), lda, work, info)
+       call dorm2r('left', 'transpose', m, n-ma, ma, a, lda, tau, a(1, ma+1), lda, work, info)
      end if
   end if
   
@@ -83,6 +84,7 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, info)
     
     ! compute factorization
     do i = itemp + 1, mn
+      print *, work(i)
       ! determine ith pivot column and swap if necessary
       pvt = (i-1) + idamax(n-i+1, work(i), 1)
       
@@ -119,7 +121,7 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, info)
           temp = max(0.0d0, (1.0d0+temp)*(1.0d0-temp))
           temp2 = temp*(work(j) / work(n+j))**2
           
-          if(temp2 .le. tol3z) then 
+          if(temp2  <=  tol3z) then 
             if(m-i > 0) then
               work(j) = dnrm2(m-i, a(i+1, j), 1)
               work(n+j) = work(j)
@@ -134,6 +136,19 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, info)
       end do
     end do
   end if
+  
+  
+  !!! Estimate numerical rank
+  rank = 0
+  
+  do i = 1, n
+    if (i /= jpvt(i)) then
+      rank = rank + 1
+    end if
+  end do
+  
+  
+  print *, "rank=",rank
   
   return
 end subroutine

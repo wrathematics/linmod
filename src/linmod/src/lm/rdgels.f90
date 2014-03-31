@@ -190,6 +190,12 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   ! Copy B over to RSD for later residual calculation
   call dlacpy_omp('All', m, nrhs, b, ldb, rsd, ldb)
   
+  !$omp parallel do if(n > 5000) private(i) default(shared) 
+    do i = 1, n
+      jpvt(i) = 0
+    end do
+  !$omp end parallel do
+  
   
   if(m >= n) then
     !!! compute qr factorization of a
@@ -197,8 +203,8 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
       rank = n
       call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
     else ! RRQR
-      rank = n ! FIXME
-      call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), info)
+!      call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), tol, rank, info)
+      call rdgeqp3(m, n, a, lda, jpvt, work(1), work(mn+1), 3*n+1, tol, rank, info)
     end if
     
     
