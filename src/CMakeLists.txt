@@ -73,6 +73,8 @@ set(LM_FILES
 	linmod/src/lm/rdgels.f90
 	linmod/src/lm/rdgeqpf.f90
 	linmod/src/lm/rdormqr.f90
+	linmod/src/lm/rdgeqp3.f90
+	linmod/src/lm/rdlaqp2.f90
 )
 
 set(UTILS_FILES
