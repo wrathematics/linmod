@@ -18,13 +18,14 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   
   SEXP ret, ret_names;
   SEXP qr, qr_names;
-  SEXP rank;
+  SEXP rank, df_residual;
   SEXP a_out, b_out;
   SEXP coef, coef_names;
   SEXP eff, ft, rsd, tau, jpvt, qraux;
   
   
   newRvec(rank, 1, "int");
+  newRvec(df_residual, 1, "int");
   
   newRmat(a_out, m, n, "dbl");
   memcpy(DBLP(a_out), DBLP(a), m*n*sizeof(double));
@@ -66,11 +67,13 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   
   
   // Fit y~x
-  rdgels_(&trans, &m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &m, work, &lwork, &info, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
+  rdgels_(&m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &m, work, &lwork, &info, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
   
   
   if (info != 0)
     Rprintf("WARNING : returned info = %d\n", info);
+  
+  INT(df_residual, 0) = m - INT(rank, 0);
   
   // FIXME qraux == work(1:rank)
   
@@ -81,8 +84,8 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   coef_names = make_dataframe_default_colnames(n);
   setAttrib(coef, R_NamesSymbol, coef_names);
   
-  ret_names = make_list_names(7, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr");
-  ret = make_list(ret_names, 7, coef, rsd, eff, rank, ft, RNULL, qr);
+  ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "def.residual");
+  ret = make_list(ret_names, 8, coef, rsd, eff, rank, ft, RNULL, qr, df_residual);
   
   R_END;
   return ret;

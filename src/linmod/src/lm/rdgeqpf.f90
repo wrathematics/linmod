@@ -84,7 +84,6 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, tol, rank, info)
     
     ! compute factorization
     do i = itemp + 1, mn
-      print *, work(i)
       ! determine ith pivot column and swap if necessary
       pvt = (i-1) + idamax(n-i+1, work(i), 1)
       

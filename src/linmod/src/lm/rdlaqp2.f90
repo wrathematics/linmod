@@ -95,27 +95,39 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
 !        determine ith pivot column and swap if necessary.
 !     pvt = (i-1) + idamax(n-i+1, vn1(i), 1)
     
-!    if(pvt /= i) then
-    do j = i, mn
-      if (vn1(j) > tol) then
-        pvt = j
-        exit
-      end if
-    end do
+    print *, vn1(1:n)
+    
+    ! if(pvt /= i) then
+    if (i < mn) then
+      do j = i, mn
+        if (vn1(j) > tol) then
+          pvt = j
+          exit
+        end if
+      end do
+    else
+      pvt = mn
+    end if
     
 !    if (vn1(i) < tol) then
     if(pvt /= i) then
-      call dswap(m, a(1, rank), 1, a(1, i), 1)
-      itemp = jpvt(rank)
-      jpvt(rank) = jpvt(i)
+      
+      call dswap(m, a(1, pvt), 1, a(1, i), 1)
+      
+      itemp = jpvt(pvt)
+      jpvt(pvt) = jpvt(i)
       jpvt(i) = itemp
-      vn1(rank) = vn1(i)
-      vn2(rank) = vn2(i)
+      
+      vn1(pvt) = vn1(i)
+      vn2(pvt) = vn2(i)
       
       rank = rank - 1
     end if
     
-    
+    if (vn1(i) < tol) then
+      rank = rank - 1
+      return
+    end if
     
     
     
@@ -134,8 +146,8 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
       a(offpi, i) = aii
     end if
     
-    ! update partial column norms.
     
+    ! update partial column norms.
     do j = i + 1, n
       if(vn1(j) /= 0.0d0) then
         ! note: the following 4 lines follow from the analysis in
@@ -160,7 +172,6 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
     end do
   end do
   
-  print *, rank
   
   return
 end

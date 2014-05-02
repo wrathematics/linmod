@@ -5,6 +5,9 @@
 ! Copyright 2014, Schmidt
 
 
+!FIXME change to dgelsy ???
+
+
 
 ! Modified LAPACK routine dgels, original copyright:
 !  -- lapack driver routine (version 3.3.1) --
@@ -23,9 +26,6 @@
 ! Arguments
 ! =========
 !
-! trans    (input) character(len=1)
-!           
-! 
 ! m         (input) integer
 !           The number of rows of the data matrix a.  m>=0.
 ! 
@@ -53,7 +53,7 @@
 !           = 0: successful exit.
 !           < 0: if info = -i, the i-th argument had an illegal value.
 
-subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
+subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank)
   use lapack
   use lapack_omp
@@ -61,7 +61,6 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   implicit none
   
   ! in/out
-  character(len=1), intent(in) :: trans
   integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
   integer, intent(out) :: info, jpvt(n)
   integer, intent(inout) :: rank
@@ -72,7 +71,7 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   ! FIXME
   double precision :: qraux1
   ! local
-  logical :: lquery, tpsd
+  logical :: lquery
   integer :: brow, i, iascl, ibscl, j, mn, nb, scllen, wsize
   double precision :: anrm, bignum, bnrm, smlnum
   double precision :: rwork(1)
@@ -84,44 +83,32 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   info = 0
   mn = min(m, n)
   lquery = (lwork == -1)
-  if(.not.(lsame(trans, 'n') .or. lsame(trans, 't'))) then
-     info = -1
-  else if(m < 0) then
+  if (m < 0) then
      info = -2
-  else if(n < 0) then
+  else if (n < 0) then
      info = -3
-  else if(nrhs < 0) then
+  else if (nrhs < 0) then
      info = -4
-  else if(lda < max(1, m)) then
+  else if (lda < max(1, m)) then
      info = -6
-  else if(ldb < max(1, m, n)) then
+  else if (ldb < max(1, m, n)) then
      info = -8
-  else if(lwork < max(1, mn+max(mn, nrhs)) .and. .not.lquery) then
+  else if (lwork < max(1, mn+max(mn, nrhs)) .and. .not.lquery) then
      info = -10
   end if
   
   
   ! figure out optimal block size
   if(info == 0 .or. info == -10) then
-    tpsd = .true.
-    if(lsame(trans, 'n')) tpsd = .false.
     
     if(m >= n) then
       nb = ilaenv(1, 'dgeqrf', ' ', m, n, -1, -1)
       
-      if(tpsd) then
-        nb = max(nb, ilaenv(1, 'dormqr', 'ln', m, nrhs, n, -1))
-      else
-        nb = max(nb, ilaenv(1, 'dormqr', 'lt', m, nrhs, n, -1))
-      end if
+      nb = max(nb, ilaenv(1, 'dormqr', 'lt', m, nrhs, n, -1))
     else
       nb = ilaenv(1, 'dgelqf', ' ', m, n, -1, -1)
       
-      if(tpsd) then
-        nb = max(nb, ilaenv(1, 'dormlq', 'lt', n, nrhs, m, -1))
-      else
-        nb = max(nb, ilaenv(1, 'dormlq', 'ln', n, nrhs, m, -1))
-      end if
+      nb = max(nb, ilaenv(1, 'dormlq', 'ln', n, nrhs, m, -1))
     end if
     
     wsize = max(1, mn+max(mn, nrhs)*nb)
@@ -170,7 +157,6 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   
   
   brow = m
-  if(tpsd) brow = n
   
   bnrm = dlange('m', brow, nrhs, b, ldb, rwork)
   ibscl = 0
@@ -208,91 +194,59 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
     end if
     
     
-    if(.not.tpsd) then
-      ! least-squares problem min || a * x - b ||
-      !  b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
-      call dormqr('left', 'transpose', m, nrhs, n, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-      
-      ! Store "effects"
-      call dlacpy('All', m, nrhs, b, ldb, eff, ldb)
-      
-      
-      ! Store qraux(1) == work(1) 
-      qraux1 = work(1)
-      
-      ! workspace at least nrhs, optimally nrhs*nb
-      ! b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
-      call dtrtrs('upper', 'no transpose', 'non-unit', n, nrhs, a, lda, b, ldb, info)
-      
-      
-      !!! Produce fitted.values = Ax = Q*(R*x)
-      
-      ! Copy over the first RANK elements of numerical solution X
-      !$omp parallel if(m*n > 5000) private(i, j) default(shared) 
-      !$omp do
-        do j = 1, nrhs
-          do i = 1, rank
-            ft(i, j) = b(i, j)
-          end do
-          
-          do i = rank+1, m
-            ft(i, j) = 0.0d0
-          end do
+    ! least-squares problem min || a * x - b ||
+    !  b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
+    call dormqr('left', 'transpose', m, nrhs, rank, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+    
+    ! Store "effects"
+    call dlacpy('All', m, nrhs, b, ldb, eff, ldb)
+    
+    
+    ! Store qraux(1) == work(1) 
+    qraux1 = work(1)
+    
+    ! workspace at least nrhs, optimally nrhs*nb
+    ! b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
+    call dtrtrs('upper', 'no transpose', 'non-unit', rank, nrhs, a, lda, b, ldb, info)
+    
+    
+    !!! Produce fitted.values = Ax = Q*(R*x)
+    
+    ! Copy over the first RANK elements of numerical solution X
+    !$omp parallel if(m*n > 5000) private(i, j) default(shared) 
+    !$omp do
+      do j = 1, nrhs
+        do i = 1, rank
+          ft(i, j) = b(i, j)
         end do
-      !$omp end do
-      !$omp end parallel
-      
-      
-      ! Compute fitted FT = Q*(R*fitted)
-      call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
-      
-      tau(1:min(m, n)) = work(1:min(m,n))
-      call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
-      
-      ! Compute residual RSD = B - FT
-      call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
-      
-      ! Coefficients are stored in the first RANK elements of B
-      call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
-      
-      
-      
-      if(info > 0) then
-         return
-      end if
-      
-      scllen = n
-      
-!--------------------------------------------------------------------
-    else
-!
-!           overdetermined system of equations a**t * x = b
-!
-!           b(1:n,1:nrhs) := inv(r**t) * b(1:n,1:nrhs)
-!
-        call dtrtrs('upper', 'transpose', 'non-unit', n, nrhs, a, lda, b, ldb, info)
-!
-        if(info > 0) then
-           return
-        end if
-!
-!           b(n+1:m,1:nrhs) = zero
-!
-        do j = 1, nrhs
-           do i = n + 1, m
-              b(i, j) = 0.0d0
-           end do
+        
+        do i = rank+1, m
+          ft(i, j) = 0.0d0
         end do
-!
-!           b(1:m,1:nrhs) := q(1:n,:) * b(1:n,1:nrhs)
-!
-        call rdormqr('left', 'no transpose', m, nrhs, n, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-!
-!           workspace at least nrhs, optimally nrhs*nb
-!
-        scllen = m
-!
-     end if
+      end do
+    !$omp end do
+    !$omp end parallel
+    
+    
+    ! Compute fitted FT = Q*(R*fitted)
+    call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
+    
+    tau(1:min(m, n)) = work(1:min(m,n))
+    call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
+    
+    ! Compute residual RSD = B - FT
+    call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+    
+    ! Coefficients are stored in the first RANK elements of B
+    call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
+    
+    
+    
+    if(info > 0) then
+       return
+    end if
+    
+    scllen = n
 !
   else
 !
@@ -302,53 +256,33 @@ subroutine rdgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !
 !        workspace at least m, optimally m*nb.
 !
-     if(.not.tpsd) then
 !
 !           underdetermined system of equations a * x = b
 !
 !           b(1:m,1:nrhs) := inv(l) * b(1:m,1:nrhs)
 !
-        call dtrtrs('lower', 'no transpose', 'non-unit', m, nrhs, a, lda, b, ldb, info)
+      call dtrtrs('lower', 'no transpose', 'non-unit', m, nrhs, a, lda, b, ldb, info)
 !
-        if(info > 0) then
-           return
-        end if
+      if(info > 0) then
+         return
+      end if
 !
 !           b(m+1:n,1:nrhs) = 0
 !
-        do j = 1, nrhs
-           do i = m + 1, n
-              b(i, j) = 0.0d0
-           end do
-        end do
+      do j = 1, nrhs
+         do i = m + 1, n
+            b(i, j) = 0.0d0
+         end do
+      end do
 !
 !           b(1:n,1:nrhs) := q(1:n,:)**t * b(1:m,1:nrhs)
 !
-        call dormlq('left', 'transpose', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+      call dormlq('left', 'transpose', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
 !
 !           workspace at least nrhs, optimally nrhs*nb
 !
-        scllen = n
+      scllen = n
 !
-     else
-!
-!           overdetermined system min || a**t * x - b ||
-!
-!           b(1:n,1:nrhs) := q * b(1:n,1:nrhs)
-!
-        call dormlq('left', 'no transpose', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-        
-        ! workspace at least nrhs, optimally nrhs*nb
-        
-        ! b(1:m,1:nrhs) := inv(l**t) * b(1:m,1:nrhs)
-        
-        call dtrtrs('lower', 'transpose', 'non-unit', m, nrhs, a, lda, b, ldb, info)
-        
-        if(info > 0) then
-           return
-        end if
-        scllen = m
-     end if
   end if
   
   

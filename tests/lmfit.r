@@ -2,7 +2,7 @@ library(linmod)
 
 set.seed(1234)
 m <- 10
-n <- 3
+n <- 4
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
 
@@ -48,4 +48,5 @@ f(x, y, TRUE)
 #f(x, y, FALSE)
 
 
-
+#stats::lm.fit(x, y)
+#linmod::lm_fit(x, y)
