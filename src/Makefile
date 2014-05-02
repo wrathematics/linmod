@@ -1,4 +1,5 @@
 all:
+	cd linmod && make && cd ..
 	mkdir -p build;
 	cd build; \
 	cmake ..; \
