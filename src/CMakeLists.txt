@@ -18,12 +18,12 @@ find_library(LIB_LINMOD NAMES "liblinmod_static.a"
 )
 
 
-execute_process(COMMAND Rscript "-e" "SEXPtools:::cppflags(cmake=TRUE)"
-                OUTPUT_VARIABLE SEXPTOOLS_CPPFLAGS)
-#execute_process(COMMAND echo ${SEXPTOOLS_CPPFLAGS})
-include_directories(${SEXPTOOLS_CPPFLAGS})
-execute_process(COMMAND Rscript "-e" "SEXPtools:::ldflags()"
-                OUTPUT_VARIABLE SEXPTOOLS_LDFLAGS)
+execute_process(COMMAND Rscript "-e" "RNACI:::cppflags(cmake=TRUE)"
+                OUTPUT_VARIABLE RNACI_CPPFLAGS)
+#execute_process(COMMAND echo ${RNACI_CPPFLAGS})
+include_directories(${RNACI_CPPFLAGS})
+execute_process(COMMAND Rscript "-e" "RNACI:::ldflags()"
+                OUTPUT_VARIABLE RNACI_LDFLAGS)
 
 
 ### Flags
@@ -44,7 +44,7 @@ set(RLIB_FILES
 ### Make and install
 add_library(linmod SHARED ${RLIB_FILES})
 
-target_link_libraries (linmod ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${R_LIBRARIES} ${LIB_LINMOD} ${SEXPTOOLS_LDFLAGS})
+target_link_libraries (linmod ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${R_LIBRARIES} ${LIB_LINMOD} ${RNACI_LDFLAGS})
 
 set_target_properties(linmod PROPERTIES PREFIX "")
 if(NOT WIN32)

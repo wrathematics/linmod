@@ -1,0 +1,2 @@
+/home/mschmid3/dev/linmod/src/linmod/build/CMakeFiles/linmod.dir
+/home/mschmid3/dev/linmod/src/linmod/build/CMakeFiles/linmod_static.dir

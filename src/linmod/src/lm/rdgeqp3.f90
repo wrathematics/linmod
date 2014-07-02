@@ -1,4 +1,3 @@
-
 !  purpose
 !  =======
   
@@ -52,7 +51,6 @@
   !     = 0: successful exit.
   !     < 0: if info = -i, the i-th argument had an illegal value.
   
-
 
 
 

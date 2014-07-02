@@ -84,9 +84,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   
   !     .. executable statements ..
   mn = min(m-offset, n)
-  tol3z = sqrt(dlamch('epsilon'))
-  
-  rank = n
+  tol3z = dsqrt(dlamch('epsilon'))
   
 !     compute factorization.
   do i = 1, mn
@@ -95,7 +93,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
 !        determine ith pivot column and swap if necessary.
 !     pvt = (i-1) + idamax(n-i+1, vn1(i), 1)
     
-    print *, vn1(1:n)
+!    print *, vn1(1:n)
     
     ! if(pvt /= i) then
     if (i < mn) then
@@ -110,8 +108,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
     end if
     
 !    if (vn1(i) < tol) then
-    if(pvt /= i) then
-      
+    if (pvt /= i) then
       call dswap(m, a(1, pvt), 1, a(1, i), 1)
       
       itemp = jpvt(pvt)
@@ -120,15 +117,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
       
       vn1(pvt) = vn1(i)
       vn2(pvt) = vn2(i)
-      
-      rank = rank - 1
     end if
-    
-    if (vn1(i) < tol) then
-      rank = rank - 1
-      return
-    end if
-    
     
     
 !        generate elementary reflector h(i).
@@ -152,7 +141,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
       if(vn1(j) /= 0.0d0) then
         ! note: the following 4 lines follow from the analysis in
         ! lapack working note 176.
-        temp = 1.0d0 - (abs(a(offpi, j)) / vn1(j))**2
+        temp = 1.0d0 - (dabs(a(offpi, j)) / vn1(j))**2
         temp = max(temp, 0.0d0)
         temp2 = temp*(vn1(j) / vn2(j))**2
         
@@ -165,13 +154,32 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
             vn2(j) = 0.0d0
           end if
         else
-          vn1(j) = vn1(j)*sqrt(temp)
+          vn1(j) = vn1(j)*dsqrt(temp)
         end if
         
       end if
     end do
   end do
   
+  
+  ! Estimate numerical rank
+  rank = 0
+  
+  if (m >= n) then
+    do i = 1, n-1
+      if (jpvt(i) < i) then
+        exit
+      else
+        rank = rank + 1
+      end if
+    end do
+    
+    if (jpvt(n) == n) rank = rank + 1
+  end if
+  
+  
+  print *, jpvt(1:n)
+  print *, rank
   
   return
 end

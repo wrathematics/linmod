@@ -1,4 +1,4 @@
-#include <SEXPtools.h> 
+#include <RNACI.h> 
 
 
 SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
@@ -6,6 +6,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   R_INIT;
   
   int m = nrows(a), n = ncols(a);
+  int ldb = (m<n ? n : m);
   int nrhs = ncols(b);
   
   int mn = (m<n ? m : n);
@@ -53,21 +54,21 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
   
   
-  if (INT(checkrank, 0) == 0)
-    INT(rank, 0) = -1;
+  if (INT(checkrank) == 0)
+    INT(rank) = -1;
   else
-    INT(rank, 0) = 0;
+    INT(rank) = 0;
   
   
   // Workspace query
-  dgels_(&trans, &m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &m, &tmpwork, &lwork, &info);
+  dgels_(&trans, &m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &ldb, &tmpwork, &lwork, &info);
   
   lwork = (int) tmpwork;
   work = malloc(lwork * sizeof(*work));
   
   
   // Fit y~x
-  rdgels_(&m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &m, work, &lwork, &info, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
+  rdgels_(&m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &ldb, work, &lwork, &info, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
   
   
   if (info != 0)

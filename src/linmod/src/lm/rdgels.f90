@@ -57,6 +57,7 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank)
   use lapack
   use lapack_omp
+  use rdgels_utils
   
   implicit none
   
@@ -103,11 +104,9 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
     
     if(m >= n) then
       nb = ilaenv(1, 'dgeqrf', ' ', m, n, -1, -1)
-      
       nb = max(nb, ilaenv(1, 'dormqr', 'lt', m, nrhs, n, -1))
     else
       nb = ilaenv(1, 'dgelqf', ' ', m, n, -1, -1)
-      
       nb = max(nb, ilaenv(1, 'dormlq', 'ln', n, nrhs, m, -1))
     end if
     
@@ -183,75 +182,21 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   !$omp end parallel do
   
   
-  if(m >= n) then
-    !!! compute qr factorization of a
-    if (rank == -1) then ! Assume model matrix is full rank
-      rank = n
-      call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
-    else ! RRQR
-!      call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), tol, rank, info)
-      call rdgeqp3(m, n, a, lda, jpvt, work(1), work(mn+1), 3*n+1, tol, rank, info)
-    end if
+  
+  if (m >= n) then
+    call rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
+                  tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
     
-    
-    ! least-squares problem min || a * x - b ||
-    !  b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
-    call dormqr('left', 'transpose', m, nrhs, rank, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-    
-    ! Store "effects"
-    call dlacpy('All', m, nrhs, b, ldb, eff, ldb)
-    
-    
-    ! Store qraux(1) == work(1) 
-    qraux1 = work(1)
-    
-    ! workspace at least nrhs, optimally nrhs*nb
-    ! b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
-    call dtrtrs('upper', 'no transpose', 'non-unit', rank, nrhs, a, lda, b, ldb, info)
-    
-    
-    !!! Produce fitted.values = Ax = Q*(R*x)
-    
-    ! Copy over the first RANK elements of numerical solution X
-    !$omp parallel if(m*n > 5000) private(i, j) default(shared) 
-    !$omp do
-      do j = 1, nrhs
-        do i = 1, rank
-          ft(i, j) = b(i, j)
-        end do
-        
-        do i = rank+1, m
-          ft(i, j) = 0.0d0
-        end do
-      end do
-    !$omp end do
-    !$omp end parallel
-    
-    
-    ! Compute fitted FT = Q*(R*fitted)
-    call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
-    
-    tau(1:min(m, n)) = work(1:min(m,n))
-    call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
-    
-    ! Compute residual RSD = B - FT
-    call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
-    
-    ! Coefficients are stored in the first RANK elements of B
-    call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
-    
-    
-    
-    if(info > 0) then
+    if (info > 0) then
        return
     end if
     
     scllen = n
-!
+  
+  
+  ! ----------- Compute LQ factorization of A
   else
-!
-!        compute lq factorization of a
-!
+  
      call dgelqf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
 !
 !        workspace at least m, optimally m*nb.
@@ -277,7 +222,7 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 !
 !           b(1:n,1:nrhs) := q(1:n,:)**t * b(1:m,1:nrhs)
 !
-      call dormlq('left', 'transpose', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+      call dormlq('l', 't', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
 !
 !           workspace at least nrhs, optimally nrhs*nb
 !
@@ -311,7 +256,7 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
   
   
   contains
-    subroutine rdgelqf(m, n, a, lda, tau, work, lwork, info)
+  subroutine rdgelqf(m, n, a, lda, tau, work, lwork, info)
     integer, intent(in) :: m, n, lda, lwork
     integer, intent(out) :: info
     double precision, intent(out) :: tau
@@ -327,6 +272,7 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
     double precision, intent(in) :: a(*), tau(*)
     double precision, intent(out) :: c(*), work(*)
   end subroutine
+  
 end subroutine
 
 

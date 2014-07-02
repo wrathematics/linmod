@@ -1,0 +1,14 @@
+# The fortran modules provided by this target.
+provides
+ glm
+ glm_check
+ glm_link_utils
+ glm_loglik_utils
+ glm_mu_var
+ glm_residuals_utils
+ glm_update_utils
+ lapack
+ lapack_omp
+ lmfit
+ rdgels_utils
+ string_tools

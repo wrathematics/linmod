@@ -1,5 +1,3 @@
 useDynLib(linmod)
 
-import(SEXPtools)
-
 exportPattern("^[[:alpha:]]+") 
