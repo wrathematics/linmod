@@ -12,7 +12,8 @@ n <- 5
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m, nrhs)
 
-#x[, 3] <- x[, 2]
+#x[, 5] <- x[, 4]
+x[, 3] <- x[, 2]
 #x[, 4] <- x[, 3] <- x[, 2]
 #x[, 4] <- x[, 3] <- x[, 2] <- x[, 1]
 
@@ -34,7 +35,8 @@ f <- function(x, y, check.rank=TRUE){
   test <- all.equal(a, b, check.names=FALSE)
   
   print(test)
-#  print(a);print(b)
+  print(a);print(b)
+  
   
   a <- mdl1$fitted
   b <- mdl2$fitted

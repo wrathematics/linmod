@@ -82,6 +82,9 @@ set(LM_FILES
 
 set(UTILS_FILES
 	src/utils/string_tools.f90
+	src/utils/swaps.f90
+	src/Rspecial/Rspecial.c
+	src/Rspecial/R_special.f90
 )
 
 

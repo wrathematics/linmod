@@ -1,6 +1,7 @@
 module rdgels_utils
+  use :: R_special
+  use :: swaps
   implicit none
-  
   contains
   
   subroutine rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
@@ -17,8 +18,6 @@ module rdgels_utils
     ! local
     integer i, j
     
-    
-    print *, "asdfadsf"
     
     ! Assume model matrix is full rank
     if (rank == -1) then 
@@ -76,6 +75,8 @@ module rdgels_utils
     
     ! Coefficients are stored in the first RANK elements of B
     call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
+    
+    call rdgels_fixcoef(m, n, nrhs, rank, jpvt, coef)
   end subroutine
   
   
@@ -87,14 +88,39 @@ module rdgels_utils
   
   
   
-  subroutine rdgels_fixcoef(m, n, rank, jpvt, coef)
-    integer, intent(in) :: m, n, rank
+  subroutine rdgels_fixcoef(m, n, nrhs, rank, jpvt, coef)
+    ! in/out
+    integer, intent(in) :: m, n, nrhs, rank
     integer, intent(in) :: jpvt(n)
     double precision, intent(inout) :: coef(n, *)
+    ! local
+    integer :: i, j, offset
+    double precision :: tmpval
+    double precision :: na_real
     
+    
+    call r_set_na(na_real)
+    print *, na_real
+    
+    offset = 0
+    
+    if (m >= n) then
+      if (rank == n) return
+      
+      do j = 1, nrhs
+        do i = 1, n
+          if (jpvt(i) /= i + offset) then
+            tmpval = coef(i, j)
+            coef(i, j) = na_real
+            offset = offset + 1
+          else if (offset > 0) then
+            call swap(coef(i, j), tmpval)
+          end if
+        end do
+      end do
+    end if
     
   end subroutine
-  
   
 end module
 
