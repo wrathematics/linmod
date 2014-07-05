@@ -1,6 +1,7 @@
 module rdgels_utils
   use :: R_special
   use :: swaps
+  use sorts
   implicit none
   contains
   
@@ -76,7 +77,7 @@ module rdgels_utils
     ! Coefficients are stored in the first RANK elements of B
     call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
     
-    call rdgels_fixcoef(m, n, nrhs, rank, jpvt, coef)
+    call rdgels_fixcoef(m, n, mn, nrhs, rank, jpvt, coef)
   end subroutine
   
   
@@ -88,36 +89,50 @@ module rdgels_utils
   
   
   
-  subroutine rdgels_fixcoef(m, n, nrhs, rank, jpvt, coef)
+  subroutine rdgels_fixcoef(m, n, mn, nrhs, rank, jpvt, coef)
     ! in/out
-    integer, intent(in) :: m, n, nrhs, rank
+    integer, intent(in) :: m, n, mn, nrhs, rank
     integer, intent(in) :: jpvt(n)
     double precision, intent(inout) :: coef(n, *)
     ! local
-    integer :: i, j, offset
+    integer :: i, j, offset, tail
+    integer, allocatable :: pvt(:)
     double precision :: tmpval
     double precision :: na_real
     
     
     call r_set_na(na_real)
-    print *, na_real
-    
-    offset = 0
     
     if (m >= n) then
       if (rank == n) return
       
+      allocate(pvt(n))
+      pvt(1:n) = jpvt(1:n)
+      
       do j = 1, nrhs
-        do i = 1, n
-          if (jpvt(i) /= i + offset) then
-            tmpval = coef(i, j)
-            coef(i, j) = na_real
-            offset = offset + 1
-          else if (offset > 0) then
-            call swap(coef(i, j), tmpval)
+        ! fill back n-rank values with NA
+        do i = 2, n
+          if (jpvt(i) < jpvt(i-1)) then
+            tail = i
+            exit
           end if
         end do
+        
+        if (tail /= n) then
+          do i = tail, n
+            coef(i, j) = na_real
+          end do
+        else if (rank == n-1) then
+          coef(n, j) = na_real
+        end if
+        
+        ! reorder
+        call quicksort_by_index(coef(1, j), pvt, n)
+        
+        deallocate(pvt)
+        
       end do
+    
     end if
     
   end subroutine

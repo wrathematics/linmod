@@ -82,20 +82,14 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   external           idamax, dlamch, dnrm2
   
   
-  !     .. executable statements ..
   mn = min(m-offset, n)
   tol3z = dsqrt(dlamch('epsilon'))
   
-!     compute factorization.
+  ! compute factorization.
   do i = 1, mn
      offpi = offset + i
     
-!        determine ith pivot column and swap if necessary.
-!     pvt = (i-1) + idamax(n-i+1, vn1(i), 1)
-    
-!    print *, vn1(1:n)
-    
-    ! if(pvt /= i) then
+  ! determine ith pivot column and swap if necessary.
     if (i < mn) then
       do j = i, mn
         if (vn1(j) > tol) then
@@ -107,7 +101,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
       pvt = mn
     end if
     
-!    if (vn1(i) < tol) then
+    ! if (vn1(i) < tol) then
     if (pvt /= i) then
       call dswap(m, a(1, pvt), 1, a(1, i), 1)
       
@@ -120,15 +114,16 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
     end if
     
     
-!        generate elementary reflector h(i).
+    ! generate elementary reflector h(i).
     if(offpi < m) then
       call dlarfg(m-offpi+1, a(offpi, i), a(offpi+1, i), 1, tau(i))
     else
       call dlarfg(1, a(m, i), a(m, i), 1, tau(i))
     end if
     
-    if(i < n) then
-      ! apply h(i)' to a(offset+i:m,i+1:n) from the left.
+    
+    ! apply h(i)' to a(offset+i:m,i+1:n) from the left.
+    if (i < n) then
       aii = a(offpi, i)
       a(offpi, i) = 1.0d0
       call dlarf('left', m-offpi+1, n-i, a(offpi, i), 1, tau(i), a(offpi, i+1), lda, work(1))
@@ -165,7 +160,6 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   ! Estimate numerical rank
   rank = 0
   
-  if (m >= n) then
     do i = 1, n-1
       if (jpvt(i) < i) then
         exit
@@ -175,8 +169,10 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
     end do
     
     if (jpvt(n) == n) rank = rank + 1
-  end if
   
+  if (rank == 0) rank = 1
+  
+!  if (rank == n .and. vn1(j) > tol) rank = n-1
   
   print *, jpvt(1:n)
   print *, rank

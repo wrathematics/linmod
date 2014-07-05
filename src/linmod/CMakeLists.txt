@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 project(linmod)
 enable_language(C Fortran)
 
@@ -81,6 +81,9 @@ set(LM_FILES
 )
 
 set(UTILS_FILES
+	src/utils/custom_sort.f90
+	src/utils/sorts.f90
+	src/utils/quicksort_utils.f90
 	src/utils/string_tools.f90
 	src/utils/swaps.f90
 	src/Rspecial/Rspecial.c
