@@ -6,7 +6,8 @@
 
 
 module glm_loglik_utils
-  use glm_link_utils
+  use :: glm_link_utils
+  use :: glm_family_utils
   
   implicit none
   
@@ -21,7 +22,7 @@ module glm_loglik_utils
   result(dev)
     ! in/out
     double precision :: dev
-    character*8, intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     double precision, intent(in) :: mu(n), y(n)
     ! local
@@ -31,7 +32,7 @@ module glm_loglik_utils
     
     dev = 0.0d0
     
-    if (family == 'gaussian') then
+    if (family == glm_family_gaussian) then
       !$omp parallel do private(i, tmp) default(shared) reduction(+:dev)
         do i = 1, n
           tmp = y(i) - mu(i)
@@ -40,7 +41,7 @@ module glm_loglik_utils
       !$omp end parallel do
       
     
-    else if (family == 'poisson') then
+    else if (family == glm_family_poisson) then
       !$omp parallel do private(i) default(shared) reduction(+:dev)
         do i = 1, n
           if (y(i) > 0.0d0) then
@@ -53,7 +54,7 @@ module glm_loglik_utils
       dev = 2.0d0 * dev
       
       
-    else if (family == 'binomial') then
+    else if (family == glm_family_binomial) then
       !$omp parallel do private(i) default(shared) reduction(+:dev)
         do i = 1, n
           if (y(i) > 0.0d0) then
@@ -67,7 +68,7 @@ module glm_loglik_utils
       dev = -2.0d0 * dev
     
     
-    else if (family == 'gamma') then
+    else if (family == glm_family_gamma) then
       !$omp parallel do private(i) default(shared) reduction(+:dev)
         do i = 1, n
           if (y(i) > 0.0d0) then
@@ -89,7 +90,7 @@ module glm_loglik_utils
   ! null model deviance
   subroutine glm_nulldev(family, n, y, mu, dev)
     ! in/out
-    character*8, intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     double precision, intent(in) :: y(*)
     double precision, intent(out) :: mu(*), dev
@@ -125,7 +126,7 @@ module glm_loglik_utils
   result(llik)
     ! in/out
     double precision :: llik
-    character*8, intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     double precision, intent(in) :: mu(n), y(n)
     ! local
@@ -135,7 +136,7 @@ module glm_loglik_utils
     
     llik = 0.0d0
     
-    if (family == 'gaussian') then
+    if (family == glm_family_gaussian) then
       !$omp parallel do private(i, tmp) default(shared) reduction(+:llik)
         do i = 1, n
           tmp = y(i) - mu(i)
@@ -146,7 +147,7 @@ module glm_loglik_utils
       llik = llik / 2.0d0
     
     
-    else if (family == 'poisson') then
+    else if (family == glm_family_poisson) then
       !$omp parallel do private(i) default(shared) reduction(+:llik)
         do i = 1, n
           if (y(i) > 0.0d0) then
@@ -157,7 +158,7 @@ module glm_loglik_utils
       !$omp end parallel do
       
       
-    else if (family == 'binomial') then
+    else if (family == glm_family_binomial) then
       !$omp parallel do private(i) default(shared) reduction(+:llik)
         do i = 1, n
           if (y(i) > 0.0d0) then
@@ -169,7 +170,7 @@ module glm_loglik_utils
       !$omp end parallel do
     
     
-    else if (family == 'gamma') then
+    else if (family == glm_family_gamma) then
       !$omp parallel do private(i) default(shared) reduction(+:llik)
         do i = 1, n
           if (y(i) > 0.0d0) then
@@ -188,8 +189,7 @@ module glm_loglik_utils
   
   subroutine glm_loglik_stats(family, link, intercept, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
     ! in/out
-    integer, intent(in) :: intercept
-    character*8, intent(in) :: family, link
+    integer, intent(in) :: intercept, family, link
     integer, intent(in) :: n, p
     double precision, intent(in) :: x(*), y(n), beta(*), beta_old(p)
     double precision, intent(out) :: dev, aic, nulldev

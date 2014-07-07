@@ -109,11 +109,11 @@ module glm
   contains
   
   subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
-                     beta, wt, offset, resids, maxiter, tol, info)
-!  bind(c, name='glm_fit_')
+                     beta, wt, offset, resids, maxiter, tol, info) &
+  bind(c, name='glm_fit_')
     ! in/out
-    character(len=8), intent(in) :: family, link
-    integer, intent(in) :: intercept, stoprule, n, p, maxiter
+    integer, intent(in) :: family, link, intercept, stoprule
+    integer, intent(in) :: n, p, maxiter
     integer, intent(out) :: info
     double precision, intent(in) :: x(n,p), y(n), offset(n), tol
     double precision, intent(out) :: beta(p), wt(n), resids(n)

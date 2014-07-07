@@ -7,7 +7,9 @@
 !FIXME rename to glm_family_utils
 
 module glm_mu_var
-  use lapack
+  use :: lapack
+  use :: glm_family_utils
+  use :: glm_link_utils
   
   implicit none
   
@@ -16,7 +18,7 @@ module glm_mu_var
   
   subroutine glm_check_mu(family, n, mu, tol, info)
     ! in/out
-    character*8, intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     integer, intent(out) :: info
     double precision, intent(in) :: mu(*), tol
@@ -25,7 +27,7 @@ module glm_mu_var
     double precision :: tmp
     
     
-    if (family == 'binomial') then
+    if (family == glm_family_binomial) then
       tmp = 1.0d0 - tol
       do i = 1, n
         if (mu(i) > tmp .or. mu(i) < tol) then
@@ -34,7 +36,7 @@ module glm_mu_var
         end if
       end do
     
-    else if (family == 'poisson' .or. family == 'gamma') then
+    else if (family == glm_family_poisson .or. family == glm_family_gamma) then
       do i = 1, n
         if (mu(i) < tol) then
           info = -101
@@ -53,7 +55,7 @@ module glm_mu_var
   ! initialize mu based on the error distribution
   subroutine glm_initial_mu(family, n, y, wt, mu)
     ! in/out
-    character*8, intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     double precision, intent(in) :: y(*), wt(*)
     double precision, intent(out) :: mu(*)
@@ -61,7 +63,7 @@ module glm_mu_var
     integer :: i
     
     
-    if (family == 'binomial') then
+    if (family == glm_family_binomial) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           mu(i) = (wt(i) * y(i) + 0.5d0) / (wt(i) + 1.0d0)
@@ -69,7 +71,7 @@ module glm_mu_var
       !$omp end parallel do
     
     
-    else if (family == 'gamma' .or. family == 'gaussian') then
+    else if (family == glm_family_gamma .or. family == glm_family_gaussian) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           mu(i) = y(i)
@@ -77,7 +79,7 @@ module glm_mu_var
       !$omp end parallel do
     
     
-    else if (family == 'poisson') then
+    else if (family == glm_family_poisson) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           mu(i) = y(i) + 0.1d0
@@ -92,7 +94,7 @@ module glm_mu_var
 
   subroutine glm_variance(family, n, mu, var)
     ! in/out
-    character*8 , intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     double precision, intent(in) :: mu(n)
     double precision, intent(out) :: var(n)
@@ -101,7 +103,7 @@ module glm_mu_var
     double precision :: tmp
     
     
-    if (family == 'binomial') then
+    if (family == glm_family_binomial) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = mu(i)
@@ -110,7 +112,7 @@ module glm_mu_var
       !$omp end parallel do
     
     
-    else if (family == 'gamma') then
+    else if (family == glm_family_gamma) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = mu(i)
@@ -119,7 +121,7 @@ module glm_mu_var
       !$omp end parallel do
     
     
-    else if (family == 'gaussian') then
+    else if (family == glm_family_gaussian) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           var(i) = 1.0d0
@@ -127,7 +129,7 @@ module glm_mu_var
       !$omp end parallel do
     
     
-    else if (family == 'poisson') then
+    else if (family == glm_family_poisson) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           var(i) = mu(i)

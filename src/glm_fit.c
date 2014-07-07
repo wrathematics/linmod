@@ -1,4 +1,5 @@
 #include "linmod.h"
+#include "linmod/src/c_interface/glm_defines.h"
 
 
 SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE,
@@ -70,7 +71,7 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE,
   
   // call fortran
 /*  glm_fit_*/
-  __glm_MOD_glm_fit(STR(FAMILY), STR(LINK), 
+  glm_fit_(INTP(FAMILY), INTP(LINK), 
     INTP(INTERCEPT), INTP(STOPRULE), &n, &p, REAL(CP_X), 
     REAL(Y), REAL(BETA), REAL(WT), REAL(OFFSET), REAL(RESIDS), 
     INTP(MAXITER), REAL(TOL), &info);

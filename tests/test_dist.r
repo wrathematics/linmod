@@ -59,7 +59,7 @@ test_dist <- function(x, y, fam, intercept, verbose=FALSE)
   
   
   maxiter <- 20
-  stoprule <- 3
+  stoprule <- "deviance"
   
   
   t2 <- system.time({

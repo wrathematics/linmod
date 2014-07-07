@@ -8,6 +8,7 @@
 module glm_link_utils
   implicit none
   
+  integer, parameter :: glm_link_unsupported = -2
   
   integer, parameter :: glm_link_cloglog = 1
   integer, parameter :: glm_link_identity = 2
@@ -22,7 +23,7 @@ module glm_link_utils
   ! link function
   subroutine glm_link(link, n, x, y)
     ! in/out
-    character*8, intent(in) :: link
+    integer, intent(in) :: link
     integer, intent(in) :: n
     double precision, intent(in) :: x(*)
     double precision, intent(out) :: y(*)
@@ -33,35 +34,35 @@ module glm_link_utils
     intrinsic :: dlog, dsqrt
     
     
-    if (link == 'cloglog') then
+    if (link == glm_link_cloglog) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = dlog(-dlog(1.0d0-x(i)))
         end do
       !$omp end parallel do
     
-    else if (link == 'identity') then
+    else if (link == glm_link_identity) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = x(i)
         end do
       !$omp end parallel do
     
-    else if (link == 'inverse') then
+    else if (link == glm_link_inverse) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = 1.0d0/x(i)
         end do
       !$omp end parallel do
     
-    else if (link == 'log') then
+    else if (link == glm_link_log) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = dlog(x(i))
         end do
       !$omp end parallel do
     
-    else if (link == 'logit') then
+    else if (link == glm_link_logit) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = x(i)
@@ -69,7 +70,7 @@ module glm_link_utils
         end do
       !$omp end parallel do
     
-    else if (link == 'sqrt') then
+    else if (link == glm_link_sqrt) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = dsqrt(x(i))
@@ -86,7 +87,7 @@ module glm_link_utils
   ! inverse link function
   subroutine glm_linkinv(link, n, x, y)
     ! in/out
-    character*8, intent(in) :: link
+    integer, intent(in) :: link
     integer, intent(in) :: n
     double precision, intent(in) :: x(*)
     double precision, intent(out) :: y(*)
@@ -97,7 +98,7 @@ module glm_link_utils
     intrinsic           dexp, dsqrt
     
     
-    if (link == 'cloglog') then
+    if (link == glm_link_cloglog) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = -dexp(x(i))
@@ -105,14 +106,14 @@ module glm_link_utils
         end do
       !$omp end parallel do
     
-    else if (link == 'identity') then
+    else if (link == glm_link_identity) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = x(i)
         end do
       !$omp end parallel do
     
-    else if (link == 'inverse') then
+    else if (link == glm_link_inverse) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           if (x(i) > 0.0d0) then
@@ -123,14 +124,14 @@ module glm_link_utils
         end do
       !$omp end parallel do
       
-    else if (link == 'log') then
+    else if (link == glm_link_log) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           y(i) = dexp(x(i))
         end do
       !$omp end parallel do
     
-    else if (link == 'logit') then
+    else if (link == glm_link_logit) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = dexp(x(i))
@@ -138,7 +139,7 @@ module glm_link_utils
         end do
       !$omp end parallel do
     
-    else if (link == 'sqrt') then
+    else if (link == glm_link_sqrt) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = x(i)
@@ -155,7 +156,7 @@ module glm_link_utils
   
   subroutine glm_residuals(link, n, y, mu, eta, resids)
     ! in/out
-    character*8, intent(in) :: link
+    integer, intent(in) :: link
     integer, intent(in) :: n
     double precision, intent(in) :: y(*), mu(*), eta(*)
     double precision, intent(out) :: resids(*)
@@ -168,7 +169,7 @@ module glm_link_utils
     
     ! "working" residuals
     
-    if (link == 'cloglog') then
+    if (link == glm_link_cloglog) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = dexp(eta(i))
@@ -176,14 +177,14 @@ module glm_link_utils
         end do
       !$omp end parallel do
     
-    else if (link == 'identity') then
+    else if (link == glm_link_identity) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           resids(i) = y(i) - mu(i)
         end do
       !$omp end parallel do
     
-    else if (link == 'inverse') then
+    else if (link == glm_link_inverse) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = eta(i)
@@ -191,14 +192,14 @@ module glm_link_utils
         end do
       !$omp end parallel do
     
-    else if (link == 'log') then
+    else if (link == glm_link_log) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           resids(i) = (y(i) - mu(i)) / mu(i)
         end do
       !$omp end parallel do
     
-    else if (link == 'logit') then
+    else if (link == glm_link_logit) then
       !$omp parallel do private(i, tmp) default(shared)
         do i = 1, n
           tmp = mu(i)
@@ -206,7 +207,7 @@ module glm_link_utils
         end do
       !$omp end parallel do
     
-    else if (link == 'sqrt') then
+    else if (link == glm_link_sqrt) then
       !$omp parallel do private(i) default(shared)
         do i = 1, n
           resids(i) = (y(i) - mu(i)) / (2.0d0 * eta(i))

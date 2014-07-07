@@ -6,6 +6,8 @@
 
 
 module glm_check
+  use :: glm_family_utils
+  use :: glm_link_utils
   implicit none
   
   contains
@@ -18,44 +20,42 @@ module glm_check
   result(check)
     ! in/out
     integer :: check
-    character*8, intent(in) :: family, link
-    ! parameters
-    integer, parameter :: bad_fam = -1, bad_link = -2
+    integer, intent(in) :: family, link
     
     
     check = 0
     
-    if (family == 'binomial') then
-        if (link /= 'cloglog'  .and. &
-            link /= 'log'      .and. &
-            link /= 'logit')    then
-                check = bad_link
+    if (family == glm_family_binomial) then
+        if (link /= glm_link_cloglog  .and. &
+            link /= glm_link_log      .and. &
+            link /= glm_link_logit)    then
+                check = glm_link_unsupported
         end if
     
-    else if (family == 'gamma') then
-        if (link /= 'identity'   .and. &
-            link /= 'log'        .and. &
-            link /= 'inverse')   then
-                check = bad_link
+    else if (family == glm_family_gamma) then
+        if (link /= glm_link_identity   .and. &
+            link /= glm_link_log        .and. &
+            link /= glm_link_inverse)   then
+                check = glm_link_unsupported
         end if
     
-    else if (family == 'gaussian') then
-        if (link /= 'identity'      .and. &
-            link /= 'log'           .and. &
-            link /= 'inverse')       then
-                check = bad_link
+    else if (family == glm_family_gaussian) then
+        if (link /= glm_link_identity      .and. &
+            link /= glm_link_log           .and. &
+            link /= glm_link_inverse)       then
+                check = glm_link_unsupported
         end if
     
-    else if (family == 'poisson') then
-        if (link /= 'identity'     .and. &
-            link /= 'log'          .and. &
-            link /= 'sqrt')         then
-                check = bad_link
+    else if (family == glm_family_poisson) then
+        if (link /= glm_link_identity     .and. &
+            link /= glm_link_log          .and. &
+            link /= glm_link_sqrt)         then
+                check = glm_link_unsupported
         end if
     
     else
         ! family not supported
-        check = bad_fam
+        check = glm_family_unsupported
     end if
     
     return
@@ -67,7 +67,7 @@ module glm_check
   result(check)
     ! in/out
     integer :: check
-    character*8, intent(in) :: family
+    integer, intent(in) :: family
     integer, intent(in) :: n
     double precision, intent(in) :: y(*)
     ! local
@@ -78,7 +78,7 @@ module glm_check
     
     check = 0
     
-    if (family == 'binomial') then
+    if (family == glm_family_binomial) then
       do i = 1, n
         if (y(i) < 0.0d0 .or. y(i) > 1.0d0) then
           check = fail
@@ -86,7 +86,7 @@ module glm_check
         end if
       end do
     
-    else if (family == 'poisson' .or. family == 'gamma') then
+    else if (family == glm_family_poisson .or. family == glm_family_gamma) then
       do i = 1, n
         if (y(i) < 0.0d0) then
           check = fail
