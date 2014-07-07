@@ -73,7 +73,7 @@ test_dist <- function(x, y, fam, intercept, verbose=FALSE)
   test.coef <- all.equal(mdl$coefficients, mdl2)
   
   cat(paste("Coefficients:", test.coef, "\n"))
-#  cat(paste("R time:", t1, "   my time:", t2, "\n"))
+  cat(paste("R time:", t1, "   my time:", t2, "\n"))
   
   
   invisible()
@@ -85,18 +85,18 @@ test_dist <- function(x, y, fam, intercept, verbose=FALSE)
 
 
 
-maxiter <- 20
-  stoprule <- 3
-t2 <- system.time({
-  mdl2 <- glm_fit(x=x, y=y, family=fam, maxiter, intercept=intercept, stoprule=stoprule)
-})[3]
-t2
+#maxiter <- 20
+#  stoprule <- 3
+#t2 <- system.time({
+#  mdl2 <- glm_fit(x=x, y=y, family=fam, maxiter, intercept=intercept, stoprule=stoprule)
+#})[3]
+#t2
 
 
 
 
-n <- 10 
-p <- 3
+#n <- 10 
+#p <- 3
 
 x <- matrix(rnorm(n*p, mean=10, sd=1), n)
 y <- rpois(n, 5)

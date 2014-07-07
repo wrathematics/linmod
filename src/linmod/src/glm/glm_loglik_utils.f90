@@ -11,6 +11,9 @@ module glm_loglik_utils
   implicit none
   
   
+  integer, parameter :: glm_intercept_no = 0
+  integer, parameter :: glm_intercept_yes = 1
+  
   contains
   
   ! model deviance calculator
@@ -28,7 +31,6 @@ module glm_loglik_utils
     
     dev = 0.0d0
     
-    !!! normal
     if (family == 'gaussian') then
       !$omp parallel do private(i, tmp) default(shared) reduction(+:dev)
         do i = 1, n
@@ -37,7 +39,7 @@ module glm_loglik_utils
         end do
       !$omp end parallel do
       
-    !!! poisson
+    
     else if (family == 'poisson') then
       !$omp parallel do private(i) default(shared) reduction(+:dev)
         do i = 1, n
@@ -50,7 +52,7 @@ module glm_loglik_utils
       
       dev = 2.0d0 * dev
       
-    !!! binomial
+      
     else if (family == 'binomial') then
       !$omp parallel do private(i) default(shared) reduction(+:dev)
         do i = 1, n
@@ -64,7 +66,7 @@ module glm_loglik_utils
       
       dev = -2.0d0 * dev
     
-    !!! gamma
+    
     else if (family == 'gamma') then
       !$omp parallel do private(i) default(shared) reduction(+:dev)
         do i = 1, n
@@ -133,7 +135,6 @@ module glm_loglik_utils
     
     llik = 0.0d0
     
-    !!! gaussian
     if (family == 'gaussian') then
       !$omp parallel do private(i, tmp) default(shared) reduction(+:llik)
         do i = 1, n
@@ -145,7 +146,6 @@ module glm_loglik_utils
       llik = llik / 2.0d0
     
     
-    !!! poisson
     else if (family == 'poisson') then
       !$omp parallel do private(i) default(shared) reduction(+:llik)
         do i = 1, n
@@ -157,7 +157,6 @@ module glm_loglik_utils
       !$omp end parallel do
       
       
-    !!! binomial
     else if (family == 'binomial') then
       !$omp parallel do private(i) default(shared) reduction(+:llik)
         do i = 1, n
@@ -170,7 +169,6 @@ module glm_loglik_utils
       !$omp end parallel do
     
     
-    !!! gamma
     else if (family == 'gamma') then
       !$omp parallel do private(i) default(shared) reduction(+:llik)
         do i = 1, n
@@ -188,9 +186,9 @@ module glm_loglik_utils
   
   
   
-  subroutine glm_loglik_stats(family, link, incpt, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
+  subroutine glm_loglik_stats(family, link, intercept, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
     ! in/out
-    character*1, intent(in) ::incpt
+    integer, intent(in) :: intercept
     character*8, intent(in) :: family, link
     integer, intent(in) :: n, p
     double precision, intent(in) :: x(*), y(n), beta(*), beta_old(p)
@@ -212,7 +210,7 @@ module glm_loglik_utils
     
     !!! null deviance
     ! null deviance for model with no intercept
-    if (incpt == 'n') then
+    if (intercept == glm_intercept_no) then
       do i = 1, n
         eta(i) = 0.0d0
       end do

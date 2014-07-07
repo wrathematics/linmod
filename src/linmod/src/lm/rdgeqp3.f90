@@ -55,6 +55,7 @@
 
 
 subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
+  use lapack
   
 !  -- lapack routine (version 3.3.1) --
 !  -- lapack is a software package provided by univ. of tennessee,    --
@@ -80,15 +81,6 @@ subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
   logical          lquery
   integer          fjb, iws, j, jb, lwkopt, minmn, minws, na, nb, &
                  nbmin, nfxd, nx, sm, sminmn, sn, topbmn
-  ! ..
-  ! .. external subroutines ..
-  external         dgeqrf, dlaqp2, dlaqps, dormqr, dswap, xerbla
-  ! ..
-  ! .. external functions ..
-  integer          ilaenv
-  double precision   dnrm2
-  external         ilaenv, dnrm2
-  ! ..
   ! .. intrinsic functions ..
   intrinsic        int, max, min
   ! ..
@@ -244,16 +236,6 @@ subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
   end if
   
   work(1) = iws
-  
-  
-!!!  !!! Estimate numerical rank
-!!!  rank = 0
-!!!  
-!!!  do i = 1, n
-!!!    if (i /= jpvt(i)) then
-!!!     rank = rank + 1
-!!!    end if
-!!!  end do
   
   return
 end

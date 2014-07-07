@@ -66,10 +66,10 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   
   !in/out
   integer, intent(in) :: lda, m, n, offset
-  integer :: jpvt(*)
+  integer, intent(out) :: jpvt(*)
   integer, intent(out) :: rank
   double precision, intent(in) :: tol
-  double precision :: a(lda, *), tau(*), vn1(*), vn2(*), work(*)
+  double precision, intent(inout) :: a(lda, *), tau(*), vn1(*), vn2(*), work(*)
   ! local
   integer :: i, itemp, j, mn, offpi, pvt
   double precision :: aii, temp, temp2, tol3z
@@ -83,7 +83,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   
   
   mn = min(m-offset, n)
-  tol3z = dsqrt(dlamch('epsilon'))
+!  tol3z = dsqrt(dlamch('epsilon'))
   
   ! compute factorization.
   do i = 1, mn
@@ -140,7 +140,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
         temp = max(temp, 0.0d0)
         temp2 = temp*(vn1(j) / vn2(j))**2
         
-        if(temp2 <= tol3z) then
+        if (temp2 <= tol) then
           if(offpi < m) then
             vn1(j) = dnrm2(m-offpi, a(offpi+1, j), 1)
             vn2(j) = vn1(j)
@@ -160,22 +160,20 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   ! Estimate numerical rank
   rank = 0
   
-    do i = 1, n-1
-      if (jpvt(i) < i) then
-        exit
-      else
-        rank = rank + 1
-      end if
-    end do
-    
-    if (jpvt(n) == n) rank = rank + 1
+  do i = 1, n-1
+    if (jpvt(i) < i) then
+      exit
+    else
+      rank = rank + 1
+    end if
+  end do
+  
+  if (jpvt(n) == n .and. vn1(n) > tol) rank = rank + 1
   
   if (rank == 0) rank = 1
   
-!  if (rank == n .and. vn1(j) > tol) rank = n-1
-  
-  print *, jpvt(1:n)
-  print *, rank
+!  print *, jpvt(1:n)
+!  print *, rank
   
   return
 end

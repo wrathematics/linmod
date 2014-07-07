@@ -10,7 +10,7 @@ n <- 5
 #m <- 5
 
 x <- matrix(rnorm(m*n), m, n)
-y <- rnorm(m, nrhs)
+y <- matrix(rnorm(m*nrhs), m, nrhs)
 
 #x[, 5] <- x[, 4]
 #x[, 3] <- x[, 2]
@@ -24,11 +24,12 @@ y <- rnorm(m, nrhs)
 
 
 
-f <- function(x, y, check.rank=TRUE){
+f <- function(x, y, check.rank=FALSE)
+{
   cat("-------------------------------------------------------\n\n")
   
   mdl1 <- stats::lm.fit(x, y)
-  mdl2 <- linmod::lm_fit(x, y)
+  mdl2 <- linmod::lm_fit(x, y, check.rank=check.rank)
   
   a <- mdl1$coefficients
   b <- mdl2$coefficients

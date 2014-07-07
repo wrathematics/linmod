@@ -75,7 +75,8 @@ module rdgels_utils
     call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
     
     ! Coefficients are stored in the first RANK elements of B
-    call dlacpy_omp('All', n, nrhs, b, ldb, coef, ldb)
+!    call dlacpy_omp('A', n, nrhs, b, 1, coef, 1) !!! FIXME doesn't copy beyond first column correctly ?!
+    coef(1:n, 1:nrhs) = b(1:n, 1:nrhs)
     
     call rdgels_fixcoef(m, n, mn, nrhs, rank, jpvt, coef)
   end subroutine
@@ -109,6 +110,8 @@ module rdgels_utils
       allocate(pvt(n))
       pvt(1:n) = jpvt(1:n)
       
+      
+      tail = n
       do j = 1, nrhs
         ! fill back n-rank values with NA
         do i = 2, n
@@ -132,11 +135,9 @@ module rdgels_utils
         deallocate(pvt)
         
       end do
-    
     end if
     
   end subroutine
-  
 end module
 
 

@@ -12,6 +12,15 @@ module glm_update_utils
   implicit none
   
   
+  integer, parameter :: glm_convergence_converged = 1
+  integer, parameter :: glm_convergence_infparams = 2
+  integer, parameter :: glm_convergence_nochange = 3
+  
+  integer, parameter :: glm_stoprule_maxiter = 1
+  integer, parameter :: glm_stoprule_coefs = 2
+  integer, parameter :: glm_stoprule_deviance = 3
+  
+  
   contains
   
   ! Linear model iteration
@@ -57,6 +66,7 @@ module glm_update_utils
     ! local
     integer :: i
     double precision :: tmp1, tmp2
+    double precision, parameter :: eps = 1.0d-6
     ! intrinsic
     intrinsic :: dabs
     
@@ -75,14 +85,14 @@ module glm_update_utils
       end if
     end do
     
-    if (stoprule == 1) then
+    if (stoprule == glm_stoprule_maxiter) then
       return
-    else if (stoprule == 2) then
+    else if (stoprule == glm_stoprule_coefs) then
       do i = 1, p
         tmp1 = dabs(beta(i) - beta_old(i))
-        tmp2 = tol*1.0d-6 + tol*dabs(beta_old(i))
+        tmp2 = tol*eps + tol*dabs(beta_old(i))
         
-        if (tmp1.gt.tmp2) then
+        if (tmp1 > tmp2) then
           converged = -1
 !          if (iter == maxiter) info = maxiter
           goto 1
@@ -92,12 +102,12 @@ module glm_update_utils
       converged = 1
       
   1      continue
-    else if (stoprule == 3) then
+    else if (stoprule == glm_stoprule_deviance) then
       tmp1 = dabs(dev-dev_old)
       tmp2 = (0.1d0 + dabs(dev))
       
       
-      if (tmp1/tmp2.lt.tol) then
+      if (tmp1/tmp2 < tol) then
         converged = 1
       else
         converged = -1

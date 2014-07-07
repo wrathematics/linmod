@@ -10,7 +10,7 @@ set(CMAKE_Fortran_MODULE_DIRECTORY "include/")
 ### Flags
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -w -fPIC")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -w -fPIC")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -fPIC")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -53,6 +53,7 @@ set(GLM_FILES
 	src/glm/glm_check.f90
 	src/glm/glm_link_utils.f90
 	src/glm/glm_loglik_utils.f90
+	src/glm/glm_family_utils.f90
 	src/glm/glm_mu_var.f90
 	src/glm/glm_residuals_utils.f90
 	src/glm/glm_update_utils.f90

@@ -186,6 +186,19 @@ module lapack
     
     
     
+    subroutine dlaqps(m, n, offset, nb, kb, a, lda, jpvt, tau, vn1, vn2, auxv, f, ldf)
+      integer, intent(in) :: m, n, offset, nb, lda, ldf
+      integer, intent(out) :: kb
+      integer, intent(inout) :: jpvt(*)
+      double precision, intent(in) :: vn1(*), vn2(*), auxv(*)
+      double precision, intent(in) :: f(ldf, *)
+      double precision, intent(out) :: tau(*)
+      double precision, intent(inout) :: a(lda, *)
+      
+    end subroutine
+    
+    
+    
     subroutine dorm2r(side, trans, m, n, k, a, lda, tau, c, ldc, work, info)
       character(len=1), intent(in) :: side, trans
       integer, intent(in) :: m, n, k, lda, ldc

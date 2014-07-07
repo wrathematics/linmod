@@ -10,10 +10,11 @@
 ! purpose
 ! =======
 !
-! generalized linear models (glm) using irls.
+! Generalized linear models (glm) using irls.
 !
-! implementation is based on "generalized linear models, second 
-! edition", by p. mccullagh and j. nelder.
+! Implementation is largely based on:
+!   McCullagh P. and Nelder, J. A. (1989) "Generalized Linear Models".
+!
 !
 ! arguments
 ! =========
@@ -30,7 +31,7 @@
 !           (gaussian) identity, log, inverse
 !           (poisson) log, identity, sqrt
 ! 
-! incpt     (input) character*1
+! intercept     (input) integer
 !           
 ! 
 ! stoprule  (input) character*1
@@ -79,7 +80,6 @@
 !           < 0: if info = -i, the i-th argument had an illegal value.
 
 
-!
 ! eta = x*beta_old
 ! mu = logit_linkinv(eta)
 !
@@ -90,32 +90,30 @@
 !      z = sqrt(w) * (eta + 1/w * (y-mu))
 !
 !
-! incpt = 'y', 'n', for whether intercept should be included in null model
-!
+! intercept = 'y', 'n', for whether intercept should be included in null model
+
 
 module glm
-  use iso_c_binding
+  use, intrinsic :: iso_c_binding
   
-  use lapack
-  
-  use glm_check
-  use glm_loglik_utils
-  use glm_link_utils
-  use glm_mu_var
-  use glm_update_utils
+  use :: lapack
+  use :: glm_check
+  use :: glm_loglik_utils
+  use :: glm_link_utils
+  use :: glm_mu_var
+  use :: glm_update_utils
   
   implicit none
   
   
   contains
   
-  subroutine glm_fit(family, link, incpt, stoprule, n, p, x, y, &
+  subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
                      beta, wt, offset, resids, maxiter, tol, info)
 !  bind(c, name='glm_fit_')
     ! in/out
     character(len=8), intent(in) :: family, link
-    character(len=1), intent(in) :: incpt
-    integer, intent(in) :: stoprule, n, p, maxiter
+    integer, intent(in) :: intercept, stoprule, n, p, maxiter
     integer, intent(out) :: info
     double precision, intent(in) :: x(n,p), y(n), offset(n), tol
     double precision, intent(out) :: beta(p), wt(n), resids(n)
@@ -184,15 +182,21 @@ module glm
     
     
     ! initialize
+!!! Parallel block
+    !$omp parallel private(i) default(shared) 
+    !$omp do
     do i = 1, p
       beta_old(i) = 0.0d0
     end do
+    !$omp end do
     
-!$omp parallel do
+    !$omp do
     do i = 1, n
       wt(i) = 1.0d0
     end do
-!$omp end parallel do
+    !$omp end do
+    !$omp end parallel
+!!! End parallel block
     
     dev = 0.0d0
     
@@ -220,7 +224,7 @@ module glm
       call glm_variance(family, n, mu, wt)
       
       
-      if (stoprule == 3) then
+      if (stoprule == glm_stoprule_deviance) then
         dev_old = dev
         dev = glm_deviance(family, n, y, mu)
       end if
@@ -263,10 +267,10 @@ module glm
         converged = glm_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter)
       end if
       
-      if (converged == 1) then
+      if (converged == glm_convergence_converged) then
         ! converged: break loop and compute likelihood statistics and residuals
         goto 10 ! converged
-      else if (converged == 2) then
+      else if (converged == glm_convergence_infparams) then
         ! infinite parameter values detected: deallocate and return with error
         goto 1
       end if
@@ -278,7 +282,7 @@ module glm
   10   continue
     
     ! aic, deviance, nulldeviance
-    call glm_loglik_stats(family, link, incpt, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
+    call glm_loglik_stats(family, link, intercept, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
     
     ! compute working residuals
     call glm_residuals(link, n, y, mu, eta, resids)

@@ -52,7 +52,7 @@ subroutine dlacpy_omp(uplo, m, n, a, lda, b, ldb)
   intrinsic          min
   
   
-  if(equivchar(uplo, 'u')) then
+  if (equivchar(uplo, 'u')) then
     !$omp parallel if(m*n > 5000) private(i, j) default(shared) 
     !$omp do
       do j = 1, n
@@ -62,7 +62,7 @@ subroutine dlacpy_omp(uplo, m, n, a, lda, b, ldb)
       end do
     !$omp end do
     !$omp end parallel
-  else if(equivchar(uplo, 'l')) then
+  else if (equivchar(uplo, 'l')) then
     !$omp parallel if(m*n > 5000) private(i, j) default(shared) 
     !$omp do
       do j = 1, n

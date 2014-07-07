@@ -1,4 +1,4 @@
-#include <RNACI.h> 
+#include "linmod.h"
 
 
 SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
@@ -23,7 +23,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   SEXP a_out, b_out;
   SEXP coef, coef_names;
   SEXP eff, ft, rsd, tau, jpvt, qraux;
-  
+  SEXP dimnames;
   
   newRvec(rank, 1, "int");
   newRvec(df_residual, 1, "int");
@@ -82,8 +82,19 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   qr_names = make_list_names(5, "qr", "qraux", "pivot", "tol", "rank");
   qr = make_list(qr_names, 5, a_out, tau, jpvt, tol, rank);
   
-  coef_names = make_dataframe_default_colnames(n);
-  setAttrib(coef, R_NamesSymbol, coef_names);
+  coef_names = make_lmfit_default_rownames(n);
+  
+  if (nrhs == 1)
+  {
+    setAttrib(coef, R_NamesSymbol, coef_names);
+  }
+  else
+  {
+    newRlist(dimnames, 2);
+    SET_VECTOR_ELT(dimnames, 0, coef_names);
+    SET_VECTOR_ELT(dimnames, 1, RNULL);
+    setAttrib(coef, R_DimNamesSymbol, dimnames);
+  }
   
   ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "def.residual");
   ret = make_list(ret_names, 8, coef, rsd, eff, rank, ft, RNULL, qr, df_residual);

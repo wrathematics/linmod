@@ -37,6 +37,7 @@ link_directories(./linmod/build/)
 set(RLIB_FILES
 	glm_fit.c
 	lm_fit.c
+	utils.c
 )
 
 

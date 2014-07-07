@@ -26,10 +26,7 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
   if (!is.double(offset))
     storage.mode(offset) <- "double"
   
-  if (intercept)
-    incpt <- 'Y'
-  else
-    incpt <- 'N'
+  storage.mode(intercept) <- "integer"
   
   fam <- string_c2f(family$family, 8L)
   link <- string_c2f(family$link, 8L)
@@ -39,7 +36,7 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
   
   fit <- .Call("R_GLM_FIT", 
                as.character(fam), as.character(link),
-               as.character(incpt), as.integer(stoprule), 
+               intercept, as.integer(stoprule), 
                as.integer(n), as.integer(p),
                x, y, offset, as.integer(maxiter), as.double(tol),
                PACKAGE = "linmod")
