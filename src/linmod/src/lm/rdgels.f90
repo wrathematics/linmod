@@ -55,9 +55,9 @@
 
 subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank)
-  use lapack
-  use lapack_omp
-  use rdgels_utils
+  use :: lapack
+  use :: lapack_omp
+  use :: rdgels_utils
   
   implicit none
   

@@ -6,6 +6,7 @@
 
 
 module lapack
+  use :: lapack_omp
   implicit none
   
   

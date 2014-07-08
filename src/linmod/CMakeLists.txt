@@ -83,7 +83,7 @@ set(LM_FILES
 )
 
 set(UTILS_FILES
-	src/utils/custom_sort.f90
+	src/utils/sort_by_index.f90
 	src/utils/sorts.f90
 	src/utils/quicksort_utils.f90
 	src/utils/string_tools.f90

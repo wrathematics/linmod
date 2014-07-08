@@ -40,6 +40,16 @@ module lmfit
     end subroutine
     
     
+    
+    subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
+      integer, intent(in) :: m, n, lda, lwork
+      integer, intent(out) :: rank, info
+      double precision, intent(in) :: tol
+      integer, intent(inout) :: jpvt(*)
+      double precision, intent(inout) :: a(lda, *), tau(*), work(*)
+    end subroutine
+    
+    
   end interface
   
 end module

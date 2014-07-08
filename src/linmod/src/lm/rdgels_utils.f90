@@ -1,8 +1,17 @@
+! This Source Code Form is subject to the terms of the Mozilla Public
+! License, v. 2.0. If a copy of the MPL was not distributed with this
+! file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+! Copyright 2014, Schmidt
+
+
 module rdgels_utils
   use :: R_special
   use :: swaps
-  use sorts
+  use :: sort_by_index
+  use :: lapack
   implicit none
+  
   contains
   
   subroutine rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
@@ -138,9 +147,15 @@ module rdgels_utils
     end if
     
   end subroutine
+  
+  
+  subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
+    integer, intent(in) :: m, n, lda, lwork
+    integer, intent(out) :: rank, info
+    double precision, intent(in) :: tol
+    integer, intent(inout) :: jpvt(*)
+    double precision, intent(inout) :: a(lda, *), tau(*), work(*)
+  end subroutine
+  
 end module
-
-
-
-
 
