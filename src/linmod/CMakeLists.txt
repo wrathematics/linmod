@@ -51,9 +51,10 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -Wimplicit-interface")
 ### Source files
 set(GLM_FILES
 	src/glm/glm_check.f90
+	src/glm/glm_constants.f90
 	src/glm/glm_link_utils.f90
 	src/glm/glm_loglik_utils.f90
-	src/glm/glm_family_utils.f90
+	src/glm/glm_fit.f90
 	src/glm/glm_mu_var.f90
 	src/glm/glm_residuals_utils.f90
 	src/glm/glm_update_utils.f90

@@ -8,8 +8,7 @@
 
 module glm_mu_var
   use :: lapack
-  use :: glm_family_utils
-  use :: glm_link_utils
+  use :: glm_constants
   
   implicit none
   

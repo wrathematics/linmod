@@ -6,17 +6,8 @@
 
 
 module glm_link_utils
+  use :: glm_constants
   implicit none
-  
-  integer, parameter :: glm_link_unsupported = -2
-  
-  integer, parameter :: glm_link_cloglog = 1
-  integer, parameter :: glm_link_identity = 2
-  integer, parameter :: glm_link_inverse = 3
-  integer, parameter :: glm_link_log = 4
-  integer, parameter :: glm_link_logit = 5
-  integer, parameter :: glm_link_sqrt = 6
-  
   
   contains
   

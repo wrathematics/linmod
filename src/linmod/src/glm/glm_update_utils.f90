@@ -8,17 +8,9 @@
 module glm_update_utils
   use :: lapack
   use :: lmfit
+  use :: glm_constants
   
   implicit none
-  
-  
-  integer, parameter :: glm_convergence_converged = 1
-  integer, parameter :: glm_convergence_infparams = 2
-  integer, parameter :: glm_convergence_nochange = 3
-  
-  integer, parameter :: glm_stoprule_maxiter = 1
-  integer, parameter :: glm_stoprule_coefs = 2
-  integer, parameter :: glm_stoprule_deviance = 3
   
   
   contains

@@ -7,13 +7,10 @@
 
 module glm_loglik_utils
   use :: glm_link_utils
-  use :: glm_family_utils
+  use :: glm_constants
   
   implicit none
   
-  
-  integer, parameter :: glm_intercept_no = 0
-  integer, parameter :: glm_intercept_yes = 1
   
   contains
   

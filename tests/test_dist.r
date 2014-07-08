@@ -95,8 +95,8 @@ test_dist <- function(x, y, fam, intercept, verbose=FALSE)
 
 
 
-#n <- 10 
-#p <- 3
+n <- 10 
+p <- 3
 
 x <- matrix(rnorm(n*p, mean=10, sd=1), n)
 y <- rpois(n, 5)
