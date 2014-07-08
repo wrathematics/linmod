@@ -5,10 +5,6 @@
 ! Copyright 2014, Schmidt
 
 
-!FIXME change to dgelsy ???
-
-
-
 ! Modified LAPACK routine dgels, original copyright:
 !  -- lapack driver routine (version 3.3.1) --
 !  -- lapack is a software package provided by univ. of tennessee,    --
@@ -26,11 +22,8 @@
 ! Arguments
 ! =========
 !
-! m         (input) integer
-!           The number of rows of the data matrix a.  m>=0.
-! 
-! n         (input) integer
-!           The number of columns of the data matrix a.  n>=0.
+! m, n      (input) integer
+!           The number of rows and columns of the data matrix a.
 ! 
 ! nrhs      (input) integer
 !           The number of 'right hand sides', i.e. the number of 
@@ -43,41 +36,69 @@
 ! b         (input) double precision array, dimension (m,nrhs).
 !           The response variable.
 ! 
-! resids    (output)
-!           
+! lda, ldb  (input) integer
+!           Leading dimension of a and b respectively.
 ! 
 ! tol       (input) double precision
-!           Tolerance for the qr decomposition.
+!           Numerical tolerance.
+! 
+! coef      (output) double precision array, dimension (m,nrhs)
+!           The coefficients array ("beta").
+! 
+! eff       (output) double precision array, dimension (m,nrhs)
+!           The "effects" array, namely eff := Q^T * b.
+! 
+! ft        (output) double precision array, dimension (m,nrhs)
+!           The "fitted" values, namely ft := Q*(R*b)
+! 
+! rsd       (output) double precision array, dimension (m,nrhs)
+!           The residuals.
+! 
+! tau       
+!           
+! 
+! jpvt      
+!           
+! 
+! rank      (input/output) integer
+!           On input, controls whether numerical rank should be checked
+!           (-1 no check, otherwise check). On output, the estimated
+!           numerical (columns) rank is returned.
 ! 
 ! info      (output) integer
 !           = 0: successful exit.
 !           < 0: if info = -i, the i-th argument had an illegal value.
 
-subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
-                  tol, coef, eff, ft, rsd, tau, jpvt, rank)
+subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
+                  ft, rsd, tau, jpvt, rank, info) &
+  bind(c, name='lm_fit_')
   use :: lapack
   use :: lapack_omp
-  use :: rdgels_utils
+  use :: lm_fit_utils
+  use :: lm, only : rdgelqf, rdormqr
   
   implicit none
   
   ! in/out
-  integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
+  integer, intent(in) :: m, n, nrhs, lda, ldb
   integer, intent(out) :: info, jpvt(n)
   integer, intent(inout) :: rank
   double precision, intent(in) :: tol
-  double precision, intent(out) :: work(*), coef(n, *), tau(*)
+  double precision, intent(out) :: coef(n, *), tau(*)
   double precision, intent(out), dimension(ldb, *) :: ft, eff, rsd
   double precision, intent(inout) :: a(lda, *), b(ldb, *)
   ! FIXME
   double precision :: qraux1
   ! local
+  integer :: lwork
+  double precision :: tmp(1)
+  double precision, allocatable :: work(:)
   logical :: lquery
   integer :: brow, i, iascl, ibscl, j, mn, nb, scllen, wsize
   double precision :: anrm, bignum, bnrm, smlnum
   double precision :: rwork(1)
   ! functions
-  intrinsic :: dble, max, min
+  intrinsic :: dble, max, min, int
   
   
   ! test the input arguments.
@@ -112,7 +133,6 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
     
     wsize = max(1, mn+max(mn, nrhs)*nb)
     work(1) = dble(wsize)
-    
   end if
   
   if(info /= 0) then
@@ -128,6 +148,13 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
      call dlaset('full', max(m, n), nrhs, 0.0d0, 0.0d0, b, ldb)
      return
   end if
+  
+  
+  ! allocate workspace array
+  lwork = -1
+  call dgels('n', m, n, nrhs, a, lda, b, ldb, tmp, lwork, info)
+  lwork = int(tmp(1))
+  allocate(work(lwork))
   
   
   ! get machine parameters
@@ -246,33 +273,9 @@ subroutine rdgels(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
 50 continue
 !!!!!!  work(1) = dble(wsize)
   work(1) = qraux1
+  deallocate(work)
   
   return
-  
-  
-  
-  
-  
-  
-  
-  contains
-  subroutine rdgelqf(m, n, a, lda, tau, work, lwork, info)
-    integer, intent(in) :: m, n, lda, lwork
-    integer, intent(out) :: info
-    double precision, intent(out) :: tau
-    double precision, intent(inout) :: a(*), work(*)
-  end subroutine
-  
-  
-  
-  subroutine rdormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
-    character(len=1), intent(in) :: side, trans
-    integer, intent(in) :: m, n, k, lda, ldc, lwork
-    integer, intent(out) :: info
-    double precision, intent(in) :: a(*), tau(*)
-    double precision, intent(out) :: c(*), work(*)
-  end subroutine
-  
 end subroutine
 
 

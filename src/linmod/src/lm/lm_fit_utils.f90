@@ -5,11 +5,11 @@
 ! Copyright 2014, Schmidt
 
 
-module rdgels_utils
+module lm_fit_utils
   use :: R_special
-  use :: swaps
-  use :: sort_by_index
+  use :: quicksorts, only : quicksort_by_index
   use :: lapack
+  use :: lm, only : rdgeqp3
   implicit none
   
   contains
@@ -45,7 +45,7 @@ module rdgels_utils
     call dormqr('left', 'transpose', m, nrhs, rank, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
     
     ! Store "effects"
-    call dlacpy('All', m, nrhs, b, ldb, eff, ldb)
+    call dlacpy_omp('All', m, nrhs, b, ldb, eff, ldb)
     
     
     ! Store qraux(1) == work(1) 
@@ -117,11 +117,12 @@ module rdgels_utils
       if (rank == n) return
       
       allocate(pvt(n))
-      pvt(1:n) = jpvt(1:n)
       
       
       tail = n
       do j = 1, nrhs
+        pvt(1:n) = jpvt(1:n)
+        
         ! fill back n-rank values with NA
         do i = 2, n
           if (jpvt(i) < jpvt(i-1)) then
@@ -139,7 +140,7 @@ module rdgels_utils
         end if
         
         ! reorder
-        call quicksort_by_index(coef(1, j), pvt, n)
+        call dquicksort_by_index(coef(1, j), pvt, n) !!! FIXME
         
         deallocate(pvt)
         
@@ -147,15 +148,5 @@ module rdgels_utils
     end if
     
   end subroutine
-  
-  
-  subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
-    integer, intent(in) :: m, n, lda, lwork
-    integer, intent(out) :: rank, info
-    double precision, intent(in) :: tol
-    integer, intent(inout) :: jpvt(*)
-    double precision, intent(inout) :: a(lda, *), tau(*), work(*)
-  end subroutine
-  
 end module
 

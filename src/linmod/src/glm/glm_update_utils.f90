@@ -7,8 +7,8 @@
 
 module glm_update_utils
   use :: lapack
-  use :: lmfit
   use :: glm_constants
+!  use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   
   implicit none
   
@@ -63,20 +63,18 @@ module glm_update_utils
     intrinsic :: dabs
     
     
-    converged = 0
-    
-    ! check that all parameters are finite and 
+    ! Check parameters
     do i = 1, p
       if(disnan(beta(i))) then
-        converged = 2
-!        info = 1
-        goto 1
-  !        else if (.not.ieee_is_finite(beta(i))) then
-  !          converged = 2
-  !          goto 1
+        converged = glm_convergence_infparams
+        return
+!      else if (.not. ieee_is_finite(beta(i))) then
+!        converged = glm_convergence_infparams
+        return
       end if
     end do
     
+    ! Check stoprule
     if (stoprule == glm_stoprule_maxiter) then
       return
     else if (stoprule == glm_stoprule_coefs) then
@@ -85,29 +83,26 @@ module glm_update_utils
         tmp2 = tol*eps + tol*dabs(beta_old(i))
         
         if (tmp1 > tmp2) then
-          converged = -1
-!          if (iter == maxiter) info = maxiter
-          goto 1
+          converged = glm_convergence_noconvergence
+          return
         end if
       end do
       
-      converged = 1
+      converged = glm_convergence_converged
       
-  1      continue
     else if (stoprule == glm_stoprule_deviance) then
       tmp1 = dabs(dev-dev_old)
       tmp2 = (0.1d0 + dabs(dev))
       
       
       if (tmp1/tmp2 < tol) then
-        converged = 1
+        converged = glm_convergence_converged
       else
-        converged = -1
+        converged = glm_convergence_noconvergence
       end if
     end if
     
     return
   end
-  
   
 end module

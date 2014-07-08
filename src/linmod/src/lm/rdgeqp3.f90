@@ -55,7 +55,8 @@
 
 
 subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
-  use lapack
+  use :: lm, only : rdlaqp2
+  use :: lapack
   
 !  -- lapack routine (version 3.3.1) --
 !  -- lapack is a software package provided by univ. of tennessee,    --
@@ -83,8 +84,6 @@ subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
                  nbmin, nfxd, nx, sm, sminmn, sn, topbmn
   ! .. intrinsic functions ..
   intrinsic        int, max, min
-  ! ..
-  ! .. executable statements ..
   
   
   ! test input arguments
@@ -238,4 +237,4 @@ subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
   work(1) = iws
   
   return
-end
+end subroutine

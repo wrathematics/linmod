@@ -9,7 +9,6 @@ module lapack
   use :: lapack_omp
   implicit none
   
-  
   interface
     
     !!! Legacy lmfit routines
@@ -53,7 +52,7 @@ module lapack
     
     
     !!! Other LAPACK routines
-    subroutine dlacpy( uplo, m, n, a, lda, b, ldb )
+    subroutine dlacpy(uplo, m, n, a, lda, b, ldb)
       character(len=1), intent(in) :: uplo
       integer, intent(in) :: m, n, lda, ldb
       double precision, intent(in) :: a(*)
@@ -195,7 +194,6 @@ module lapack
       double precision, intent(in) :: f(ldf, *)
       double precision, intent(out) :: tau(*)
       double precision, intent(inout) :: a(lda, *)
-      
     end subroutine
     
     

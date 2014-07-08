@@ -36,6 +36,7 @@ module glm_constants
   integer, public, parameter :: glm_stoprule_deviance = 3
   
   ! Convergence
+  integer, public, parameter :: glm_convergence_noconvergence = -1
   integer, public, parameter :: glm_convergence_converged = 1
   integer, public, parameter :: glm_convergence_infparams = 2
   integer, public, parameter :: glm_convergence_nochange = 3

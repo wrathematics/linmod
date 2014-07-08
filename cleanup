@@ -17,6 +17,7 @@ rm -rf ./src/*.rds
 
 find ./ -type f -name '*.o' -delete
 find ./ -type f -name '*.mod' -delete
+find ./ -name '*~' | xargs rm
 
 rm -rf ./src-*
 rm -rf ./inst/etc*

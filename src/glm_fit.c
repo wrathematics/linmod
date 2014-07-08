@@ -6,7 +6,7 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE,
   SEXP N, SEXP P, SEXP X, SEXP Y, SEXP OFFSET, SEXP MAXITER, SEXP TOL)
 {
   R_INIT;
-  const int p = INTEGER(P)[0], n = INTEGER(N)[0];
+  int p = INTEGER(P)[0], n = INTEGER(N)[0];
   int info = 0;
   
   // ----------------------------------------------

@@ -59,6 +59,7 @@ module string_tools
   
   
   
+  ! Test equality ignoring case
   function equivchar(a, b) result(test)
     ! in/out
     logical :: test
@@ -73,7 +74,7 @@ module string_tools
       a_l = tolower(a)
       b_l = tolower(b)
       
-      if (a == b) then
+      if (a_l == b_l) then
         test = .true.
       else
         test = .false.

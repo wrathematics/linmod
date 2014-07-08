@@ -14,9 +14,6 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   char trans = 'n';
   int info = 0;
   
-  double *work, tmpwork;
-  int lwork = -1;
-  
   SEXP ret, ret_names;
   SEXP qr, qr_names;
   SEXP rank, df_residual;
@@ -60,15 +57,8 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
     INT(rank) = 0;
   
   
-  // Workspace query
-  dgels_(&trans, &m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &ldb, &tmpwork, &lwork, &info);
-  
-  lwork = (int) tmpwork;
-  work = malloc(lwork * sizeof(*work));
-  
-  
   // Fit y~x
-  rdgels_(&m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &ldb, work, &lwork, &info, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank));
+  lm_fit_(&m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &ldb, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), &info);
   
   
   if (info != 0)

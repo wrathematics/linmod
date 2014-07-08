@@ -22,6 +22,6 @@ void r_set_nan_real_(double *val)
 
 void r_set_na_int_(int *val)
 {
-  *val = -(1 << 31);
+  *val = INT32_MIN;
 }
 

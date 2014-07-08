@@ -62,6 +62,7 @@
 
 
 subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
+  use :: lapack
   implicit none
   
   !in/out
@@ -73,13 +74,8 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   ! local
   integer :: i, itemp, j, mn, offpi, pvt
   double precision :: aii, temp, temp2, tol3z
-  ! subroutines
-  external           dlarf, dlarfg, dswap
   ! functions
   intrinsic          abs, max, min, sqrt
-  integer            idamax
-  double precision   dlamch, dnrm2
-  external           idamax, dlamch, dnrm2
   
   
   mn = min(m-offset, n)
@@ -176,6 +172,6 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
 !  print *, rank
   
   return
-end
+end subroutine
 
 

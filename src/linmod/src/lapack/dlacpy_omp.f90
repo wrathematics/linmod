@@ -87,4 +87,3 @@ subroutine dlacpy_omp(uplo, m, n, a, lda, b, ldb)
   return
 end
 
-

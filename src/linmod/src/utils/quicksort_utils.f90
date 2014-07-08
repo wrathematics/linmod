@@ -18,12 +18,16 @@ module quicksort_utils
     module procedure iquicksort_partition, squicksort_partition, dquicksort_partition
   end interface
   
+  interface quicksort_partition_by_index
+    module procedure iquicksort_by_index_partition, squicksort_by_index_partition, dquicksort_by_index_partition
+  end interface
   
   contains
   
   ! --------------------------------------------------------
   ! Median of a length 3 array; used in choosing pivot in quicksort
   ! --------------------------------------------------------
+  
   function iquicksort_median_of_3(tmp) result(med)
     ! in/out
     integer, intent(inout) :: tmp(3)
@@ -65,7 +69,11 @@ module quicksort_utils
   end function
   
   
+  
   ! --------------------------------------------------------
+  ! Partition
+  ! --------------------------------------------------------
+  
   ! in-place partition function for quicksort
   !  inputs:
   !    x = vector from which median is to be chosen
@@ -120,4 +128,54 @@ module quicksort_utils
     return
   end subroutine
   
+  
+  
+  ! --------------------------------------------------------
+  ! Partition by index
+  ! --------------------------------------------------------
+  
+  subroutine iquicksort_by_index_partition(arr, ind, l, r, pvtind, ret)
+    implicit none
+    ! In/out
+    integer, intent(in) :: l, r, pvtind
+    integer, intent(inout) :: ind(*)
+    integer, intent(out) :: ret
+    integer, intent(inout) :: arr(*)
+    
+    include 'include/quicksort_by_index_partition_generic.inc'
+    
+    return
+  end subroutine
+  
+  
+  
+  subroutine squicksort_by_index_partition(arr, ind, l, r, pvtind, ret)
+    implicit none
+    ! In/out
+    integer, intent(in) :: l, r, pvtind
+    integer, intent(inout) :: ind(*)
+    integer, intent(out) :: ret
+    real, intent(inout) :: arr(*)
+    
+    include 'include/quicksort_by_index_partition_generic.inc'
+    
+    return
+  end subroutine
+  
+  
+  
+  subroutine dquicksort_by_index_partition(arr, ind, l, r, pvtind, ret)
+    implicit none
+    ! In/out
+    integer, intent(in) :: l, r, pvtind
+    integer, intent(inout) :: ind(*)
+    integer, intent(out) :: ret
+    double precision, intent(inout) :: arr(*)
+    
+    include 'include/quicksort_by_index_partition_generic.inc'
+    
+    return
+  end subroutine
+  
 end module
+

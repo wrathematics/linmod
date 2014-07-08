@@ -9,8 +9,8 @@ set(CMAKE_Fortran_MODULE_DIRECTORY "include/")
 
 ### Flags
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -w -fPIC")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -w -O3 -fPIC")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wfatal-errors -w -O3 -fPIC")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -41,13 +41,6 @@ endif()
 
 
 
-### Flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O3")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -Wimplicit-interface")
-
-
-
-
 ### Source files
 set(GLM_FILES
 	src/glm/glm_check.f90
@@ -67,15 +60,15 @@ set(CINTERFACE_FILES
 
 set(LAPACK_FILES
 	src/lapack/dgeadd_omp.f90
-	src/lapack/dlacpy.f90
+	src/lapack/dlacpy_omp.f90
 	src/lapack/lapack.f90
 	src/lapack/lapack_omp.f90
 )
 
 set(LM_FILES
-	src/lm/lmfit.f90
-	src/lm/rdgels.f90
-	src/lm/rdgels_utils.f90
+	src/lm/lm.f90
+	src/lm/lm_fit.f90
+	src/lm/lm_fit_utils.f90
 	src/lm/rdgeqpf.f90
 	src/lm/rdormqr.f90
 	src/lm/rdgeqp3.f90
@@ -83,11 +76,11 @@ set(LM_FILES
 )
 
 set(UTILS_FILES
-	src/utils/sort_by_index.f90
-	src/utils/sorts.f90
-	src/utils/quicksort_utils.f90
 	src/utils/string_tools.f90
 	src/utils/swaps.f90
+	src/utils/insertionsorts.f90
+	src/utils/quicksort_utils.f90
+	src/utils/quicksorts.f90
 	src/Rspecial/Rspecial.c
 	src/Rspecial/R_special.f90
 )
