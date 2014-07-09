@@ -1,0 +1,6 @@
+== Library ==
+* lm_fit: work array allocation is borked
+* quicksorts: I don't even know anymore
+* lm_fit_utils: call quicksort after fixing that bullshit (line 143), 
+  resume calling fixcoefs (line 90)
+* more lm_fit_utils: dlacpy_omp bug

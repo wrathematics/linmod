@@ -45,7 +45,7 @@ set(RLIB_FILES
 ### Make and install
 add_library(linmod SHARED ${RLIB_FILES})
 
-target_link_libraries (linmod ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${R_LIBRARIES} ${LIB_LINMOD} ${RNACI_LDFLAGS})
+target_link_libraries(linmod ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${LIB_LINMOD} ${R_LIBRARIES} ${RNACI_LDFLAGS})
 
 set_target_properties(linmod PROPERTIES PREFIX "")
 if(NOT WIN32)

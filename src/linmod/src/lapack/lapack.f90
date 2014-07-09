@@ -7,12 +7,17 @@
 
 module lapack
   use :: lapack_omp
+  use :: iso_c_binding
   implicit none
   
   interface
     
-    !!! Legacy lmfit routines
-    subroutine dgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info)
+    !-------------------------------------------------------
+    ! Subroutines
+    !-------------------------------------------------------
+    
+    subroutine dgels(trans, m, n, nrhs, a, lda, b, ldb, work, lwork, info) &
+    bind(C, name="dgels_")
       character(len=1), intent(in) :: trans
       integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
       integer, intent(out) :: info
@@ -23,7 +28,8 @@ module lapack
     
     
     
-    subroutine dgelqf(m, n, a, lda, tau, work, lwork, info)
+    subroutine dgelqf(m, n, a, lda, tau, work, lwork, info) &
+    bind(C, name="dgelqf_")
       integer, intent(in) :: m, n, lda, lwork
       integer, intent(out) :: info
       double precision, intent(out) :: tau
@@ -32,7 +38,8 @@ module lapack
     
     
     
-    subroutine dormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
+    subroutine dormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info) &
+    bind(C, name="dormqr_")
       character(len=1), intent(in) :: side, trans
       integer, intent(in) :: m, n, k, lda, ldc, lwork
       integer, intent(out) :: info
@@ -51,7 +58,6 @@ module lapack
     
     
     
-    !!! Other LAPACK routines
     subroutine dlacpy(uplo, m, n, a, lda, b, ldb)
       character(len=1), intent(in) :: uplo
       integer, intent(in) :: m, n, lda, ldb
@@ -77,14 +83,6 @@ module lapack
       double precision, intent(in) :: a(*), b(*)
       double precision, intent(out) :: c(*)
     end subroutine
-    
-    
-    
-    function disnan(din) &
-    result(val)
-      logical :: val
-      double precision, intent(in) :: din
-    end function
     
     
     
@@ -144,22 +142,6 @@ module lapack
     
     
     
-    function lsame(ca, cb) result(val)
-      logical :: val
-      character(len=1), intent(in) :: ca, cb
-    end function
-    
-    
-    
-    function ilaenv(ispec, name, opts, n1, n2, n3, n4) result(value)
-      integer :: value
-      integer :: ispec
-      character(len=1) :: name, opts
-      integer :: n1, n2, n3, n4
-    end function
-    
-    
-    
     subroutine dgeqr2(m, n, a, lda, tau, work, info)
       integer, intent(in) :: m, n, lda
       integer, intent(out) :: info
@@ -215,29 +197,6 @@ module lapack
     
     
     
-    function idamax(n, x, incx) result(index)
-      integer :: index
-      integer :: n, incx
-      double precision :: x(*)
-    end function
-    
-    
-    
-    function dlamch(cmach) result(val)
-      double precision :: val
-      character(len=1) :: cmach
-    end function
-    
-    
-    
-    function dnrm2(n, x, incx) result(res)
-      double precision :: res
-      integer :: n, incx
-      double precision :: x(*)
-    end function
-    
-    
-    
     subroutine dlarfb(side, trans, direct, storev, m, n, k, v, ldv, t, ldt, c, ldc, work, ldwork)
       character(len=1), intent(in) :: side, trans, direct, storev
       integer, intent(in) :: m, n, k, ldv, ldt, ldc, ldwork
@@ -263,6 +222,28 @@ module lapack
     
     
     
+    subroutine dormlq(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
+      character(len=1), intent(in) :: side, trans
+      integer, intent(in) :: m, n, k, lda, ldc, lwork
+      integer, intent(out) :: info
+      double precision, intent(in) :: a(*), tau(*)
+      double precision, intent(inout) :: c(*), work(*)
+    end subroutine
+    
+    
+    
+    !-------------------------------------------------------
+    ! Functions
+    !-------------------------------------------------------
+    
+    function disnan(din) &
+    result(val)
+      logical :: val
+      double precision, intent(in) :: din
+    end function
+    
+    
+    
     function dlange(norm, m, n, a, lda, work) result(val)
       double precision :: val
       character(len=1) :: norm
@@ -272,13 +253,42 @@ module lapack
     
     
     
-    subroutine dormlq(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
-      character(len=1), intent(in) :: side, trans
-      integer, intent(in) :: m, n, k, lda, ldc, lwork
-      integer, intent(out) :: info
-      double precision, intent(in) :: a(*), tau(*)
-      double precision, intent(inout) :: c(*), work(*)
-    end subroutine
+    function idamax(n, x, incx) result(index)
+      integer :: index
+      integer :: n, incx
+      double precision :: x(*)
+    end function
+    
+    
+    
+    function dlamch(cmach) result(val)
+      double precision :: val
+      character(len=1) :: cmach
+    end function
+    
+    
+    
+    function dnrm2(n, x, incx) result(res)
+      double precision :: res
+      integer :: n, incx
+      double precision :: x(*)
+    end function
+    
+    
+    
+    function lsame(ca, cb) result(val)
+      logical :: val
+      character(len=1), intent(in) :: ca, cb
+    end function
+    
+    
+    
+    function ilaenv(ispec, name, opts, n1, n2, n3, n4) result(value)
+      integer :: value
+      integer :: ispec
+      character(len=1) :: name, opts
+      integer :: n1, n2, n3, n4
+    end function
     
   end interface
   

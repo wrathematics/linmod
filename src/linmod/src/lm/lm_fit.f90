@@ -120,6 +120,19 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   end if
   
   
+  
+  
+  !!! FIXME
+  ! allocate workspace array
+  lwork = -1
+  call dgels('n', m, n, nrhs, a, lda, b, ldb, tmp, lwork, info)
+  lwork = int(tmp(1))
+  allocate(work(lwork))
+  
+  
+  
+  
+  
   ! figure out optimal block size
   if(info == 0 .or. info == -10) then
     
@@ -148,13 +161,6 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
      call dlaset('full', max(m, n), nrhs, 0.0d0, 0.0d0, b, ldb)
      return
   end if
-  
-  
-  ! allocate workspace array
-  lwork = -1
-  call dgels('n', m, n, nrhs, a, lda, b, ldb, tmp, lwork, info)
-  lwork = int(tmp(1))
-  allocate(work(lwork))
   
   
   ! get machine parameters
