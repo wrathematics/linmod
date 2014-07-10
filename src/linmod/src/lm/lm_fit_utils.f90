@@ -7,7 +7,7 @@
 
 module lm_fit_utils
   use :: R_special
-  use :: quicksorts, only : quicksort_by_index
+  use :: quicksorts!, only : quicksort_by_index
   use :: lapack
   use :: lm, only : rdgeqp3
   implicit none
@@ -87,7 +87,7 @@ module lm_fit_utils
 !    call dlacpy_omp('A', n, nrhs, b, 1, coef, 1) !!! FIXME doesn't copy beyond first column correctly ?!
     coef(1:n, 1:nrhs) = b(1:n, 1:nrhs)
     
-!    call rdgels_fixcoef(m, n, mn, nrhs, rank, jpvt, coef)
+    call rdgels_fixcoef(m, n, mn, nrhs, rank, jpvt, coef)
   end subroutine
   
   
@@ -103,7 +103,7 @@ module lm_fit_utils
     ! in/out
     integer, intent(in) :: m, n, mn, nrhs, rank
     integer, intent(in) :: jpvt(n)
-    double precision, intent(inout) :: coef(n, *)
+    double precision, intent(inout) :: coef(n, nrhs)
     ! local
     integer :: i, j, offset, tail
     integer, allocatable :: pvt(:)
@@ -140,8 +140,7 @@ module lm_fit_utils
         end if
         
         ! reorder
-!        call dquicksort_by_index(coef(1, j), pvt, n) !!! FIXME
-        
+        call quicksort_by_index(coef(1:, j), pvt, n)
       end do
       
       deallocate(pvt)

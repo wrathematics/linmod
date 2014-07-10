@@ -13,13 +13,22 @@ module quicksorts
   
   
   interface quicksort
-    module procedure iquicksort, squicksort, dquicksort
+    module procedure iquicksort
+    module procedure squicksort
+    module procedure dquicksort
   end interface
   
   interface quicksort_by_index
-    module procedure iquicksort_by_index, squicksort_by_index, dquicksort_by_index
+    module procedure iquicksort_by_index
+    module procedure squicksort_by_index
+    module procedure dquicksort_by_index
   end interface
   
+  public :: quicksort
+  public :: quicksort_by_index
+  
+  private :: iquicksort, squicksort, dquicksort
+  private :: iquicksort_by_index, squicksort_by_index, dquicksort_by_index
   
   contains
   
@@ -31,15 +40,17 @@ module quicksorts
   recursive subroutine iquicksort_r(x, l, r)
     ! inputs
     integer, intent(in) :: l, r
-    integer, intent(inout) :: x(*)
+    integer, intent(inout), dimension(:) :: x
     ! local
     integer :: itmp, ind
     integer :: pvt
     integer :: tmp(3)
     
+    
     include 'include/quicksort_r_generic.inc'
+    
       if (r-l <= 10) then
-        call iinsertionsort(x(l), r-l+1)
+        call insertionsort(x(l:), r-l+1)
       else
         ! sort recursively
         call iquicksort_r(x, l, itmp)
@@ -55,7 +66,7 @@ module quicksorts
   subroutine iquicksort(x, xlen)
     ! inputs
     integer, intent(in) :: xlen
-    integer, intent(inout) :: x(*)
+    integer, intent(inout) :: x(:)
     
     call iquicksort_r(x, 1, xlen)
     
@@ -66,15 +77,17 @@ module quicksorts
   recursive subroutine squicksort_r(x, l, r)
     ! inputs
     integer, intent(in) :: l, r
-    real, intent(inout) :: x(*)
+    real, intent(inout) :: x(:)
     ! local
     integer :: itmp, ind
     real :: pvt
     real :: tmp(3)
     
+    
     include 'include/quicksort_r_generic.inc'
+    
       if (r-l <= 10) then
-        call sinsertionsort(x(l), r-l+1)
+        call insertionsort(x(l:), r-l+1)
       else
         ! sort recursively
         call squicksort_r(x, l, itmp)
@@ -90,7 +103,7 @@ module quicksorts
   subroutine squicksort(x, xlen)
     ! inputs
     integer, intent(in) :: xlen
-    real, intent(inout) :: x(*)
+    real, intent(inout) :: x(:)
     
     call squicksort_r(x, 1, xlen)
     
@@ -101,15 +114,17 @@ module quicksorts
   recursive subroutine dquicksort_r(x, l, r)
     ! inputs
     integer, intent(in) :: l, r
-    double precision, intent(inout) :: x(*)
+    double precision, intent(inout) :: x(:)
     ! local
     integer :: itmp, ind
     double precision :: pvt
     double precision :: tmp(3)
     
+    
     include 'include/quicksort_r_generic.inc'
+    
       if (r-l <= 10) then
-        call dinsertionsort(x(l), r-l+1)
+        call insertionsort(x(l:), r-l+1)
       else
         ! sort recursively
         call dquicksort_r(x, l, itmp)
@@ -125,7 +140,7 @@ module quicksorts
   subroutine dquicksort(x, xlen)
     ! inputs
     integer, intent(in) :: xlen
-    double precision, intent(inout) :: x(*)
+    double precision, intent(inout) :: x(:)
     
     call dquicksort_r(x, 1, xlen)
     
@@ -141,8 +156,8 @@ module quicksorts
     implicit none
     ! inputs
     integer, intent(in) :: l, r
-    integer, intent(inout) :: ind(*)
-    integer, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    integer, intent(inout) :: arr(:)
     ! local
     integer :: itmp, pvtind, pvt
     integer :: tmp(3)
@@ -153,7 +168,7 @@ module quicksorts
       
       ! finish with insertionsort or quicksort recursively
       if (r-l <= 10) then
-        call iinsertionsort_by_index(arr(l), ind(l), r-l+1)
+        call insertionsort_by_index(arr(l:), ind(l:), r-l+1)
       else
         call iquicksort_by_index_r(arr, ind, l, itmp)
         call iquicksort_by_index_r(arr, ind, itmp+2, r)
@@ -169,8 +184,8 @@ module quicksorts
     implicit none
     ! inputs
     integer, intent(in) :: length
-    integer, intent(inout) :: ind(*)
-    integer, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    integer, intent(inout) :: arr(:)
     
     
     if (length <= 1) return
@@ -186,8 +201,8 @@ module quicksorts
     implicit none
     ! inputs
     integer, intent(in) :: l, r
-    integer, intent(inout) :: ind(*)
-    real, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    real, intent(inout) :: arr(:)
     ! local
     integer :: itmp, pvtind, pvt
     integer :: tmp(3)
@@ -198,7 +213,7 @@ module quicksorts
       
       ! finish with insertionsort or quicksort recursively
       if (r-l <= 10) then
-        call sinsertionsort_by_index(arr(l), ind(l), r-l+1)
+        call insertionsort_by_index(arr(l:), ind(l:), r-l+1)
       else
         call squicksort_by_index_r(arr, ind, l, itmp)
         call squicksort_by_index_r(arr, ind, itmp+2, r)
@@ -214,8 +229,8 @@ module quicksorts
     implicit none
     ! inputs
     integer, intent(in) :: length
-    integer, intent(inout) :: ind(*)
-    real, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    real, intent(inout) :: arr(:)
     
     
     if (length <= 1) return
@@ -231,8 +246,8 @@ module quicksorts
     implicit none
     ! inputs
     integer, intent(in) :: l, r
-    integer, intent(inout) :: ind(*)
-    double precision, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    double precision, intent(inout) :: arr(:)
     ! local
     integer :: itmp, pvtind, pvt
     integer :: tmp(3)
@@ -243,7 +258,7 @@ module quicksorts
       
       ! finish with insertionsort or quicksort recursively
       if (r-l <= 10) then
-        call dinsertionsort_by_index(arr(l), ind(l), r-l+1)
+        call insertionsort_by_index(arr(l:), ind(l:), r-l+1)
       else
         call dquicksort_by_index_r(arr, ind, l, itmp)
         call dquicksort_by_index_r(arr, ind, itmp+2, r)
@@ -259,8 +274,8 @@ module quicksorts
     implicit none
     ! inputs
     integer, intent(in) :: length
-    integer, intent(inout) :: ind(*)
-    double precision, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    double precision, intent(inout) :: arr(:)
     
     
     if (length <= 1) return

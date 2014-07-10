@@ -8,8 +8,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_Fortran_MODULE_DIRECTORY "include/")
 
 ### Flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -w -O3 -fPIC")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wfatal-errors -w -O3 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O3 -fPIC")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wfatal-errors -O3 -fPIC")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -94,7 +94,7 @@ add_library(linmod SHARED ${LINMOD_FILES})
 add_library(linmod_static STATIC ${LINMOD_FILES})
 
 
-target_link_libraries (linmod ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries (linmod ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 set_target_properties(linmod PROPERTIES PREFIX "")
 if(NOT WIN32)

@@ -15,14 +15,26 @@ module swaps
   
   
   interface swap
-    module procedure iswap, sswap, dswap, scswap, dcswap
+    module procedure iswap
+    module procedure sswap
+    module procedure dswap
+    module procedure scswap
+    module procedure dcswap
   end interface
-  
   
   interface swap_ind
-    module procedure iswap_ind, sswap_ind, dswap_ind, scswap_ind, dcswap_ind
+    module procedure iswap_ind
+    module procedure sswap_ind
+    module procedure dswap_ind
+    module procedure scswap_ind
+    module procedure dcswap_ind
   end interface
   
+  public :: swap
+  public :: swap_ind
+  
+  private :: iswap, sswap, dswap, scswap, dcswap
+  private :: iswap_ind, sswap_ind, dswap_ind, scswap_ind, dcswap_ind
   
   contains
   

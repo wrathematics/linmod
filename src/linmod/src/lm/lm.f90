@@ -13,7 +13,7 @@ module lm
     
     subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank) &
-      bind(c, name='lm_fit_')
+      bind(C, name='lm_fit_fortran_')
       integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
       integer, intent(out) :: info, jpvt(n)
       integer, intent(inout) :: rank

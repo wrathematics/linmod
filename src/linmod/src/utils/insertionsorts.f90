@@ -11,13 +11,22 @@ module insertionsorts
   
   
   interface insertionsort
-    module procedure iinsertionsort, sinsertionsort, dinsertionsort
+    module procedure iinsertionsort
+    module procedure sinsertionsort
+    module procedure dinsertionsort
   end interface
   
   interface insertionsort_by_index
-    module procedure iinsertionsort_by_index, sinsertionsort_by_index, dinsertionsort_by_index
+    module procedure iinsertionsort_by_index
+    module procedure sinsertionsort_by_index
+    module procedure dinsertionsort_by_index
   end interface
   
+  public :: insertionsort
+  public :: insertionsort_by_index
+  
+  private :: iinsertionsort, sinsertionsort, dinsertionsort
+  private :: iinsertionsort_by_index, sinsertionsort_by_index, dinsertionsort_by_index
   
   contains
   
@@ -29,7 +38,7 @@ module insertionsorts
   subroutine iinsertionsort(x, xlen)
     ! In/out
     integer, intent(in) :: xlen
-    integer, intent(inout) :: x(*)
+    integer, intent(inout) :: x(:)
     ! local
     integer :: i, j
     integer :: tmp
@@ -44,7 +53,7 @@ module insertionsorts
   subroutine sinsertionsort(x, xlen)
     ! In/out
     integer, intent(in) :: xlen
-    real, intent(inout) :: x(*)
+    real, intent(inout) :: x(:)
     ! local
     integer :: i, j
     real :: tmp
@@ -59,7 +68,7 @@ module insertionsorts
   subroutine dinsertionsort(x, xlen)
     ! In/out
     integer, intent(in) :: xlen
-    double precision, intent(inout) :: x(*)
+    double precision, intent(inout) :: x(:)
     ! local
     integer :: i, j
     double precision :: tmp
@@ -77,8 +86,8 @@ module insertionsorts
   subroutine iinsertionsort_by_index(arr, ind, length)
     ! In/out
     integer, intent(in) :: length
-    integer, intent(inout) :: ind(*)
-    integer, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    integer, intent(inout) :: arr(:)
     ! local
     integer :: tmp
     
@@ -92,8 +101,8 @@ module insertionsorts
   subroutine sinsertionsort_by_index(arr, ind, length)
     ! In/out
     integer, intent(in) :: length
-    integer, intent(inout) :: ind(*)
-    real, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    real, intent(inout) :: arr(:)
     ! local
     real :: tmp
     
@@ -107,8 +116,8 @@ module insertionsorts
   subroutine dinsertionsort_by_index(arr, ind, length)
     ! In/out
     integer, intent(in) :: length
-    integer, intent(inout) :: ind(*)
-    double precision, intent(inout) :: arr(*)
+    integer, intent(inout) :: ind(:)
+    double precision, intent(inout) :: arr(:)
     ! local
     double precision :: tmp
     

@@ -29,22 +29,13 @@ int lmfit_classic(char trans, int m, int n, int nrhs, double *a, double *b)
 
 
 
-int lmfit_R(char trans, int m, int n, int nrhs, double *a, double *b,
+int lm_fit(char trans, int m, int n, int nrhs, double *a, double *b,
   double tol, double **eff, double **ft, double **rsd, double **tau,
   int rank)
 {
   int info = 0;
   
-  double *work, tmpwork;
-  int lwork = -1;
-  
-  
   // Workspace query
-  dgels_(&trans, &m, &n, &nrhs, a, &m, b, &m, &tmpwork, &lwork, &info);
-  
-  lwork = (int) tmpwork;
-  work = malloc(lwork * sizeof(*work));
-  
   *eff = malloc(m*nrhs * sizeof(**eff));
   *ft = malloc(m*nrhs * sizeof(**ft));
   *rsd = malloc(m*nrhs * sizeof(**rsd));
@@ -52,7 +43,7 @@ int lmfit_R(char trans, int m, int n, int nrhs, double *a, double *b,
   
   
   // Fit y~x
-  rdgels_(&trans, &m, &n, &nrhs, a, &m, b, &m, work, &lwork, &info, &tol, *eff, *ft, *rsd, *tau, &rank);
+  lm_fit_fortran_(&trans, &m, &n, &nrhs, a, &m, b, &m, &tol, *eff, *ft, *rsd, *tau, &rank, &info);
   
   return info;
 }

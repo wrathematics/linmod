@@ -11,16 +11,30 @@ module quicksort_utils
   
   
   interface quicksort_median_of_3
-    module procedure iquicksort_median_of_3, squicksort_median_of_3, dquicksort_median_of_3
+    module procedure iquicksort_median_of_3
+    module procedure squicksort_median_of_3
+    module procedure dquicksort_median_of_3
   end interface
   
   interface quicksort_partition
-    module procedure iquicksort_partition, squicksort_partition, dquicksort_partition
+    module procedure iquicksort_partition
+    module procedure squicksort_partition
+    module procedure dquicksort_partition
   end interface
   
-  interface quicksort_partition_by_index
-    module procedure iquicksort_by_index_partition, squicksort_by_index_partition, dquicksort_by_index_partition
+  interface quicksort_by_index_partition
+    module procedure iquicksort_by_index_partition
+    module procedure squicksort_by_index_partition
+    module procedure dquicksort_by_index_partition
   end interface
+  
+  public :: quicksort_median_of_3
+  public :: quicksort_partition
+  public :: quicksort_by_index_partition
+  
+  private :: iquicksort_median_of_3, squicksort_median_of_3, dquicksort_median_of_3
+  private :: iquicksort_partition, squicksort_partition, dquicksort_partition
+  private :: iquicksort_by_index_partition, squicksort_by_index_partition, dquicksort_by_index_partition
   
   contains
   

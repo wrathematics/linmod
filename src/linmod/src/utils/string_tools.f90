@@ -12,7 +12,8 @@ module string_tools
   
   
   ! Makes string all lowercase based on ascii encoding
-  function toupper(str) result(ret)
+  function toupper(str) &
+  result(ret)
     ! in/out
     character(len=*) :: str
     character(len=len(str)) :: ret
@@ -36,7 +37,8 @@ module string_tools
   
   
   ! Makes string all uppercase based on ascii encoding
-  function tolower(str) result(ret)
+  function tolower(str) &
+  result(ret)
     ! in/out
     character(len=*) :: str
     character(len=len(str)) :: ret
@@ -60,7 +62,8 @@ module string_tools
   
   
   ! Test equality ignoring case
-  function equivchar(a, b) result(test)
+  function equivchar(a, b) &
+  result(test)
     ! in/out
     logical :: test
     character(len=1), intent(in) :: a, b

@@ -147,7 +147,7 @@ subroutine rdgeqpf(m, n, a, lda, jpvt, tau, work, tol, rank, info)
   end do
   
   
-  print *, "rank=",rank
+!  print *, "rank=",rank
   
   return
 end subroutine

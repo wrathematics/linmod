@@ -11,7 +11,7 @@ module glm
   interface
     subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
                    beta, wt, offset, resids, maxiter, tol, info) &
-      bind(c, name='glm_fit_')
+      bind(C, name='glm_fit_fortran_')
       use, intrinsic :: iso_c_binding
       use :: lapack
       use :: glm_check
