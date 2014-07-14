@@ -1,7 +1,8 @@
 Package: linmod
 Title: Linear and Generalized Linear Model Fitters
-Version: 0.1-0
-Date: 2014-3-20
+Description: This package provides a set of wrappers for the linmod library
+      (included in this package). This allows the user to 
+Version: 0.1.0
 Depends: R (>= 2.14.0)
 LazyLoad: yes
 LazyData: yes
@@ -9,9 +10,6 @@ Imports: RNACI
 LinkingTo: RNACI
 SystemRequirements: cmake (http://www.cmake.org)
 Authors@R: c(person("Drew", "Schmidt", role = c("aut", "cre"), email =
-        "schmidt@math.utk.edu"))
-Description: glm in fortran
+        "wrathematics@gmail.com"))
 License: Mozilla Public License 2.0
 NeedsCompilation: Yes
-Author: Drew Schmidt [aut, cre]
-Maintainer: Drew Schmidt <schmidt@math.utk.edu>
