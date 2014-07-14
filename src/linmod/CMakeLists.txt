@@ -81,6 +81,8 @@ set(UTILS_FILES
 	src/utils/insertionsorts.f90
 	src/utils/quicksort_utils.f90
 	src/utils/quicksorts.f90
+	src/utils/distributions_probit.c
+	src/utils/transpose.c
 	src/Rspecial/Rspecial.c
 	src/Rspecial/R_special.f90
 )
