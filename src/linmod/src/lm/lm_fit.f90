@@ -150,16 +150,16 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   
   if(info /= 0) then
      call xerbla('dgels ', -info)
-     return
+     goto 50 ! deallocate temp storage and return
   else if(lquery) then
-     return
+    goto 50 ! deallocate temp storage and return
   end if
   
   
   ! quick return if possible
   if(min(m, n, nrhs) == 0) then
      call dlaset('full', max(m, n), nrhs, 0.0d0, 0.0d0, b, ldb)
-     return
+     goto 50 ! deallocate temp storage and return
   end if
   
   
@@ -215,8 +215,8 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   !$omp end parallel do
   
   
-  
-  if (m >= n) then
+  if (1 > 0) then !!! FIXME TODO
+!  if (m >= n) then
     call rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
     

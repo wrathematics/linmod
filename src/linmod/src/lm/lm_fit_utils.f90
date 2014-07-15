@@ -45,7 +45,8 @@ module lm_fit_utils
     call dormqr('left', 'transpose', m, nrhs, rank, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
     
     ! Store "effects"
-    call dlacpy_omp('All', m, nrhs, b, ldb, eff, ldb)
+!    call dlacpy_omp('All', m, nrhs, b, ldb, eff, ldb)
+    eff(1:m, 1:nrhs) = b(1:m, 1:nrhs)
     
     
     ! Store qraux(1) == work(1) 
@@ -75,16 +76,19 @@ module lm_fit_utils
     
     
     ! Compute fitted FT = Q*(R*fitted)
-    call dtrmm('L', 'U', 'N', 'N', n, nrhs, 1.0d0, a, lda, ft, ldb)
+    call dtrmm('L', 'U', 'N', 'N', mn, nrhs, 1.0d0, a, lda, ft, ldb)
     
-    tau(1:min(m, n)) = work(1:min(m,n))
-    call dormqr('L', 'N', m, nrhs, n, a, lda, tau, ft, ldb, work, lwork, info)
+    tau(1:mn) = work(1:mn)
+    call dormqr('L', 'N', m, nrhs, mn, a, lda, tau, ft, ldb, work, lwork, info)
     
+    
+    !!! FIXME dlacpy_omp doesn't copy beyond first column correctly ?!
     ! Compute residual RSD = B - FT
-    call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+!    call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+    rsd(1:m, 1:nrhs) = rsd(1:m, 1:nrhs) - ft(1:m, 1:nrhs)
     
     ! Coefficients are stored in the first RANK elements of B
-!    call dlacpy_omp('A', n, nrhs, b, 1, coef, 1) !!! FIXME doesn't copy beyond first column correctly ?!
+!    call dlacpy_omp('A', n, nrhs, b, 1, coef, 1)
     coef(1:n, 1:nrhs) = b(1:n, 1:nrhs)
     
     call rdgels_fixcoef(m, n, mn, nrhs, rank, jpvt, coef)
@@ -113,23 +117,26 @@ module lm_fit_utils
     
     call r_set_na(na_real)
     
-    if (m >= n) then
+    ! ------------------  m >= n  ------------------
+!    if (m >= n) then
+    if (1 > 0) then !!! FIXME TODO
       if (rank == n) return
       
       allocate(pvt(n))
       
-      
-      tail = n
+      tail = mn
       do j = 1, nrhs
         pvt(1:n) = jpvt(1:n)
         
         ! fill back n-rank values with NA
-        do i = 2, n
+        do i = 2, mn
           if (jpvt(i) < jpvt(i-1)) then
             tail = i
             exit
           end if
         end do
+        
+        if (m < n .and. tail == mn) tail = tail + 1
         
         if (tail /= n) then
           do i = tail, n
@@ -144,6 +151,7 @@ module lm_fit_utils
       end do
       
       deallocate(pvt)
+    ! ------------------  m < n  ------------------
     end if
     
   end subroutine

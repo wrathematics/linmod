@@ -1,9 +1,21 @@
 == Library ==
-* Finish glm_fit classic (return residuals, etc.)
-* Modify dgels et al for limited pivoting
-* Create rglm_fit.
+* Use lm_fit in glm_fit (instead of dgels); return residuals, etc.
+* Handle m < n case in lm_fit.
 
 
-== R package ==
-* Export lm.fit() after dgels modifications
-* Wrap rglm_fit
+== Misc library crap ==
+* Expand the C interface.
+* Finish the transposers.
+* Documentation
+
+
+== "eventually" == 
+Expand families/links to full R support:
+  * Binomial: cloglog, log, logit (DONE), probit, cauchit
+  * Gamma: identity, inverse, log (DONE)
+  * Gaussian: identity, inverse, log (DONE)
+  * Poisson: identity, log, sqrt (DONE)
+  
+  * Inverse gamma: inverse, log, identity, "1/mu^2"
+  * Quasi-Binomial: logit, probit, clogloc, cauchit, log
+  * Quasi-Poisson: log, identity, sqrt

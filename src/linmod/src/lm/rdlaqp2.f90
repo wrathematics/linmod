@@ -156,7 +156,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   ! Estimate numerical rank
   rank = 0
   
-  do i = 1, n-1
+  do i = 1, mn-1
     if (jpvt(i) < i) then
       exit
     else

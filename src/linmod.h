@@ -6,7 +6,10 @@
 #include "linmod/src/c_interface/linmod.h"
 #include "linmod/src/c_interface/lapack.h"
 
+
+// utils.c
 SEXP make_lmfit_default_rownames(const int n);
+SEXP make_lmfit_default_effectnames(const int m, const int n, const int *pvt);
 
 
 #endif

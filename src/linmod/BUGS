@@ -1,3 +1,3 @@
 == Library ==
 * lm_fit: work array allocation is borked
-* more lm_fit_utils: dlacpy_omp bug
+* dlacpy_omp bug (expressed in lm_fit_utils)

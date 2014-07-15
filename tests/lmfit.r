@@ -1,7 +1,7 @@
 library(linmod)
 
 set.seed(1234)
-nrhs <- 1
+nrhs <- 2
 
 m <- 10
 n <- 5
@@ -23,43 +23,10 @@ y <- matrix(rnorm(m*nrhs), m, nrhs)
 #linmod::lm_fit(x, y)$qr
 
 
+whichprint <- c("coefficients", "residuals", "effects")
 
-f <- function(x, y, check.rank=FALSE)
-{
-  cat("-------------------------------------------------------\n\n")
-  
-  mdl1 <- stats::lm.fit(x, y)
-  mdl2 <- linmod::lm_fit(x, y, check.rank=check.rank)
-  
-  a <- mdl1$coefficients
-  b <- mdl2$coefficients
-  test <- all.equal(a, b, check.names=FALSE)
-  
-  print(test)
-  print(a);print(b)
-  
-  
-  a <- mdl1$fitted
-  b <- mdl2$fitted
-  test <- all.equal(a, b, check.names=FALSE)
-  print(test)
-  
-  a <- mdl1$residuals
-  b <- mdl2$residuals
-  test <- all.equal(a, b, check.names=FALSE)
-  print(test)
-  
-  a <- mdl1$effects
-  b <- mdl2$effects
-  test <- all.equal(a, b, check.names=FALSE)
-  print(test)
-  
-  invisible()
-}
-
-f(x, y, TRUE)
+linmod:::lmfit_test(x, y, TRUE, whichprint)
 #f(x, y, FALSE)
-
 
 #stats::lm.fit(x, y)
 #linmod::lm_fit(x, y)
