@@ -76,15 +76,16 @@ set(LM_FILES
 )
 
 set(UTILS_FILES
-	src/utils/string_tools.f90
-	src/utils/swaps.f90
+	src/utils/distributions_probit.c
+	src/utils/distributions.f90
 	src/utils/insertionsorts.f90
 	src/utils/quicksort_utils.f90
 	src/utils/quicksorts.f90
-	src/utils/distributions_probit.c
-	src/utils/transpose.c
-	src/Rspecial/Rspecial.c
-	src/Rspecial/R_special.f90
+	src/utils/Rspecial.c
+	src/utils/Rspecial_.f90
+	src/utils/string_tools.f90
+	src/utils/swaps.f90
+	src/utils/transposition.f90
 )
 
 
