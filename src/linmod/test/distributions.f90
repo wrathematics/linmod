@@ -5,7 +5,8 @@ program main
   
   x = 0.78d0
   
-  print *, erfinv(x)
-  print *, erfinvc(x)
-  print *, probit(x)
+  !!! FIXME
+!  print *, erfinv(x)
+!  print *, erfinvc(x)
+!  print *, probit(x)
 end program

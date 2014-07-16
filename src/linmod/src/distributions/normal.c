@@ -11,15 +11,48 @@
 // (in norm) less than 1.15e-9.  "Special cases" (dumb inputs) 
 // conform to R's qnorm().
 
+
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+#include "constants.h"
+
+
+double dnorm(const double x, const double mean, const double sd, const bool log_)
+{
+  double ret;
+  const double tmp = x - mean;
+  
+  ret = ROOT2INV*SQPIINV/sd*exp(-tmp*tmp*0.5/sd/sd);
+  
+  if (log_ == true)
+    ret = log(ret);
+  
+  return ret;
+}
+
+
+
+double pnorm(const double q, const double mean, const double sd, const bool lower_tail, const bool log_p)
+{
+  double ret;
+  
+  ret = 0.5*erfc(-ROOT2INV*(q - mean)/sd);
+  
+  if (lower_tail == false)
+    ret = 1.0 - ret;
+  
+  if (log_p == true)
+    ret = log(ret);
+  
+  return ret;
+}
+
 
 
 #define P_LOW 0.02425
 #define P_HIGH 0.97575
-
-#define ROOT2 1.414213562373095
-
 
 // Coefficients in rational approximations.
 static const double a[6] =
@@ -49,7 +82,7 @@ static const double d[4] =
   2.445134137142996e+00, 3.754408661907416e+00
 };
 
-double qnorm(const double p)
+double qnorm(const double p, const double mean, const double sd, const bool lower_tail, const bool log_p)
 {
   int i;
   double q, r;
@@ -88,15 +121,22 @@ double qnorm(const double p)
     denominator = ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
   }
   
+  q = mean + sd*numerator/denominator;
   
-  return numerator/denominator;
+  if (lower_tail == false)
+    q = -q;
+  
+  if (log_p == true)
+    q = log(q);
+  
+  return q;
 }
 
 
 
 double erfinv(const double x)
 {
-  return qnorm((1. + x)/2.) / ROOT2;
+  return qnorm((1. + x)/2., 0, 1, true, false) / ROOT2;
 }
 
 
