@@ -24,6 +24,7 @@ module glm_constants
   integer, public, parameter :: glm_family_binomial = 2
   integer, public, parameter :: glm_family_poisson = 3
   integer, public, parameter :: glm_family_gamma = 4
+  integer, public, parameter :: glm_family_inversegaussian = 5
   
   integer, public, parameter :: glm_family_badmu = -101
   
