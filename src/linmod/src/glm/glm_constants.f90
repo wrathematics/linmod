@@ -38,6 +38,7 @@ module glm_constants
   integer, public, parameter :: glm_link_sqrt = 6
   integer, public, parameter :: glm_link_probit = 7
   integer, public, parameter :: glm_link_cauchit = 8
+  integer, public, parameter :: glm_link_inversesquare = 9
   
   ! Intercept parameters
   integer, public, parameter :: glm_intercept_no = 0

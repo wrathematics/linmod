@@ -85,6 +85,14 @@ module glm_link_utils
         end do
       !$omp end do
     
+    else if (link == glm_link_inversesquare) then
+      !$omp do
+        do i = 1, n
+          tmp = x(i)
+          y(i) = 1.0d0/tmp/tmp
+        end do
+      !$omp end do
+    
     end if
     !$omp end parallel
     
@@ -168,6 +176,13 @@ module glm_link_utils
       !$omp do
         do i = 1, n
           tmp = pcauchy(x(i), 0.0d0, 1.0d0, true, false)
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_inversesquare) then
+      !$omp do
+        do i = 1, n
+          y(i) = 1.0d0/dsqrt(x(i))
         end do
       !$omp end do
     

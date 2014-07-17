@@ -83,6 +83,14 @@ module glm_check
                 check = glm_link_unsupported
         end if
     
+    else if (family == glm_family_inversegaussian) then
+        if (link /= glm_link_inverse               .and. &
+            link /= glm_link_log                   .and. &
+            link /= glm_link_identity              .and. &
+            link /= glm_link_inversesquare)         then
+                check = glm_link_unsupported
+        end if
+    
     else
         ! family not supported
         check = glm_family_unsupported

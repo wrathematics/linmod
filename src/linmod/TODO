@@ -15,7 +15,7 @@ Expand families/links to full R support:
   * Gamma: identity, inverse, log (DONE)
   * Gaussian: identity, inverse, log (DONE)
   * Poisson: identity, log, sqrt (DONE)
-  * Inverse gaussian: inverse, log, identity (DONE), "1/mu^2"
-  * 
+  * Inverse gaussian: inverse, log, identity, "1/mu^2" (DONE)
+  
   * Quasi-Binomial: logit, probit, clogloc, cauchit, log
   * Quasi-Poisson: log, identity, sqrt
