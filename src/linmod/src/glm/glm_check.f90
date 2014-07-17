@@ -7,9 +7,39 @@
 
 module glm_check
   use :: glm_constants
+  use :: lapack, only : dlamch
   implicit none
   
   contains
+  
+  
+  function glm_check_inputs(n, p, stoprule, maxiter, tol) &
+  result(check)
+    ! in/out
+    integer :: check
+    integer, intent(in) :: n, p, stoprule, maxiter
+    double precision, intent(in) :: tol
+    ! local
+    double precision :: eps
+    
+    
+    eps = dlamch('epsilon')
+    check = 0
+    
+    if (n < 0) then
+      check = glm_badinput_n
+    else if (p < 0) then
+      check = glm_badinput_p
+    else if (stoprule /= glm_stoprule_maxiter .or. &
+             stoprule /= glm_stoprule_coefs  .or. &
+             stoprule /= glm_stoprule_deviance) then
+      check = glm_badinput_stoprule
+    else if (maxiter < 1) then
+      check = glm_badinput_maxiter
+    else if (tol < eps) then
+      check = glm_badinput_tol
+    end if
+  end function
   
   ! check the family and link arguments for valid/supported possibilities
   ! 0: no problem
@@ -25,29 +55,30 @@ module glm_check
     check = 0
     
     if (family == glm_family_binomial) then
-        if (link /= glm_link_cloglog  .and. &
-            link /= glm_link_log      .and. &
-            link /= glm_link_logit)    then
+        if (link /= glm_link_cloglog   .and. &
+            link /= glm_link_log       .and. &
+            link /= glm_link_logit     .and. &
+            link /= glm_link_probit)   then
                 check = glm_link_unsupported
         end if
     
     else if (family == glm_family_gamma) then
-        if (link /= glm_link_identity   .and. &
-            link /= glm_link_log        .and. &
-            link /= glm_link_inverse)   then
+        if (link /= glm_link_identity    .and. &
+            link /= glm_link_log         .and. &
+            link /= glm_link_inverse)    then
                 check = glm_link_unsupported
         end if
     
     else if (family == glm_family_gaussian) then
-        if (link /= glm_link_identity      .and. &
-            link /= glm_link_log           .and. &
+        if (link /= glm_link_identity       .and. &
+            link /= glm_link_log            .and. &
             link /= glm_link_inverse)       then
                 check = glm_link_unsupported
         end if
     
     else if (family == glm_family_poisson) then
-        if (link /= glm_link_identity     .and. &
-            link /= glm_link_log          .and. &
+        if (link /= glm_link_identity      .and. &
+            link /= glm_link_log           .and. &
             link /= glm_link_sqrt)         then
                 check = glm_link_unsupported
         end if
@@ -62,7 +93,7 @@ module glm_check
   
   
   
-  function check_response(family, n, y) &
+  function glm_check_response(family, n, y) &
   result(check)
     ! in/out
     integer :: check
@@ -71,8 +102,6 @@ module glm_check
     double precision, intent(in) :: y(*)
     ! local
     integer :: i
-    ! parameter
-    integer, parameter :: fail = -8
     
     
     check = 0
@@ -80,7 +109,7 @@ module glm_check
     if (family == glm_family_binomial) then
       do i = 1, n
         if (y(i) < 0.0d0 .or. y(i) > 1.0d0) then
-          check = fail
+          check = glm_badinput_family
           return
         end if
       end do
@@ -88,7 +117,7 @@ module glm_check
     else if (family == glm_family_poisson .or. family == glm_family_gamma) then
       do i = 1, n
         if (y(i) < 0.0d0) then
-          check = fail
+          check = glm_badinput_family
           return
         end if
       end do

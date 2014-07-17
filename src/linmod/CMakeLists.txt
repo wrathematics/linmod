@@ -45,10 +45,10 @@ endif()
 set(GLM_FILES
 	src/glm/glm_check.f90
 	src/glm/glm_constants.f90
+	src/glm/glm_family_utils.f90
+	src/glm/glm_fit.f90
 	src/glm/glm_link_utils.f90
 	src/glm/glm_loglik_utils.f90
-	src/glm/glm_fit.f90
-	src/glm/glm_mu_var.f90
 	src/glm/glm_residuals_utils.f90
 	src/glm/glm_update_utils.f90
 	src/glm/glm.f90
@@ -75,9 +75,13 @@ set(LM_FILES
 	src/lm/rdlaqp2.f90
 )
 
+set(DISTRIBUTIONS_FILES
+	src/distributions/distributions.f90
+	src/distributions/cauchy.c
+	src/distributions/normal.c
+)
+
 set(UTILS_FILES
-	src/utils/distributions_probit.c
-	src/utils/distributions.f90
 	src/utils/insertionsorts.f90
 	src/utils/quicksort_utils.f90
 	src/utils/quicksorts.f90
@@ -89,7 +93,7 @@ set(UTILS_FILES
 )
 
 
-set(LINMOD_FILES ${UTILS_FILES} ${LAPACK_FILES} ${LM_FILES} ${GLM_FILES} ${CINTERFACE_FILES})
+set(LINMOD_FILES ${UTILS_FILES} ${DISTRIBUTIONS_FILES} ${LAPACK_FILES} ${LM_FILES} ${GLM_FILES} ${CINTERFACE_FILES})
 
 
 ### Make and install

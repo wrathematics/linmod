@@ -134,7 +134,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   
   
   ! figure out optimal block size
-  if(info == 0 .or. info == -10) then
+  if (info == 0 .or. info == -10) then
     
     if(m >= n) then
       nb = ilaenv(1, 'dgeqrf', ' ', m, n, -1, -1)
@@ -148,7 +148,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
     work(1) = dble(wsize)
   end if
   
-  if(info /= 0) then
+  if (info /= 0) then
      call xerbla('dgels ', -info)
      goto 50 ! deallocate temp storage and return
   else if(lquery) then

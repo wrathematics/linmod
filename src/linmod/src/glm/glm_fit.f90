@@ -97,13 +97,13 @@
 
 subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
                    beta, wt, offset, resids, maxiter, tol, info) &
-bind(c, name='glm_fit_')
+  bind(C, name='glm_fit_')
   use, intrinsic :: iso_c_binding
   
   use :: lapack
   use :: glm_check
   use :: glm_loglik_utils
-  use :: glm_mu_var
+  use :: glm_family_utils
   use :: glm_update_utils
   use :: glm_constants
   implicit none
@@ -128,33 +128,35 @@ bind(c, name='glm_fit_')
   intrinsic :: min, max, dble, dsqrt
   
   
-  ! quick return if possible
+  info = 0
+  if (n == 0 .or. p == 0 .or. maxiter == 0) return
+  
+  info = glm_check_inputs(n, p, stoprule, maxiter, tol)
   info = glm_check_fam_link(family, link)
+  info = glm_check_response(family, n, y)
   if (info < 0) return
   
-  info = check_response(family, n, y)
-  if (info == -8) return
   
   ! allocate local storage
   allocerr = 0
   
   allocate(beta_old(p), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   allocate(eta(n), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   allocate(sqwt(n), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   allocate(x_tw(n, p), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   allocate(mu(n), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   allocate(z(n), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   
   ! allocate workspace for linear models
   lwork = min(n, p) + max(1, n, p)
   allocate(work(lwork), stat=allocerr)
-  if (allocerr /= 0) stop "out of memory"
+  if (allocerr /= 0) goto 1
   
   
   ! empty model case
@@ -165,7 +167,7 @@ bind(c, name='glm_fit_')
     
     call glm_linkinv(link, n, eta, mu)
     
-    call glm_check_mu(family, n, mu, tol, info)
+    call glm_check_fitted(family, n, mu, info)
     if (info /= 0) return
     
     call glm_variance(family, n, mu, wt)
@@ -180,7 +182,7 @@ bind(c, name='glm_fit_')
   
   ! initialize
 !!! Parallel block
-  !$omp parallel private(i) default(shared) 
+  !$omp parallel if (n>5000) private(i) default(shared) 
   !$omp do
   do i = 1, p
     beta_old(i) = 0.0d0
@@ -207,13 +209,14 @@ bind(c, name='glm_fit_')
       call glm_initial_mu(family, n, y, wt, mu)
       call glm_link(link, n, mu, eta)
     else 
-      call dgemm('n', 'n', n, 1, p, 1.0d0, x, n, beta, p,  0.0d0, eta, n)
+      call dgemm('n', 'n', n, 1, p, 1.0d0, x, n, beta, p, 0.0d0, eta, n)
       call glm_linkinv(link, n, eta, mu)
     end if
     
+    print *, "beta=", beta(1:p)
     
     ! check for bad fit in the mu's
-    call glm_check_mu(family, n, mu, tol, info)
+    call glm_check_fitted(family, n, mu, info)
     if (info /= 0) return
     
     
@@ -227,7 +230,6 @@ bind(c, name='glm_fit_')
     end if
     
     
-!!! Parallel block
     !$omp parallel private(i) default(shared) 
     !$omp do private(i)
       do i = 1, n
@@ -252,10 +254,9 @@ bind(c, name='glm_fit_')
         z(i) = tmp*eta(i) + 1.0d0/(tmp)*(y(i)-mu(i))
       end do
     !$omp end parallel
-!!! End parallel block
     
     
-    ! update beta:  fit z ~ x_tw
+    ! fit z ~ x_tw
     call glm_update_beta(n, p, beta, beta_old, x_tw, z, work, lwork, info)
     
     
@@ -266,7 +267,7 @@ bind(c, name='glm_fit_')
     
     if (converged == glm_convergence_converged) then
       ! converged: break loop and compute likelihood statistics and residuals
-      goto 10 ! converged
+      goto 10
     else if (converged == glm_convergence_infparams) then
       ! infinite parameter values detected: deallocate and return with error
       goto 1
@@ -275,8 +276,7 @@ bind(c, name='glm_fit_')
   end do IRLS_LOOP
   
   
-  !!! success --- now do all the other stuff
-10   continue
+  10 continue
   
   ! aic, deviance, nulldeviance
   call glm_loglik_stats(family, link, intercept, n, p, x, y, eta, mu, beta, beta_old, dev, aic, nulldev)
@@ -286,8 +286,9 @@ bind(c, name='glm_fit_')
   
   write (*,*) "iter=",iter
   
-  ! exit subroutine
-1    continue
+  
+  1 continue
+  if (allocerr /= 0) info = glm_oom
   
   deallocate(beta_old)
   deallocate(eta)

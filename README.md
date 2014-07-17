@@ -121,7 +121,7 @@ specifically, the family and link have to each be available to Fortran (R is
 much more flexible, at the cost of efficiency).  Currently, the supported 
 families and their associated links are:
 
-* Binomial: cloglog, log, logit
+* Binomial: cloglog, log, logit, probit, cauchit
 * Gamma: identity, inverse, log
 * Gaussian: identity, inverse, log
 * Poisson: identity, log, sqrt

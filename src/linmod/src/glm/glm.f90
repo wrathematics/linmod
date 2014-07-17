@@ -17,7 +17,7 @@ module glm
       use :: glm_check
       use :: glm_loglik_utils
       use :: glm_link_utils
-      use :: glm_mu_var
+      use :: glm_family_utils
       use :: glm_update_utils
       implicit none
       

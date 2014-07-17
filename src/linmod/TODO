@@ -1,17 +1,17 @@
 == Library ==
-* Use lm_fit in glm_fit (instead of dgels); return residuals, etc.
+* Use lm_fit in glm_fit (instead of dgels); return effects, residuals, etc.
 * Handle m < n case in lm_fit.
+* Compute deviance residuals.
 
 
 == Misc library crap ==
 * Expand the C interface.
-* Finish the transposers.
-* Documentation
+* Documentation.
 
 
 == "eventually" == 
 Expand families/links to full R support:
-  * Binomial: cloglog, log, logit (DONE), probit, cauchit
+  * Binomial: cloglog, log, logit, probit, cauchit (DONE)
   * Gamma: identity, inverse, log (DONE)
   * Gaussian: identity, inverse, log (DONE)
   * Poisson: identity, log, sqrt (DONE)

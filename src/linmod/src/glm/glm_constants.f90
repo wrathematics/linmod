@@ -8,23 +8,35 @@
 module glm_constants
   implicit none
   
+  ! glm_fit errors
+  integer, public, parameter :: glm_oom = -2147483647
+  
+  integer, public, parameter :: glm_badinput_stoprule = -4
+  integer, public, parameter :: glm_badinput_n = -5
+  integer, public, parameter :: glm_badinput_p = -6
+  integer, public, parameter :: glm_badinput_family = -8
+  integer, public, parameter :: glm_badinput_maxiter = -13
+  integer, public, parameter :: glm_badinput_tol = -14
+  
   ! Family parameters
   integer, public, parameter :: glm_family_unsupported = -1
-  
   integer, public, parameter :: glm_family_gaussian = 1
   integer, public, parameter :: glm_family_binomial = 2
   integer, public, parameter :: glm_family_poisson = 3
   integer, public, parameter :: glm_family_gamma = 4
   
+  integer, public, parameter :: glm_family_badmu = -101
+  
   ! Link function parameters
   integer, public, parameter :: glm_link_unsupported = -2
-  
   integer, public, parameter :: glm_link_cloglog = 1
   integer, public, parameter :: glm_link_identity = 2
   integer, public, parameter :: glm_link_inverse = 3
   integer, public, parameter :: glm_link_log = 4
   integer, public, parameter :: glm_link_logit = 5
   integer, public, parameter :: glm_link_sqrt = 6
+  integer, public, parameter :: glm_link_probit = 7
+  integer, public, parameter :: glm_link_cauchit = 8
   
   ! Intercept parameters
   integer, public, parameter :: glm_intercept_no = 0
