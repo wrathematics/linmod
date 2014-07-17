@@ -31,7 +31,8 @@ module glm_family_utils
         end if
       end do
     
-    else if (family == glm_family_poisson .or. family == glm_family_gamma) then
+    else if (family == glm_family_poisson .or. &
+             family == glm_family_gamma) then
       do i = 1, n
         if (mu(i) <= 0.0d0) then
           info = glm_family_badmu
@@ -66,9 +67,8 @@ module glm_family_utils
         end do
       !$omp end do
     
-    
-    else if (family == glm_family_gamma    .or. 
-             family == glm_family_gaussian .or.
+    else if (family == glm_family_gamma            .or. &
+             family == glm_family_gaussian         .or. &
              family == glm_family_inversegaussian) then
       !$omp do
         do i = 1, n
@@ -76,13 +76,13 @@ module glm_family_utils
         end do
       !$omp end do
     
-    
     else if (family == glm_family_poisson) then
       !$omp do
         do i = 1, n
           mu(i) = y(i) + 0.1d0
         end do
       !$omp end do
+    
     end if
     !$omp end parallel
     
@@ -132,7 +132,6 @@ module glm_family_utils
           var(i) = mu(i)
         end do
       !$omp end do
-    end if
     
     else if (family == glm_family_inversegaussian) then
       !$omp do
