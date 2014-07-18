@@ -66,7 +66,7 @@ module glm_update_utils
     
     call glm_linkinv_deriv(link, n, eta, rtwt)
     
-    !$omp parallel private(i, j) default(shared) 
+    !$omp parallel if (n*p > 5000) private(i, j) default(shared) 
     !$omp do
       do i = 1, n
         rtwt(i) = rtwt(i) / dsqrt(wt(i))
@@ -83,18 +83,10 @@ module glm_update_utils
       end do
     !$omp end do
     !$omp end parallel
+    
+    return
   end subroutine
   
-  
-  
-!    glm_link_cloglog
-!    glm_link_identity
-!    glm_link_inverse
-!    glm_link_log
-!    glm_link_sqrt
-!    glm_link_probit
-!    glm_link_cauchit
-!    glm_link_inversesquare
   
   
   ! Set the working response z
@@ -116,14 +108,16 @@ module glm_update_utils
     !                 = rtwt * eta + 1/rtwt*(y-mu)
     call glm_linkinv_deriv(link, n, eta, z)
     
-    !$omp parallel private(i, tmp) default(shared) 
-      !$omp do private(i, tmp)
-        do i = 1, n
-          tmp = rtwt(i)
-          z(i) = tmp*eta(i) + tmp*(y(i)-mu(i)) / z(i)
-        end do
-      !$omp end do
+    !$omp parallel if (n > 5000) private(i, tmp) default(shared) 
+    !$omp do private(i, tmp)
+      do i = 1, n
+        tmp = rtwt(i)
+        z(i) = tmp*eta(i) + tmp*(y(i)-mu(i)) / z(i)
+      end do
+    !$omp end do
     !$omp end parallel
+    
+    return
   end subroutine
   
   
@@ -131,7 +125,7 @@ module glm_update_utils
   ! 1 - converged
   ! 2 - infinite params
   ! 3 - no improvement
-  function glm_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter) &
+  function glm_check_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter) &
   result(converged)
     ! in/out
     integer :: converged
@@ -141,7 +135,7 @@ module glm_update_utils
     ! local
     integer :: i
     double precision :: tmp1, tmp2
-    double precision, parameter :: eps = 1.0d-6
+    double precision :: eps = 1.0d-6
     ! intrinsic
     intrinsic :: dabs
     
@@ -176,7 +170,6 @@ module glm_update_utils
     else if (stoprule == glm_stoprule_deviance) then
       tmp1 = dabs(dev-dev_old)
       tmp2 = (0.1d0 + dabs(dev))
-      
       
       if (tmp1/tmp2 < tol) then
         converged = glm_convergence_converged

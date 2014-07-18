@@ -181,7 +181,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   
   ! initialize
 !!! Parallel block
-  !$omp parallel if (n>5000) private(i) default(shared) 
+  !$omp parallel if (n > 5000) private(i) default(shared) 
   !$omp do
   do i = 1, p
     beta_old(i) = 0.0d0
@@ -203,7 +203,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   IRLS_LOOP: do iter = 0, maxiter
     
     
-    ! compute eta = x*beta and mu = inverse_link( eta )
+    ! compute eta = x*beta and mu = linkinv(eta) <==> link(mu) = eta
     if (iter == 0) then
       call glm_initial_mu(family, n, y, wt, mu)
       call glm_link(link, n, mu, eta)
@@ -213,26 +213,55 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
     end if
     
     
-    
-    
-!    print *, "beta=", beta(1:p)
-    
-    
-    
-    
     ! check for bad fit in the mu's
     call glm_check_fitted(family, n, mu, info)
     if (info /= 0) return
-    
     
     if (stoprule == glm_stoprule_deviance) then
       dev_old = dev
       dev = glm_deviance(family, n, y, mu)
     end if
     
-    call glm_update_wt(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
     
-    call glm_update_z(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+    !!! FIXME Optimization is slower ?!?!
+    if (1 < 0) then
+!    if (link == glm_link_logit) then
+       ! update wt
+      call glm_variance(family, n, mu, wt)
+      
+      !$omp parallel if (n*p > 5000) private(i, j, tmp) default(shared)
+      !$omp do
+        do i = 1, n
+          rtwt(i) = dsqrt(wt(i))
+        end do
+      !$omp end do
+      
+      ! prepare lhs: x_tw = x*wt
+      !$omp do
+        do j = 1, p
+          do i = 1, n
+            x_tw(i,j) = rtwt(i) * x(i,j)
+          end do
+        end do
+      !$omp end do
+      
+      ! prepare rhs: z = sqrt(wt) * (x*beta + 1/wt*(y-mu))
+      ! = rtwt * eta + 1/rtwt*(y-mu)
+      !$omp do
+        do i = 1, n
+          tmp = rtwt(i)
+          z(i) = tmp*eta(i) + 1.0d0/(tmp)*(y(i)-mu(i))
+        end do
+      !$omp end do
+      !$omp end parallel
+    else
+      call glm_update_wt(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+      
+      call glm_update_z(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+    
+    end if
+    
+    
     
     
     ! fit z ~ x_tw
@@ -241,7 +270,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
     
     ! check for convergence
     if (iter > 0) then
-      converged = glm_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter)
+      converged = glm_check_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter)
     end if
     
     if (converged == glm_convergence_converged) then

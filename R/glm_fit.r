@@ -11,8 +11,7 @@ string_c2f <- function(str, len)
 }
 
 
-#fit_logistic <- function(x, y, maxiter=50, tol=10*.Machine$double.eps, intercept=TRUE, stoprule='1')
-glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), intercept=TRUE, stoprule="deviance")
+glm_fit <- function(x, y, family, maxiter=25, tol=1e-8, offset=rep(0.0, nobs), intercept=TRUE, stoprule="deviance")
 {
   n <- dim(x)[1L]
   p <- dim(x)[2L]
@@ -28,17 +27,18 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
   
   storage.mode(intercept) <- "integer"
   
-  ### TODO write a quick C-level shim to get these values from the C interface headers
-  stoprule <- match.arg(tolower(stoprule), c("maxiter", "coefs", "deviance"))
-  if (stoprule == "maxiter")
-    stoprule <- 1L
-  else if (stoprule == "coefs")
-    stoprule <- 2L
-  else if (stoprule == "deviance")
-    stoprule <- 3L
+  stoprule <- match.arg(tolower(stoprule), c("maxiter", "coefficients", "deviance"))
+  stoprule <- .Call("R_glm_fit_stoprule_val", stoprule)
   
-  link <- .Call("R_glm_fit_family", tolower(family$link))
-  family <- .Call("R_glm_fit_family", tolower(family$family))
+  link <- .Call("R_glm_fit_link_val", tolower(family$link))
+  family <- .Call("R_glm_fit_family_val", tolower(family$family))
+  
+  if (stoprule < 0)
+    stop("Invalid stoprule")
+  if (link < 0)
+    stop("Invalid link")
+  if (family < 0)
+    stop("Invalid family")
   
   fit <- .Call("R_GLM_FIT", 
                family, link, intercept, stoprule, 
@@ -48,3 +48,4 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
   
   return(fit)
 }
+

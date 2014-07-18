@@ -13,19 +13,21 @@ n <- 10
 p <- 3
 
 
-#### Binomial
+### Binomial
 links <- c("cloglog", "log", "logit", "probit", "cauchit")
 links <- "logit"
-links <- "cloglog"
-links <- "probit"
+#links <- "cloglog"
+#links <- "probit"
 families <- lapply(links, binomial)
 invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
 
 
-#### Gamma
+### Gamma
 #links <- c("identity", "inverse", "log")
-#families <- lapply(links, Gamma)
-#invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
+#links <- "log"
+##families <- lapply(links, Gamma)
+##invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
+#glm_test(n=n, p=p, verbose=TRUE, timings=FALSE, Gamma(log))
 
 
 ### Gaussian
@@ -38,5 +40,12 @@ invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
 #links <- c("identity", "log", "sqrt")
 #families <- lapply(links, poisson)
 #invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
+
+
+### Inverse Gaussian
+#links <- c("inverse", "log", "identity", "1/mu^2")
+#families <- lapply(links, inverse.gaussian)
+#invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
+
 
 

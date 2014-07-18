@@ -23,24 +23,25 @@ glm_test <- function(n, p, family, intercept=TRUE, verbose=FALSE, timings=FALSE)
   #mdl$deviance
   #mdl$null.deviance
   
+  cat(paste("Riter= ", mdl$iter, "   "))
   
   if (verbose && timings)
     cat("Done with R\n")
   
   
-  maxiter <- 20
   stoprule <- "deviance"
   
   
   t2 <- system.time({
-    mdl2 <- glm_fit(x=x, y=y, family=family, maxiter, intercept=intercept, stoprule=stoprule)
+    mdl2 <- glm_fit(x=x, y=y, family=family, intercept=intercept, stoprule=stoprule)
   })[3]
   
   
   
 #  cat(paste("Riter=", mdl$iter, "  New iter=", 
+  tol <- 1e-8
   
-  test.coef <- all.equal(mdl$coefficients, mdl2)
+  test.coef <- all.equal(mdl$coefficients, mdl2, tolerance=tol)
   
   cat(paste("Coefficients:", test.coef, "\n"))
   

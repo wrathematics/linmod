@@ -217,11 +217,18 @@ module glm_link_utils
         end do
       !$omp end do
     
-    else if (link == glm_link_logit) then
+    else if (link == glm_link_identity) then
       !$omp do
         do i = 1, n
-          tmp = dexp(x(i))
-          y(i) = tmp / (1.0d0 + tmp) / (1.0d0 + tmp)
+          y(i) = 1.0d0
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_inverse) then
+      !$omp do
+        do i = 1, n
+          tmp = x(i)
+          y(i) = -1.0d0 / tmp / tmp
         end do
       !$omp end do
     
@@ -232,10 +239,40 @@ module glm_link_utils
         end do
       !$omp end do
     
+    else if (link == glm_link_logit) then
+      !$omp do
+        do i = 1, n
+          tmp = dexp(x(i))
+          y(i) = tmp / (1.0d0 + tmp) / (1.0d0 + tmp)
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_sqrt) then
+      !$omp do
+        do i = 1, n
+          y(i) = 2.0d0 * x(i)
+        end do
+      !$omp end do
+    
     else if (link == glm_link_probit) then
       !$omp do
         do i = 1, n
           tmp = dnorm(x(i), 0.0d0, 1.0d0, false)
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_cauchit) then
+      !$omp do
+        do i = 1, n
+          tmp = dcauchy(x(i), 0.0d0, 1.0d0, false)
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_inversesquare) then
+      !$omp do
+        do i = 1, n
+          tmp = x(i)
+          y(i) = -0.5d0 / tmp / dsqrt(tmp)
         end do
       !$omp end do
     
@@ -310,23 +347,24 @@ module glm_link_utils
     else if (link == glm_link_probit) then
       !$omp do
         do i = 1, n
-          resids(i) = (y(i) - mu(i)) / (dnorm(eta(i), 0.0d0, 1.0d0, false))
+          resids(i) = (y(i) - mu(i)) / dnorm(eta(i), 0.0d0, 1.0d0, false)
         end do
       !$omp end do
     
     else if (link == glm_link_probit) then
       !$omp do
         do i = 1, n
-          resids(i) = (y(i) - mu(i)) / (dcauchy(eta(i), 0.0d0, 1.0d0, false))
+          resids(i) = (y(i) - mu(i)) / dcauchy(eta(i), 0.0d0, 1.0d0, false)
         end do
       !$omp end do
     
-    ! TODO
-!    else if (link == glm_link_inversesquare) then
-!      !$omp do
-!        do i = 1, n
-!        end do
-!      !$omp end do
+    else if (link == glm_link_inversesquare) then
+      !$omp do
+        do i = 1, n
+          tmp = eta(i)
+          resids(i) = -0.5d0 * (y(i) - mu(i)) / tmp / dsqrt(tmp)
+        end do
+      !$omp end do
     
     end if
     !$omp end parallel

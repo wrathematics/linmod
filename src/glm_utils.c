@@ -3,7 +3,7 @@
 #include "linmod/src/c_interface/glm_defines.h"
 
 
-int glm_fit_family(char *family)
+static int glm_fit_family_val(char *family)
 {
   if (strcmp(family, "gaussian") == 0)
     return GLM_FAMILY_GAUSSIAN;
@@ -13,11 +13,13 @@ int glm_fit_family(char *family)
     return GLM_FAMILY_POISSON;
   else if (strcmp(family, "gamma") == 0)
     return GLM_FAMILY_GAMMA;
+  else if (strcmp(family, "inverse.gaussian") == 0)
+    return GLM_FAMILY_INVERSEGAUSSIAN;
   else
     return GLM_FAMILY_UNSUPPORTED;
 }
 
-int glm_fit_link(char *link)
+static int glm_fit_link_val(char *link)
 {
   if (strcmp(link, "cloglog") == 0)
     return GLM_LINK_CLOGLOG;
@@ -35,29 +37,55 @@ int glm_fit_link(char *link)
     return GLM_LINK_PROBIT;
   else if (strcmp(link, "cauchit") == 0)
     return GLM_LINK_CAUCHIT;
+  else if (strcmp(link, "1/mu^2") == 0)
+    return GLM_LINK_INVERSESQUARE;
   else
     return GLM_LINK_UNSUPPORTED;
 }
 
-SEXP R_glm_fit_family(SEXP family)
+static int glm_fit_stoprule_val(char *stoprule)
+{
+  if (strcmp(stoprule, "maxiter") == 0)
+    return GLM_STOPRULE_MAXITER;
+  else if (strcmp(stoprule, "coefficients") == 0)
+    return GLM_STOPRULE_COEFS;
+  else if (strcmp(stoprule, "deviance") == 0)
+    return GLM_STOPRULE_DEVIANCE;
+  else
+    return GLM_BADINPUT_STOPRULE;
+}
+
+SEXP R_glm_fit_family_val(SEXP family)
 {
   R_INIT;
   SEXP ret;
   newRvec(ret, 1, "int");
   
-  INT(ret) = glm_fit_family(STR(family));
+  INT(ret) = glm_fit_family_val(STR(family));
   
   R_END;
   return ret;
 }
 
-SEXP R_glm_fit_link(SEXP link)
+SEXP R_glm_fit_link_val(SEXP link)
 {
   R_INIT;
   SEXP ret;
   newRvec(ret, 1, "int");
   
-  INT(ret) = glm_fit_link(STR(link));
+  INT(ret) = glm_fit_link_val(STR(link));
+  
+  R_END;
+  return ret;
+}
+
+SEXP R_glm_fit_stoprule_val(SEXP stoprule)
+{
+  R_INIT;
+  SEXP ret;
+  newRvec(ret, 1, "int");
+  
+  INT(ret) = glm_fit_stoprule_val(STR(stoprule));
   
   R_END;
   return ret;
