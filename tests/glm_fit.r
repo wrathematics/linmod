@@ -17,6 +17,7 @@ p <- 3
 links <- c("cloglog", "log", "logit", "probit", "cauchit")
 links <- "logit"
 links <- "cloglog"
+links <- "probit"
 families <- lapply(links, binomial)
 invisible(sapply(families, glm_test, n=n, p=p, verbose=TRUE, timings=FALSE))
 

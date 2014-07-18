@@ -6,8 +6,10 @@
 
 
 module glm_update_utils
-  use :: lapack
+  use :: lapack, only : dgels, disnan
   use :: glm_constants
+  use :: glm_family_utils
+  use :: glm_link_utils
 !  use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   
   implicit none
@@ -42,6 +44,87 @@ module glm_update_utils
     
     return
   end
+  
+  
+  
+  
+  
+  ! rtwt = sqrt( linkinv(eta) / glm_variance(mu) )
+  subroutine glm_update_wt(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+    ! in/out
+    integer, intent(in) :: family, link, n, p
+    double precision, intent(in) :: y(n), mu(n), eta(n)
+    double precision, intent(out) :: wt(n), rtwt(*), z(n)
+    double precision, intent(in) :: x(:,:)
+    double precision, intent(out) :: x_tw(:,:)
+    ! local
+    integer :: i, j
+    double precision :: tmp
+    
+    
+    call glm_variance(family, n, mu, wt)
+    
+    call glm_linkinv_deriv(link, n, eta, rtwt)
+    
+    !$omp parallel private(i, j) default(shared) 
+    !$omp do
+      do i = 1, n
+        rtwt(i) = rtwt(i) / dsqrt(wt(i))
+      end do
+    !$omp end do
+    
+    
+    ! prepare lhs:  x_tw = x*wt
+    !$omp do
+      do j = 1, p
+        do i = 1, n
+          x_tw(i, j) = rtwt(i) * x(i, j)
+        end do
+      end do
+    !$omp end do
+    !$omp end parallel
+  end subroutine
+  
+  
+  
+!    glm_link_cloglog
+!    glm_link_identity
+!    glm_link_inverse
+!    glm_link_log
+!    glm_link_sqrt
+!    glm_link_probit
+!    glm_link_cauchit
+!    glm_link_inversesquare
+  
+  
+  ! Set the working response z
+  subroutine glm_update_z(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+    ! in/out
+    integer, intent(in) :: family, link, n, p
+    double precision, intent(in) :: y(n), mu(n), eta(n)
+    double precision, intent(out) :: wt(n), rtwt(*), z(n)
+    double precision, intent(in) :: x(:,:)
+    double precision, intent(out) :: x_tw(:,:)
+    ! local
+    integer :: i, j
+    double precision :: tmp
+    
+    
+    
+    
+    ! prepare rhs:  z = sqrt(wt) * (x*beta + 1/wt*(y-mu))
+    !                 = rtwt * eta + 1/rtwt*(y-mu)
+    call glm_linkinv_deriv(link, n, eta, z)
+    
+    !$omp parallel private(i, tmp) default(shared) 
+      !$omp do private(i, tmp)
+        do i = 1, n
+          tmp = rtwt(i)
+          z(i) = tmp*eta(i) + tmp*(y(i)-mu(i)) / z(i)
+        end do
+      !$omp end do
+    !$omp end parallel
+  end subroutine
   
   
   

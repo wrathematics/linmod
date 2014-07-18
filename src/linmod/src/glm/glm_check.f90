@@ -30,8 +30,8 @@ module glm_check
       check = glm_badinput_n
     else if (p < 0) then
       check = glm_badinput_p
-    else if (stoprule /= glm_stoprule_maxiter .or. &
-             stoprule /= glm_stoprule_coefs  .or. &
+    else if (stoprule /= glm_stoprule_maxiter   .or. &
+             stoprule /= glm_stoprule_coefs     .or. &
              stoprule /= glm_stoprule_deviance) then
       check = glm_badinput_stoprule
     else if (maxiter < 1) then
@@ -87,7 +87,7 @@ module glm_check
         if (link /= glm_link_inverse               .and. &
             link /= glm_link_log                   .and. &
             link /= glm_link_identity              .and. &
-            link /= glm_link_inversesquare)         then
+            link /= glm_link_inversesquare)        then
                 check = glm_link_unsupported
         end if
     
@@ -122,7 +122,8 @@ module glm_check
         end if
       end do
     
-    else if (family == glm_family_poisson .or. family == glm_family_gamma) then
+    else if (family == glm_family_poisson .or. &
+             family == glm_family_gamma)  then
       do i = 1, n
         if (y(i) < 0.0d0) then
           check = glm_badinput_family

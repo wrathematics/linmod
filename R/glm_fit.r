@@ -37,31 +37,8 @@ glm_fit <- function(x, y, family, maxiter=50, tol=1e-8, offset=rep(0.0, nobs), i
   else if (stoprule == "deviance")
     stoprule <- 3L
   
-  link <- tolower(family$link)
-  family <- tolower(family$family)
-  
-  if (family == "gaussian")
-    family <- 1L
-  else if (family == "binomial")
-    family <- 2L
-  else if (family == "poisson")
-    family <- 3L
-  else if (family == "gamma")
-    family <- 4L
-  
-  if (link == "cloglog")
-    link <- 1L
-  else if (link == "identity")
-    link <- 2L
-  else if (link == "inverse")
-    link <- 3L
-  else if (link == "log")
-    link <- 4L
-  else if (link == "logit")
-    link <- 5L
-  else if (link == "sqrt")
-    link <- 6L
-  
+  link <- .Call("R_glm_fit_family", tolower(family$link))
+  family <- .Call("R_glm_fit_family", tolower(family$family))
   
   fit <- .Call("R_GLM_FIT", 
                family, link, intercept, stoprule, 

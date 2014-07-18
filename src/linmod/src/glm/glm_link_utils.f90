@@ -193,6 +193,60 @@ module glm_link_utils
   end
   
   
+  
+  ! inverse link function
+  subroutine glm_linkinv_deriv(link, n, x, y)
+    ! in/out
+    integer, intent(in) :: link
+    integer, intent(in) :: n
+    double precision, intent(in) :: x(*)
+    double precision, intent(out) :: y(*)
+    ! local
+    integer :: i
+    double precision :: tmp
+    ! intrinsic
+    intrinsic           dexp, dsqrt
+    
+    
+    !$omp parallel if(n > 5000) private(i, tmp) default(shared) 
+    if (link == glm_link_cloglog) then
+      !$omp do
+        do i = 1, n
+          tmp = -dexp(x(i))
+          y(i) = tmp * dexp(-tmp)
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_logit) then
+      !$omp do
+        do i = 1, n
+          tmp = dexp(x(i))
+          y(i) = tmp / (1.0d0 + tmp) / (1.0d0 + tmp)
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_log) then
+      !$omp do
+        do i = 1, n
+          y(i) = dexp(x(i))
+        end do
+      !$omp end do
+    
+    else if (link == glm_link_probit) then
+      !$omp do
+        do i = 1, n
+          tmp = dnorm(x(i), 0.0d0, 1.0d0, false)
+        end do
+      !$omp end do
+    
+    end if
+    !$omp end parallel
+    
+    return
+  end
+  
+  
+  
   !!! "working" residuals
   subroutine glm_residuals(link, n, y, mu, eta, resids)
     ! in/out
@@ -266,6 +320,13 @@ module glm_link_utils
           resids(i) = (y(i) - mu(i)) / (dcauchy(eta(i), 0.0d0, 1.0d0, false))
         end do
       !$omp end do
+    
+    ! TODO
+!    else if (link == glm_link_inversesquare) then
+!      !$omp do
+!        do i = 1, n
+!        end do
+!      !$omp end do
     
     end if
     !$omp end parallel

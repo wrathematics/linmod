@@ -125,6 +125,7 @@ families and their associated links are:
 * Gamma: identity, inverse, log
 * Gaussian: identity, inverse, log
 * Poisson: identity, log, sqrt
+* Inverse gaussian: inverse, log, identity, "1/mu^2"
 
 Some notable families and links available to R's glm.fit() are missing; those 
 will eventually be supported.  But my opinion is that the most important/common
@@ -142,20 +143,15 @@ TODO: say more about interfaces
 Drew Schmidt:
 
 * Project home: https://github.com/wrathematics/linmod
+* Bug reports: https://github.com/wrathematics/linmod/issues
 * Email: wrathematics .AT. gmail.com
 * Blog: http://librestats.com
 
 
 
 
-== Bug Reports == 
+== Testing == 
 ===============================================================================
-For bug reports, please use the issue tracker at the project's github page:
-https://github.com/wrathematics/linmod/issues
-
-
-You can also contact the author directly (see Contact section).
-
 I have rigorously tested this package with the following software/versions:
 
 * gfortran: 4.8.2

@@ -94,6 +94,8 @@
 ! intercept = 'y', 'n', for whether intercept should be included in null model
 
 
+! FIXME inputs are:
+  ! x, y, weights, start, etastart, mustart, offset, ...
 
 subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
                    beta, wt, offset, resids, maxiter, tol, info) &
@@ -121,16 +123,14 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   double precision, allocatable :: eta(:)
   double precision, allocatable :: mu(:)
   double precision, allocatable :: z(:)
-  double precision, allocatable :: sqwt(:)
+  double precision, allocatable :: rtwt(:)
   double precision, allocatable :: x_tw(:,:)
   double precision, allocatable :: work(:)
   ! intrinsic
   intrinsic :: min, max, dble, dsqrt
   
   
-  info = 0
-  if (n == 0 .or. p == 0 .or. maxiter == 0) return
-  
+  ! Quick return if possible
   info = glm_check_inputs(n, p, stoprule, maxiter, tol)
   info = glm_check_fam_link(family, link)
   info = glm_check_response(family, n, y)
@@ -144,7 +144,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   if (allocerr /= 0) goto 1
   allocate(eta(n), stat=allocerr)
   if (allocerr /= 0) goto 1
-  allocate(sqwt(n), stat=allocerr)
+  allocate(rtwt(n), stat=allocerr)
   if (allocerr /= 0) goto 1
   allocate(x_tw(n, p), stat=allocerr)
   if (allocerr /= 0) goto 1
@@ -175,8 +175,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
     call glm_residuals(link, n, y, mu, eta, resids)
     
     iter = 0
-    
-    return
+    goto 1
   end if
   
   
@@ -213,15 +212,17 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
       call glm_linkinv(link, n, eta, mu)
     end if
     
-    print *, "beta=", beta(1:p)
+    
+    
+    
+!    print *, "beta=", beta(1:p)
+    
+    
+    
     
     ! check for bad fit in the mu's
     call glm_check_fitted(family, n, mu, info)
     if (info /= 0) return
-    
-    
-    ! update wt
-    call glm_variance(family, n, mu, wt)
     
     
     if (stoprule == glm_stoprule_deviance) then
@@ -229,31 +230,9 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
       dev = glm_deviance(family, n, y, mu)
     end if
     
+    call glm_update_wt(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
     
-    !$omp parallel private(i) default(shared) 
-    !$omp do private(i)
-      do i = 1, n
-        sqwt(i) = dsqrt(wt(i))
-      end do
-    
-    
-    ! prepare lhs:  x_tw = x*wt
-    !$omp do private(i, j)
-      do j = 1, p
-        do i = 1, n
-          x_tw(i,j) = sqwt(i) * x(i,j)
-        end do
-      end do
-    
-    
-    ! prepare rhs:  z = sqrt(wt) * (x*beta + 1/wt*(y-mu))
-    !                 = sqwt * eta + 1/sqwt*(y-mu)
-    !$omp do private(i, tmp)
-      do i = 1, n
-        tmp = sqwt(i)
-        z(i) = tmp*eta(i) + 1.0d0/(tmp)*(y(i)-mu(i))
-      end do
-    !$omp end parallel
+    call glm_update_z(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
     
     
     ! fit z ~ x_tw
