@@ -120,7 +120,7 @@ module glm_link_utils
       !$omp do
         do i = 1, n
           tmp = -dexp(x(i))
-          y(i) = -dexp(tmp) - 1.0d0
+          y(i) = -dexp(tmp) + 1.0d0
         end do
       !$omp end do
     
@@ -212,7 +212,7 @@ module glm_link_utils
     if (link == glm_link_cloglog) then
       !$omp do
         do i = 1, n
-          tmp = -dexp(x(i))
+          tmp = dexp(x(i))
           y(i) = tmp * dexp(-tmp)
         end do
       !$omp end do
