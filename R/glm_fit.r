@@ -1,20 +1,15 @@
-string_c2f <- function(str, len)
+glm_fit <- function(x, y, ### weights = rep(1, nobs), start = NULL, etastart = NULL, 
+  offset=rep(0.0, nobs), family=gaussian(),
+  control=list(), intercept=TRUE, ..., stoprule="deviance")
 {
-  tmp <- len - length(unlist(strsplit(str, split="")))
+  control <- do.call("glm.control", control)
   
-  if (tmp < 0)
-    stop("'str' contains more than 'len' chars")
-  else if (tmp == 0L)
-    return(str)
-  else
-    return( paste(str, paste(rep(" ", tmp), collapse="", sep=""), collapse="", sep="") )
-}
-
-
-glm_fit <- function(x, y, family, maxiter=25, tol=1e-8, offset=rep(0.0, nobs), intercept=TRUE, stoprule="deviance")
-{
-  n <- dim(x)[1L]
-  p <- dim(x)[2L]
+  tol <- control$epsilon
+  maxiter <- as.integer(control$maxit)
+  trace <- as.integer(control$trace)
+  
+  n <- as.integer(dim(x)[1L])
+  p <- as.integer(dim(x)[2L])
   
   nobs <- NROW(y)
   
@@ -41,9 +36,9 @@ glm_fit <- function(x, y, family, maxiter=25, tol=1e-8, offset=rep(0.0, nobs), i
     stop("Invalid family")
   
   fit <- .Call("R_GLM_FIT", 
-               family, link, intercept, stoprule, 
-               as.integer(n), as.integer(p),
-               x, y, offset, as.integer(maxiter), as.double(tol),
+               family, link, intercept, stoprule, trace,
+               n, p,
+               x, y, offset, maxiter, tol,
                PACKAGE = "linmod")
   
   return(fit)

@@ -90,18 +90,15 @@ module glm_update_utils
   
   
   ! Set the working response z
-  subroutine glm_update_z(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+  subroutine glm_update_z(link, n, rtwt, y, mu, eta, z, offset)
     ! in/out
-    integer, intent(in) :: family, link, n, p
-    double precision, intent(in) :: y(n), mu(n), eta(n)
-    double precision, intent(out) :: wt(n), rtwt(*), z(n)
-    double precision, intent(in) :: x(:,:)
-    double precision, intent(out) :: x_tw(:,:)
+    integer, intent(in) :: link, n
+    double precision, intent(in) :: mu(n), offset(n), y(n)
+    double precision, intent(out) :: rtwt(*), z(n)
+    double precision, intent(inout) :: eta(n)
     ! local
-    integer :: i, j
+    integer :: i
     double precision :: tmp
-    
-    
     
     
     ! prepare rhs:  z = sqrt(wt) * (x*beta + 1/wt*(y-mu))
@@ -109,7 +106,13 @@ module glm_update_utils
     call glm_linkinv_deriv(link, n, eta, z)
     
     !$omp parallel if (n > 5000) private(i, tmp) default(shared) 
-    !$omp do private(i, tmp)
+    !$omp do
+      do i = 1, n
+        eta(i) = eta(i) + offset(i)
+      end do
+    !$omp end do
+    
+    !$omp do
       do i = 1, n
         tmp = rtwt(i)
         z(i) = tmp*eta(i) + tmp*(y(i)-mu(i)) / z(i)

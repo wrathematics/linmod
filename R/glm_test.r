@@ -1,7 +1,10 @@
-glm_test <- function(n, p, family, intercept=TRUE, verbose=FALSE, timings=FALSE)
+glm_test <- function(n, p, family, intercept=TRUE, verbose=FALSE, timings=FALSE, offset=NULL, control=list())
 {
   x <- rnorm(n*p, mean=10, sd=10000)
   dim(x) <- c(n, p)
+  
+  if (is.null(offset))
+    offset <- rep(0.0, n)
   
   if (family$family == "binomial")
     y <- sample(as.double(0:1), size=n, replace=TRUE)
@@ -18,7 +21,7 @@ glm_test <- function(n, p, family, intercept=TRUE, verbose=FALSE, timings=FALSE)
   
   
   t1 <- system.time({
-    mdl <- glm.fit(x=x, y=y, family=family, intercept=intercept)
+    mdl <- glm.fit(x=x, y=y, family=family, intercept=intercept, control=control)
   })[3]
   #mdl$deviance
   #mdl$null.deviance
@@ -33,7 +36,7 @@ glm_test <- function(n, p, family, intercept=TRUE, verbose=FALSE, timings=FALSE)
   
   
   t2 <- system.time({
-    mdl2 <- glm_fit(x=x, y=y, family=family, intercept=intercept, stoprule=stoprule)
+    mdl2 <- glm_fit(x=x, y=y, family=family, intercept=intercept, stoprule=stoprule, control=control)
   })[3]
   
   

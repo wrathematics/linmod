@@ -2,7 +2,7 @@
 #include "linmod/src/c_interface/glm_defines.h"
 
 
-SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE,
+SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE, SEXP TRACE,
   SEXP N, SEXP P, SEXP X, SEXP Y, SEXP OFFSET, SEXP MAXITER, SEXP TOL)
 {
   R_INIT;
@@ -68,13 +68,10 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE,
   // copy X
   memcpy(REAL(CP_X), REAL(X), n*p * sizeof(double));
   
-  
-  // call fortran
-/*  glm_fit_*/
   glm_fit_(INTP(FAMILY), INTP(LINK), 
     INTP(INTERCEPT), INTP(STOPRULE), &n, &p, REAL(CP_X), 
     REAL(Y), REAL(BETA), REAL(WT), REAL(OFFSET), REAL(RESIDS), 
-    INTP(MAXITER), REAL(TOL), &info);
+    INTP(MAXITER), REAL(TOL), INTP(TRACE), &info);
   
   if (info != 0)
     Rprintf("WARNING : returned info = %d\n", info);

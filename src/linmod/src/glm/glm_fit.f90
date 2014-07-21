@@ -98,7 +98,7 @@
   ! x, y, weights, start, etastart, mustart, offset, ...
 
 subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
-                   beta, wt, offset, resids, maxiter, tol, info) &
+                   beta, wt, offset, resids, maxiter, tol, trace, info) &
   bind(C, name='glm_fit_')
   use, intrinsic :: iso_c_binding
   
@@ -112,7 +112,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   
   ! in/out
   integer, intent(in) :: family, link, intercept, stoprule
-  integer, intent(in) :: n, p, maxiter
+  integer, intent(in) :: n, p, maxiter, trace
   integer, intent(out) :: info
   double precision, intent(in) :: x(n,p), y(n), offset(n), tol
   double precision, intent(out) :: beta(p), wt(n), resids(n)
@@ -223,45 +223,10 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
     end if
     
     
-    !!! FIXME Optimization is slower ?!?!
-    if (1 < 0) then
-!    if (link == glm_link_logit) then
-       ! update wt
-      call glm_variance(family, n, mu, wt)
-      
-      !$omp parallel if (n*p > 5000) private(i, j, tmp) default(shared)
-      !$omp do
-        do i = 1, n
-          rtwt(i) = dsqrt(wt(i))
-        end do
-      !$omp end do
-      
-      ! prepare lhs: x_tw = x*wt
-      !$omp do
-        do j = 1, p
-          do i = 1, n
-            x_tw(i,j) = rtwt(i) * x(i,j)
-          end do
-        end do
-      !$omp end do
-      
-      ! prepare rhs: z = sqrt(wt) * (x*beta + 1/wt*(y-mu))
-      ! = rtwt * eta + 1/rtwt*(y-mu)
-      !$omp do
-        do i = 1, n
-          tmp = rtwt(i)
-          z(i) = tmp*eta(i) + 1.0d0/(tmp)*(y(i)-mu(i))
-        end do
-      !$omp end do
-      !$omp end parallel
-    else
-      call glm_update_wt(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
-      
-      call glm_update_z(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
+    ! Form working response z and x_tw = x*sqrt(wt)
+    call glm_update_wt(family, link, n, p, x, x_tw, wt, rtwt, y, mu, eta, z)
     
-    end if
-    
-    
+    call glm_update_z(link, n, rtwt, y, mu, eta, z, offset)
     
     
     ! fit z ~ x_tw
@@ -271,13 +236,18 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
     ! check for convergence
     if (iter > 0) then
       converged = glm_check_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter)
+      
+      if (trace /= 0) then
+        if (iter == 1) write (*,*) ""
+        write (*, fmt='(a, f0.5, a, i0)') "Deviance = ", dev, " Iterations - ", iter
+      end if
     end if
     
+    ! converged: break loop and compute likelihood statistics and residuals
     if (converged == glm_convergence_converged) then
-      ! converged: break loop and compute likelihood statistics and residuals
       goto 10
+    ! infinite parameter values detected: deallocate and return with error
     else if (converged == glm_convergence_infparams) then
-      ! infinite parameter values detected: deallocate and return with error
       goto 1
     end if
     
@@ -292,6 +262,7 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   ! compute working residuals
   call glm_residuals(link, n, y, mu, eta, resids)
   
+  if (converged == glm_convergence_noconvergence) iter = iter - 1
   write (*,*) "iter=",iter
   
   
