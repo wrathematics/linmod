@@ -6,8 +6,8 @@ nrhs <- 2
 m <- 10
 n <- 5
 
-#n <- 10
-#m <- 5
+n <- 10
+m <- 5
 
 x <- matrix(rnorm(m*n), m, n)
 y <- matrix(rnorm(m*nrhs), m, nrhs)
@@ -23,7 +23,9 @@ y <- matrix(rnorm(m*nrhs), m, nrhs)
 #linmod::lm_fit(x, y)$qr
 
 
-whichprint <- c("coefficients", "residuals", "effects")
+
+#whichprint <- NULL
+whichprint <- c("coefficients")
 
 linmod:::lmfit_test(x, y, TRUE, whichprint)
 #f(x, y, FALSE)

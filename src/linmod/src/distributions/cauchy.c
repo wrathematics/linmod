@@ -6,6 +6,7 @@
 
 
 #include <stdbool.h>
+#include <math.h>
 
 #include "constants.h"
 
@@ -15,9 +16,9 @@ double dcauchy(const double x, const double location, const double scale, const 
 {
   double ret, tmp;
   
-  tmp - (x-location)/scale;
+  tmp = (x - location)/scale;
   
-  ret = 1.0 / (PI*scale * (1.0+tmp*tmp));
+  ret = 1.0 / (PI*scale * (1.0 + tmp*tmp));
   
   if (log_ == true)
     ret = log(ret);

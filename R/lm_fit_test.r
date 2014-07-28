@@ -8,6 +8,7 @@ lmtest <- function()
 }
 
 
+
 lmfit_test_checker <- function(mdl1, mdl2, which, whichprint)
 {
   a <- eval(parse(text=paste("mdl1$", which, sep="")))
@@ -23,6 +24,8 @@ lmfit_test_checker <- function(mdl1, mdl2, which, whichprint)
   
   return( test )
 }
+
+
 
 lmfit_test <- function(x, y, check.rank=FALSE, whichprint=NULL)
 {

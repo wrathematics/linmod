@@ -93,7 +93,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
     setDimNames(effdimnames, eff_names, eff);
   }
   
-  ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "def.residual");
+  ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "df.residual");
   ret = make_list(ret_names, 8, coef, rsd, eff, rank, ft, RNULL, qr, df_residual);
   
   R_END;

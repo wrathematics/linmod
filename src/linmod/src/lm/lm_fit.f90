@@ -157,7 +157,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   
   
   ! quick return if possible
-  if(min(m, n, nrhs) == 0) then
+  if (min(m, n, nrhs) == 0) then
      call dlaset('full', max(m, n), nrhs, 0.0d0, 0.0d0, b, ldb)
      goto 50 ! deallocate temp storage and return
   end if
@@ -174,7 +174,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   iascl = 0
   
   ! scale matrix norm up to smlnum
-  if(anrm > 0.0d0 .and. anrm < smlnum) then
+  if (anrm > 0.0d0 .and. anrm < smlnum) then
     call dlascl('g', 0, 0, anrm, smlnum, m, n, a, lda, info)
     iascl = 1
   else if(anrm > bignum) then
@@ -194,7 +194,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   ibscl = 0
   
   ! scale matrix norm up to smlnum
-  if(bnrm > 0.0d0 .and. bnrm < smlnum) then
+  if (bnrm > 0.0d0 .and. bnrm < smlnum) then
     call dlascl('g', 0, 0, bnrm, smlnum, brow, nrhs, b, ldb, info)
     ibscl = 1
   ! scale matrix norm down to bignum
@@ -215,8 +215,8 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   !$omp end parallel do
   
   
-  if (1 > 0) then !!! FIXME TODO
-!  if (m >= n) then
+!  if (1 > 0) then !!! FIXME TODO
+  if (m >= n) then
     call rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
     
@@ -276,13 +276,13 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
      call dlascl('g', 0, 0, bignum, bnrm, scllen, nrhs, b, ldb, info)
   end if
   
+  
 50 continue
 !!!!!!  work(1) = dble(wsize)
   work(1) = qraux1
   deallocate(work)
   
+  
   return
 end subroutine
-
-
 
