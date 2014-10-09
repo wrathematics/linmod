@@ -69,8 +69,8 @@
 !           = 0: successful exit.
 !           < 0: if info = -i, the i-th argument had an illegal value.
 
-subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
-                  ft, rsd, tau, jpvt, rank, info) &
+subroutine lm_fit(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, 
+                  jpvt, rank, info) &
   bind(c, name='lm_fit_')
   use :: lapack
   use :: lapack_omp
@@ -80,7 +80,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   implicit none
   
   ! in/out
-  integer, intent(in) :: m, n, nrhs, lda, ldb
+  integer, intent(in) :: m, n, nrhs
   integer, intent(out) :: info, jpvt(n)
   integer, intent(inout) :: rank
   double precision, intent(in) :: tol
@@ -90,6 +90,7 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   ! FIXME
   double precision :: qraux1
   ! local
+  integer :: lda, ldb
   integer :: lwork
   double precision :: tmp(1)
   double precision, allocatable :: work(:)
@@ -100,6 +101,9 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   ! functions
   intrinsic :: dble, max, min, int
   
+  
+  lda = m
+  ldb = max(m, n)
   
   ! test the input arguments.
   info = 0
@@ -124,9 +128,10 @@ subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
   
   !!! FIXME
   ! allocate workspace array
-  lwork = -1
-  call dgels('n', m, n, nrhs, a, lda, b, ldb, tmp, lwork, info)
-  lwork = int(tmp(1))
+!  lwork = -1
+!  call dgels('n', m, n, nrhs, a, lda, b, ldb, tmp, lwork, info)
+!  lwork = int(tmp(1))
+  lwork = min (m, n) + max(1, m, n, nrhs)
   allocate(work(lwork))
   
   

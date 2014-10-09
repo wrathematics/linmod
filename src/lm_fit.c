@@ -12,7 +12,6 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   R_INIT;
   
   int m = nrows(a), n = ncols(a);
-  int ldb = (m<n ? n : m);
   int nrhs = ncols(b);
   
   int mn = (m<n ? m : n);
@@ -65,7 +64,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   
   
   // Fit y~x
-  lm_fit_(&m, &n, &nrhs, DBLP(a_out), &m, DBLP(b_out), &ldb, DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), &info);
+  lm_fit_(&m, &n, &nrhs, DBLP(a_out), DBLP(b_out), DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), &info);
   
   
   if (info != 0)

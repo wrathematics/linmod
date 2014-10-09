@@ -11,9 +11,9 @@ module lm
   
   interface
     
-    subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, work, lwork, info, &
-                  tol, coef, eff, ft, rsd, tau, jpvt, rank) &
-      bind(C, name='lm_fit_fortran_')
+    subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
+                      ft, rsd, tau, jpvt, rank, info) &
+  bind(c, name='lm_fit_')
       integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
       integer, intent(out) :: info, jpvt(n)
       integer, intent(inout) :: rank
