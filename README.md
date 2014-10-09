@@ -1,3 +1,6 @@
+# linmod
+
+```
     _ _                           _ 
     | (_)_ __  _ __ ___   ___   __| |
     | | | '_ \| '_ ` _ \ / _ \ / _` |
@@ -9,10 +12,11 @@
      \ \ / / _ | '__/ __| |/ _ \| '_ \ 
       \ V |  __| |  \__ | | (_) | | | |
        \_/ \___|_|  |___|_|\___/|_| |_|
+```
 
 
-== About ==
-===============================================================================
+## About 
+
 This package implements linear model and generalized linear model fitters
 that behave somewhat in the spirit of R's lm.fit() and glm.fit() routines.
 The implementations here are new and not based on the implementations in R,
@@ -34,7 +38,9 @@ the linear model fitter uses a QR factorization of the input data x, and then
 generates the solution to the least squares problem by solving the (triangular) 
 system of equations:
 
-    Rb = Q'y
+```
+Rb = Q'y
+```
 
 See pretty much any book on numerical linear algebra for details; though
 I recommend:
@@ -72,8 +78,8 @@ transpose functions to convert between the two storage formats as needed.
 
 
 
-== License and Copying ==
-===============================================================================
+## License and Copying
+
 Copyright 2013-2014, Drew Schmidt.  All rights reserved.
 
 Currently, the project is licensed and distributed under the Mozilla Public
@@ -82,8 +88,8 @@ the project to a more permissive license when the library becomes more mature.
 
 
 
-== Requirements and Installation ==
-===============================================================================
+## Requirements and Installation
+
 To install, you will need: 
 
 * cmake >= 2.8.1
@@ -113,8 +119,8 @@ tree.
 
 
 
-== Usage == 
-===============================================================================
+## Usage 
+
 If using the R package, simply use lm_fit() and glm_fit() *exactly* as you
 would use lm.fit() and glm.fit().  There are some caveats for the glm fitter;
 specifically, the family and link have to each be available to Fortran (R is
@@ -138,20 +144,19 @@ TODO: say more about interfaces
 
 
 
-== Contact ==
-===============================================================================
+## Contact
+
 Drew Schmidt:
 
 * Project home: https://github.com/wrathematics/linmod
 * Bug reports: https://github.com/wrathematics/linmod/issues
 * Email: wrathematics .AT. gmail.com
-* Blog: http://librestats.com
+* Twitter: @wrathematics
 
 
 
+## Testing
 
-== Testing == 
-===============================================================================
 I have rigorously tested this package with the following software/versions:
 
 * gfortran: 4.8.2
@@ -160,3 +165,4 @@ I have rigorously tested this package with the following software/versions:
 * R: 3.1.1
 
 Reports from other software/versions (with success or failure) are most welcome.
+
