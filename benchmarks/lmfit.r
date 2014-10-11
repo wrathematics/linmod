@@ -15,8 +15,8 @@ burnin <- function(reps=10)
 }
 burnin()
 
-m <- 40000
-n <- 500
+m <- 4000
+n <- 250
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
 
@@ -28,10 +28,15 @@ y <- rnorm(m)
 
 
 cat("------------------ RRQR ------------------\n")
-t1 <- system.time(fastLm(X=x, y=y, method=0))[3]
+t1 <- system.time(mdl1 <- fastLm(X=x, y=y, method=0))[3]
 cat(paste("fastLm:", round(t1, 3), "\n"))
-t2 <- system.time(lm_fit(x, y))[3]
+t2 <- system.time(mdl2 <- lm_fit(x, y))[3]
 cat(paste("linmod:", round(t2, 3), "\n"))
+t3 <- system.time(mdl3 <- lm.fit(x, y))[3]
+cat(paste("R core:", round(t3, 3), "\n"))
+
+all.equal(mdl1$coefficients, mdl2$coefficients, check.attributes=FALSE)
+
 
 #cat("\n")
 

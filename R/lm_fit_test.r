@@ -27,9 +27,10 @@ lmfit_test_checker <- function(mdl1, mdl2, which, whichprint)
 
 
 
-lmfit_test <- function(x, y, check.rank=FALSE, whichprint=NULL)
+lmfit_test <- function(x, y, check.rank=FALSE, whichprint=NULL, verbose=FALSE)
 {
-  cat("-------------------------------------------------------\n\n")
+  if (verbose)
+    cat("-------------------------------------------------------\n\n")
   
   mdl1 <- stats::lm.fit(x, y)
   mdl2 <- linmod::lm_fit(x, y, check.rank=check.rank)
@@ -48,15 +49,20 @@ lmfit_test <- function(x, y, check.rank=FALSE, whichprint=NULL)
   
   if (all(sapply(res, is.logical)))
   {
-    if (all(as.logical(res)))
+    if (all(as.logical(res)) && verbose)
       cat("\nAll checks passed!\n\n")
+    
+    return(TRUE)
   }
   else
   {
-    cat("FAILURE:\n\n")
-    print(res)
+    if (verbose)
+    {
+      cat("FAILURE:\n\n")
+      print(res)
+    }
+    
+    return(FALSE)
   }
-  
-  invisible()
 }
 
