@@ -2,6 +2,7 @@
 #include <math.h>
 
 #define MAX(m,n) m<n?n:m
+#define MIN(m,n) m<n?m:n
 
 
 SEXP make_lmfit_default_rownames(const int n)
@@ -33,12 +34,12 @@ SEXP make_lmfit_default_rownames(const int n)
 
 
 
-SEXP make_lmfit_default_effectnames(const int m, const int n, const int *pvt)
+SEXP make_lmfit_default_effectnames(const int m, const int n, const int rank, const int *pvt)
 {
   R_INIT;
   int i, j;
   int buflen;
-  int maxpvt = n;
+  int maxpvt = rank; //MIN(m, n);
   SEXP ret;
   
   for (i=1; i<n; i++)
