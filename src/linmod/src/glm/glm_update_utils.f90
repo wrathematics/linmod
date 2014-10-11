@@ -6,6 +6,7 @@
 
 
 module glm_update_utils
+  use :: lm
   use :: lapack, only : dgels, disnan
   use :: glm_constants
   use :: glm_family_utils
@@ -32,6 +33,8 @@ module glm_update_utils
     
     
     call dgels('n', n, p, 1, x, n, y, n, work, lwork, info)
+!    call lm_fit(n, p, 1, x, y, tol, coef, eff, &
+!                  ft, rsd, tau, jpvt, rank, info) &
     
     k = min(n, p)
     
@@ -125,9 +128,6 @@ module glm_update_utils
   
   
   
-  ! 1 - converged
-  ! 2 - infinite params
-  ! 3 - no improvement
   function glm_check_convergence(stoprule, p, beta_old, beta, dev, dev_old, tol, iter, maxiter) &
   result(converged)
     ! in/out

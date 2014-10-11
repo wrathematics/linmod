@@ -11,7 +11,7 @@
 ! purpose
 ! =======
 !
-! Generalized linear models (glm) using irls.
+! Generalized linear models (glm) using IRLS.
 !
 ! Implementation is largely based on:
 !   McCullagh P. and Nelder, J. A. (1989) "Generalized Linear Models".
@@ -269,12 +269,12 @@ subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
   1 continue
   if (allocerr /= 0) info = glm_oom
   
-  deallocate(beta_old)
-  deallocate(eta)
-  deallocate(x_tw)
-  deallocate(mu)
-  deallocate(z)
-  deallocate(work)
+  if (allocated(beta_old)) deallocate(beta_old)
+  if (allocated(eta)) deallocate(eta)
+  if (allocated(x_tw)) deallocate(x_tw)
+  if (allocated(mu)) deallocate(mu)
+  if (allocated(z)) deallocate(z)
+  if (allocated(work)) deallocate(work)
   
   
   return
