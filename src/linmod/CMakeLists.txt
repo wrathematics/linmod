@@ -84,7 +84,6 @@ set(DISTRIBUTIONS_FILES
 
 set(UTILS_FILES
 	src/utils/insertionsorts.f90
-	src/utils/qr_utils.f90
 	src/utils/quicksort_utils.f90
 	src/utils/quicksorts.f90
 	src/utils/Rspecial.c
