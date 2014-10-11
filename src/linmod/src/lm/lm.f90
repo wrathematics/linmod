@@ -9,59 +9,34 @@ module lm
   implicit none
   
   
-  interface
-    
-    subroutine lm_fit(m, n, nrhs, a, lda, b, ldb, tol, coef, eff, &
-                      ft, rsd, tau, jpvt, rank, info) &
+  contains
+  
+  subroutine lm_fit(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
+                    jpvt, rank, info) &
   bind(c, name='lm_fit_')
-      integer, intent(in) :: m, n, nrhs, lda, ldb, lwork
-      integer, intent(out) :: info, jpvt(n)
-      integer, intent(inout) :: rank
-      double precision, intent(in) :: tol
-      double precision, intent(out) :: work(*), coef(n, *), tau(*)
-      double precision, intent(out), dimension(ldb, *) :: ft, eff, rsd
-      double precision, intent(inout) :: a(lda, *), b(ldb, *)
-    end subroutine
+    integer, intent(in) :: m, n, nrhs
+    integer, intent(out) :: info, jpvt(n)
+    integer, intent(inout) :: rank
+    double precision, intent(in) :: tol
+    double precision, intent(out) :: coef(n, *), tau(*)
+    double precision, intent(out), dimension(m, *) :: ft, eff, rsd
+    double precision, intent(inout) :: a(m, *), b(m, *)
+    ! local
+    integer :: lwork
+    double precision :: tmp(1)
+    double precision, allocatable :: work(:)
     
     
+    lwork = -1
+    call dgels('n', m, n, nrhs, a, m, b, m, tmp, lwork, info)
+    lwork = int(tmp(1))
+    allocate(work(lwork))
     
-    subroutine rdgelqf(m, n, a, lda, tau, work, lwork, info)
-      integer, intent(in) :: m, n, lda, lwork
-      integer, intent(out) :: info
-      double precision, intent(out) :: tau
-      double precision, intent(inout) :: a(*), work(*)
-    end subroutine
+    call rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, jpvt, rank, work, lwork, info)
     
+    if (allocated(work)) deallocate(work)
     
-    
-    subroutine rdormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
-      character(len=1), intent(in) :: side, trans
-      integer, intent(in) :: m, n, k, lda, ldc, lwork
-      integer, intent(out) :: info
-      double precision, intent(in) :: a(*), tau(*)
-      double precision, intent(out) :: c(*), work(*)
-    end subroutine
-    
-    
-    
-    subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
-      integer, intent(in) :: m, n, lda, lwork
-      integer, intent(out) :: rank, info
-      double precision, intent(in) :: tol
-      integer, intent(inout) :: jpvt(*)
-      double precision, intent(inout) :: a(lda, *), tau(*), work(*)
-    end subroutine
-    
-    
-    
-    subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
-      integer, intent(in) :: m, n, offset, lda
-      integer, intent(out) :: jpvt(*)
-      integer, intent(out) :: rank
-      double precision, intent(in) :: tol
-      double precision, intent(inout) :: a(lda, *), tau(*), vn1(*), vn2(*), work(*)
-    end subroutine
-    
-  end interface
+  end subroutine
   
 end module
+

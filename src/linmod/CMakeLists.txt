@@ -73,6 +73,7 @@ set(LM_FILES
 	src/lm/rdormqr.f90
 	src/lm/rdgeqp3.f90
 	src/lm/rdlaqp2.f90
+	src/lm/qr_utils.f90
 )
 
 set(DISTRIBUTIONS_FILES

@@ -9,7 +9,7 @@ module lm_fit_utils
   use :: R_special
   use :: quicksorts!, only : quicksort_by_index
   use :: lapack
-  use :: lm, only : rdgeqp3
+  use :: qr_utils, only : rdgeqp3
   implicit none
   
   contains

@@ -4,9 +4,7 @@
 
 typedef struct qr_t
 {
-  int n;
   int p;
-  double *qr;
   double *qraux;
   int *pivot;
   double tol;

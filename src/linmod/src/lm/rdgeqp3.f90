@@ -55,7 +55,7 @@
 
 
 subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
-  use :: lm, only : rdlaqp2
+  use :: qr_utils, only : rdlaqp2
   use :: lapack
   
 !  -- lapack routine (version 3.3.1) --

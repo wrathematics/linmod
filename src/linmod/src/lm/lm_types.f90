@@ -11,9 +11,7 @@ module lm_types
   
   
   type, bind(c) :: qr_t
-    integer(c_int) :: n
     integer(c_int) :: p
-    real(c_double) :: qr(*)
     real(c_double) :: qraux(*)
     integer(c_int) :: pivot(*)
     real(c_double) :: tol
@@ -24,7 +22,7 @@ module lm_types
   contains
   
   
-  subroutine recover_qr(qrlist, n, p, qr, qraux, pivot, tol, rank)
+  subroutine recover_qr(qrlist, n, p, qr, tau, pivot, tol, rank)
     type(qr_t) :: qrlist
     integer(c_int) :: n, p, rank
     real(c_double) :: tol

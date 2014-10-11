@@ -9,7 +9,7 @@
 
 // utils.c
 SEXP make_lmfit_default_rownames(const int n);
-SEXP make_lmfit_default_effectnames(const int m, const int n, const int *pvt);
+SEXP make_lmfit_default_effectnames(const int m, const int n, const int rank, const int *pvt);
 
 
 #endif

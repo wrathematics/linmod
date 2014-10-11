@@ -5,7 +5,7 @@
 ! Copyright 2014, Schmidt
 
 
-! Modified LAPACK routine dgels, original copyright:
+! Extremely modified from LAPACK routine dgels, original copyright:
 !  -- lapack driver routine (version 3.3.1) --
 !  -- lapack is a software package provided by univ. of tennessee,    --
 !  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
@@ -69,31 +69,30 @@
 !           = 0: successful exit.
 !           < 0: if info = -i, the i-th argument had an illegal value.
 
-subroutine lm_fit(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, 
-                  jpvt, rank, info) &
-  bind(c, name='lm_fit_')
+subroutine rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
+                  jpvt, rank, work, lwork, info) &
+!function lm_fit(m, n, nrhs, a, b, coef, rsd, eff, ft, qrlist) &
+bind(c, name='rdgels_')
   use :: lapack
   use :: lapack_omp
   use :: lm_fit_utils
-  use :: lm, only : rdgelqf, rdormqr
+  use :: qr_utils, only : rdgelqf, rdormqr
   
   implicit none
   
   ! in/out
-  integer, intent(in) :: m, n, nrhs
+!  type(qr_t) :: qrlist
+  integer, intent(in) :: m, n, nrhs, lwork
   integer, intent(out) :: info, jpvt(n)
   integer, intent(inout) :: rank
   double precision, intent(in) :: tol
-  double precision, intent(out) :: coef(n, *), tau(*)
-  double precision, intent(out), dimension(ldb, *) :: ft, eff, rsd
-  double precision, intent(inout) :: a(lda, *), b(ldb, *)
+  double precision, intent(out) :: coef(n, *), tau(*), work(*)
+  double precision, intent(out), dimension(m, *) :: ft, eff, rsd
+  double precision, intent(inout) :: a(m, *), b(m, *)
   ! FIXME
   double precision :: qraux1
   ! local
   integer :: lda, ldb
-  integer :: lwork
-  double precision :: tmp(1)
-  double precision, allocatable :: work(:)
   logical :: lquery
   integer :: brow, i, iascl, ibscl, j, mn, nb, scllen, wsize
   double precision :: anrm, bignum, bnrm, smlnum
@@ -122,19 +121,6 @@ subroutine lm_fit(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau,
   else if (lwork < max(1, mn+max(mn, nrhs)) .and. .not.lquery) then
      info = -10
   end if
-  
-  
-  
-  
-  !!! FIXME
-  ! allocate workspace array
-!  lwork = -1
-!  call dgels('n', m, n, nrhs, a, lda, b, ldb, tmp, lwork, info)
-!  lwork = int(tmp(1))
-  lwork = min (m, n) + max(1, m, n, nrhs)
-  allocate(work(lwork))
-  
-  
   
   
   
@@ -285,8 +271,6 @@ subroutine lm_fit(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau,
 50 continue
 !!!!!!  work(1) = dble(wsize)
   work(1) = qraux1
-  deallocate(work)
-  
   
   return
 end subroutine

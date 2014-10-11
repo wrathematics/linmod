@@ -64,7 +64,9 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   
   
   // Fit y~x
-  lm_fit_(&m, &n, &nrhs, DBLP(a_out), DBLP(b_out), DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), &info);
+  lm_fit_(&m, &n, &nrhs, DBLP(a_out), DBLP(b_out), DBLP(tol), DBLP(coef), 
+          DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), 
+          &info);
   
   
   if (info != 0)
@@ -79,7 +81,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   qr = make_list(qr_names, 5, a_out, tau, jpvt, tol, rank);
   
   coef_names = make_lmfit_default_rownames(n);
-  eff_names = make_lmfit_default_effectnames(m, n, INTP(jpvt));
+  eff_names = make_lmfit_default_effectnames(m, n, INT(rank), INTP(jpvt));
   
   if (nrhs == 1)
   {
