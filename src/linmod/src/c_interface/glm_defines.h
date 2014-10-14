@@ -5,8 +5,8 @@
 // Copyright 2014, Schmidt
 
 
-#ifndef __GLM_GLM_DEFINES__
-#define __GLM_GLM_DEFINES__
+#ifndef __GLM_GLM_DEFINES_H_
+#define __GLM_GLM_DEFINES_H_
 
 
 // Bad inputs and errors

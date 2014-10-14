@@ -64,7 +64,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   
   
   // Fit y~x
-  lm_fit_(&m, &n, &nrhs, DBLP(a_out), DBLP(b_out), DBLP(tol), DBLP(coef), 
+  lm_fit(&m, &n, &nrhs, DBLP(a_out), DBLP(b_out), DBLP(tol), DBLP(coef), 
           DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), 
           &info);
   

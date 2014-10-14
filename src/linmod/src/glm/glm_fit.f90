@@ -99,7 +99,7 @@
 
 subroutine glm_fit(family, link, intercept, stoprule, n, p, x, y, &
                    beta, wt, offset, resids, maxiter, tol, trace, info) &
-  bind(C, name='glm_fit_')
+  bind(C, name='glm_fit')
   use, intrinsic :: iso_c_binding
   
   use :: lapack

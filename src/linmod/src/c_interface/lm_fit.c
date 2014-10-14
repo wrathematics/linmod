@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "lapack.h"
 
-int lmfit_classic(char trans, int m, int n, int nrhs, double *a, double *b)
+int lm_fit_classic(char trans, int m, int n, int nrhs, double *a, double *b)
 {
   int info = 0;
   
@@ -29,21 +29,23 @@ int lmfit_classic(char trans, int m, int n, int nrhs, double *a, double *b)
 
 
 
-int lm_fit(char trans, int m, int n, int nrhs, double *a, double *b,
-  double tol, double **eff, double **ft, double **rsd, double **tau,
-  int rank)
+int lm_fit_alloc(int m, int n, int nrhs, double *a, double *b,
+  double tol, double **coef, double **eff, double **ft, double **rsd, 
+  double **tau, int **jpvt, int *rank)
 {
   int info = 0;
+  int mn = m<n?m:n;
   
   // Workspace query
+  *coef = malloc(n*nrhs * sizeof(**coef));
   *eff = malloc(m*nrhs * sizeof(**eff));
   *ft = malloc(m*nrhs * sizeof(**ft));
   *rsd = malloc(m*nrhs * sizeof(**rsd));
-  *tau = malloc(m*nrhs * sizeof(**tau));
-  
+  *tau = malloc(mn * sizeof(**tau));
+  *jpvt = malloc(n * sizeof(**jpvt));
   
   // Fit y~x
-  lm_fit_fortran_(&trans, &m, &n, &nrhs, a, &m, b, &m, &tol, *eff, *ft, *rsd, *tau, &rank, &info);
+  lm_fit(&m, &n, &nrhs, a, b, &tol, *coef, *eff, *ft, *rsd, *tau, *jpvt, rank, &info);
   
   return info;
 }

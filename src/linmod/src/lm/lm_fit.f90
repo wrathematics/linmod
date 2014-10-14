@@ -195,7 +195,6 @@ bind(c, name='rdgels_')
   end if
   
   
-!--------------------------------------------------------------------
   ! Copy B over to RSD for later residual calculation
   call dlacpy_omp('All', m, nrhs, b, ldb, rsd, ldb)
   
@@ -206,7 +205,6 @@ bind(c, name='rdgels_')
   !$omp end parallel do
   
   
-!  if (1 > 0) then !!! FIXME TODO
   if (m >= n) then
     call rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
