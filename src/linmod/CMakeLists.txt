@@ -67,7 +67,7 @@ set(LAPACK_FILES
 
 set(LM_FILES
 	src/lm/lm.f90
-	src/lm/lm_fit.f90
+	src/lm/rdgels.f90
 	src/lm/lm_fit_utils.f90
 	src/lm/rdgeqpf.f90
 	src/lm/rdormqr.f90
