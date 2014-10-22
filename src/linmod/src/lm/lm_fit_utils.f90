@@ -33,6 +33,11 @@ module lm_fit_utils
     if (rank == -1) then 
       rank = n
       call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+      
+      do i = 1, n
+        jpvt(i) = i
+      end do
+      
     ! RRQR
     else
   !      call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), tol, rank, info)
