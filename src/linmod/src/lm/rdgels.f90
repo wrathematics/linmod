@@ -217,38 +217,39 @@ bind(c, name='rdgels_')
   
   
   ! ----------- Compute LQ factorization of A
+  ! TODO
   else
   
-     call dgelqf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
-!
-!        workspace at least m, optimally m*nb.
-!
-!
-!           underdetermined system of equations a * x = b
-!
-!           b(1:m,1:nrhs) := inv(l) * b(1:m,1:nrhs)
-!
-      call dtrtrs('lower', 'no transpose', 'non-unit', m, nrhs, a, lda, b, ldb, info)
-!
-      if(info > 0) then
-         return
-      end if
-!
-!           b(m+1:n,1:nrhs) = 0
-!
-      do j = 1, nrhs
-         do i = m + 1, n
-            b(i, j) = 0.0d0
-         end do
-      end do
-!
-!           b(1:n,1:nrhs) := q(1:n,:)**t * b(1:m,1:nrhs)
-!
-      call dormlq('l', 't', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-!
-!           workspace at least nrhs, optimally nrhs*nb
-!
-      scllen = n
+!!!     call dgelqf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+!!!!
+!!!!        workspace at least m, optimally m*nb.
+!!!!
+!!!!
+!!!!           underdetermined system of equations a * x = b
+!!!!
+!!!!           b(1:m,1:nrhs) := inv(l) * b(1:m,1:nrhs)
+!!!!
+!!!      call dtrtrs('lower', 'no transpose', 'non-unit', m, nrhs, a, lda, b, ldb, info)
+!!!!
+!!!      if(info > 0) then
+!!!         return
+!!!      end if
+!!!!
+!!!!           b(m+1:n,1:nrhs) = 0
+!!!!
+!!!      do j = 1, nrhs
+!!!         do i = m + 1, n
+!!!            b(i, j) = 0.0d0
+!!!         end do
+!!!      end do
+!!!!
+!!!!           b(1:n,1:nrhs) := q(1:n,:)**t * b(1:m,1:nrhs)
+!!!!
+!!!      call dormlq('l', 't', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+!!!!
+!!!!           workspace at least nrhs, optimally nrhs*nb
+!!!!
+!!!      scllen = n
 !
   end if
   
