@@ -1,5 +1,3 @@
-# linmod
-
 ```
     _ _                           _ 
     | (_)_ __  _ __ ___   ___   __| |
@@ -48,7 +46,7 @@ I recommend:
     Golub G. H. and Van Loan, C. F. "Matrix Computations", 3rd ed.
 
 The GLM implementation uses iteratively reweighted least squares (IRLS), 
-based on the descriptions available in the book: 
+based heavily on the descriptions available in the book: 
 
     McCallagh, P. and Nelder, J. "Generalized Linear Models", 2nd ed.
 
@@ -104,18 +102,24 @@ stomach.
 
 To install the R package, simply execute:
 
-    R CMD INSTALL linmod_0.1.0.tar.gz
+```
+R CMD INSTALL linmod_0.1.0.tar.gz
+```
 
-To build just the shared library, in your terminal, navigate to:
+To build just the shared library, in your terminal, execute:
 
-    linmod/src/linmod/
-    
-and enter 'make'.  A static and dynamic library will be placed in the
+```
+cd linmod/src/linmod/ 
+make
+```
 
-    linmod/src/linmod/build
+A static and dynamic library will be placed in the
+
+```
+linmod/src/linmod/build
+```
 
 tree.
-
 
 
 
@@ -124,8 +128,8 @@ tree.
 If using the R package, simply use lm_fit() and glm_fit() *exactly* as you
 would use lm.fit() and glm.fit().  There are some caveats for the glm fitter;
 specifically, the family and link have to each be available to Fortran (R is
-much more flexible, at the cost of efficiency).  Currently, the supported 
-families and their associated links are:
+slightly more flexible).  Currently, the supported families and 
+their associated links are:
 
 * Binomial: cloglog, log, logit, probit, cauchit
 * Gamma: identity, inverse, log
