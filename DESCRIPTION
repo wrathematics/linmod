@@ -8,6 +8,7 @@ LazyLoad: yes
 LazyData: yes
 Imports: RNACI
 LinkingTo: RNACI
+Enhances: RcppEigen
 SystemRequirements: cmake (http://www.cmake.org)
 Authors@R: c(person("Drew", "Schmidt", role = c("aut", "cre"), email =
         "wrathematics@gmail.com"))
