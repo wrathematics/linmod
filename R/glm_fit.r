@@ -37,10 +37,9 @@ glm_fit <- function(x, y, ### weights = rep(1, nobs), start = NULL, etastart = N
   
   
   ### Fit the model and return
-  fit <- .Call("R_GLM_FIT", 
+  fit <- .Call(R_GLM_FIT, 
                family, link, intercept, stoprule, trace,
-               x, y, offset, maxiter, tol,
-               PACKAGE = "linmod")
+               x, y, offset, maxiter, tol)
   
   return(fit)
 }

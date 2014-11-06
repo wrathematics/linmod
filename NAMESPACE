@@ -1,3 +1,3 @@
-useDynLib(linmod)
+useDynLib(linmod, R_LM_FIT, R_GLM_FIT)
 
 exportPattern("^[[:alpha:]]+") 

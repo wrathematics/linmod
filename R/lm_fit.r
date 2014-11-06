@@ -7,7 +7,7 @@ lm_fit <- function(x, y, tol=1e-7, check.rank=TRUE)
   
   storage.mode(check.rank) <- "integer"
   
-  fit <- .Call("R_LM_FIT", x, y, tol, check.rank, PACKAGE="linmod")
+  fit <- .Call(R_LM_FIT, x, y, tol, check.rank)
   
   attr(fit$qr, "class") <- "qr"
   
