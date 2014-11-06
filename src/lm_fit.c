@@ -7,15 +7,13 @@
   SET_VECTOR_ELT(X, 1, RNULL); \
   setAttrib(Z, R_DimNamesSymbol, X);
 
-SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
+SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP checkrank)
 {
   R_INIT;
-  
+  int i, j;
   int m = nrows(a), n = ncols(a);
-  int nrhs = ncols(b);
-  
   int mn = (m<n ? m : n);
-  
+  int nrhs = ncols(b);
   char trans = 'n';
   int info = 0;
   
@@ -54,7 +52,19 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   newRvec(tau, mn, "dbl");
   newRvec(jpvt, n, "int");
   
-  memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
+  
+  if (!isNull(offset))
+  {
+    for (j=0; j<nrhs; j++)
+    {
+      for (i=0; i<m; i++)
+        DBL(b_out, i+j*m) = DBL(b, i+j*m) - DBL(offset, i);
+    }
+  }
+  else
+  {
+    memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
+  }
   
   
   if (INT(checkrank) == 0)
@@ -68,6 +78,7 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
           DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), 
           &info);
   
+  printf("a");
   
   if (info != 0)
     Rprintf("WARNING : returned info = %d\n", info);
@@ -92,6 +103,15 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP tol, SEXP checkrank)
   {
     setDimNames(dimnames, coef_names, coef);
     setDimNames(effdimnames, eff_names, eff);
+  }
+  
+  if (!isNull(offset))
+  {
+    for (j=0; j<nrhs; j++)
+    {
+      for (i=0; i<m; i++)
+        DBL(ft, i+j*m) += DBL(offset, i);
+    }
   }
   
   ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "df.residual");
