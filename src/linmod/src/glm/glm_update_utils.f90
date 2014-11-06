@@ -23,7 +23,7 @@ module glm_update_utils
     ! in/out
     integer, intent(in) :: n, p, lwork
     integer, intent(out) :: info
-    double precision, intent(in) :: x(n,p)
+    double precision, intent(in) :: x(n, p)
     double precision, intent(inout) :: y(n)
     double precision, intent(out) :: beta(p), beta_old(p), work(lwork)
     ! local

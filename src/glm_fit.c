@@ -6,7 +6,7 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE, SEXP TRACE
   SEXP X, SEXP Y, SEXP OFFSET, SEXP MAXITER, SEXP TOL)
 {
   R_INIT;
-  int p = nrows(X), n = ncols(X);
+  int n = nrows(X), p = ncols(X);
   int info = 0;
   
   SEXP QR, QR_NAMES;
