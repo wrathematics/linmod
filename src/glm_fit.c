@@ -3,31 +3,21 @@
 
 
 SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE, SEXP TRACE,
-  SEXP N, SEXP P, SEXP X, SEXP Y, SEXP OFFSET, SEXP MAXITER, SEXP TOL)
+  SEXP X, SEXP Y, SEXP OFFSET, SEXP MAXITER, SEXP TOL)
 {
   R_INIT;
-  int p = INTEGER(P)[0], n = INTEGER(N)[0];
+  int p = nrows(X), n = ncols(X);
   int info = 0;
   
-  // ----------------------------------------------
-  // Wrangling the return and SEXP allocation
-  // ----------------------------------------------
-  
-  // QR
   SEXP QR, QR_NAMES;
-  
   SEXP CP_X, RANK, QRAUX, PIVOT;
-  newRmat(CP_X, n, p, "dbl");
-  newRlist(RANK, 1); // list ?
   
-  QR_NAMES = make_list_names(5, "qr", "rank", "qraux", "pivot", "tol");
-  QR = make_list(QR_NAMES, 5, CP_X, RANK, QRAUX, PIVOT, TOL);
-  
-  // Return
   SEXP RET, RET_NAMES;
-  
   SEXP BETA, RESIDS, FITTED, EFFECTS, R, LINPRED, DEV, AIC, NULLDEV, 
        ITER, WT, WT_OLD, DFRESID, DFNULL, CONV, BDD;
+  
+  newRmat(CP_X, n, p, "dbl");
+  newRlist(RANK, 1); // list ?
   
   newRvec(BETA, p, "dbl");
   newRvec(RESIDS, n, "dbl");
@@ -46,6 +36,19 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE, SEXP TRACE
   newRvec(CONV, 1, "dbl");
   newRvec(BDD, 1, "dbl");
   
+  
+  memcpy(REAL(CP_X), REAL(X), n*p * sizeof(double));
+  
+  glm_fit(INTP(FAMILY), INTP(LINK), 
+    INTP(INTERCEPT), INTP(STOPRULE), &n, &p, REAL(CP_X), 
+    REAL(Y), REAL(BETA), REAL(WT), REAL(OFFSET), REAL(RESIDS), 
+    INTP(MAXITER), REAL(TOL), INTP(TRACE), &info);
+  
+  
+  // wrangle return
+  QR_NAMES = make_list_names(5, "qr", "rank", "qraux", "pivot", "tol");
+  QR = make_list(QR_NAMES, 5, CP_X, RANK, QRAUX, PIVOT, TOL);
+  
   RET_NAMES = make_list_names(20, 
     "coefficients", "residuals", "fitted.values", "effects", "R", "rank", 
     "qr", "family", "linear.predictors", "deviance", "aic", "null.deviance",
@@ -57,21 +60,7 @@ SEXP R_GLM_FIT(SEXP FAMILY, SEXP LINK, SEXP INTERCEPT, SEXP STOPRULE, SEXP TRACE
     QR, LINPRED, DEV, AIC, NULLDEV,
     ITER, WT, WT_OLD, DFRESID, DFNULL, Y,
     CONV, BDD);
-    
   
-  setAttrib(RET, R_NamesSymbol, RET_NAMES);
-  
-  // ----------------------------------------------
-  // Actual work
-  // ----------------------------------------------
-  
-  // copy X
-  memcpy(REAL(CP_X), REAL(X), n*p * sizeof(double));
-  
-  glm_fit(INTP(FAMILY), INTP(LINK), 
-    INTP(INTERCEPT), INTP(STOPRULE), &n, &p, REAL(CP_X), 
-    REAL(Y), REAL(BETA), REAL(WT), REAL(OFFSET), REAL(RESIDS), 
-    INTP(MAXITER), REAL(TOL), INTP(TRACE), &info);
   
   if (info != 0)
     Rprintf("WARNING : returned info = %d\n", info);
