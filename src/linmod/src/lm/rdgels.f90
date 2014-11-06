@@ -4,7 +4,6 @@
 
 ! Copyright 2014, Schmidt
 
-
 ! Extremely modified from LAPACK routine dgels, original copyright:
 !  -- lapack driver routine (version 3.3.1) --
 !  -- lapack is a software package provided by univ. of tennessee,    --
@@ -12,62 +11,6 @@
 !  -- april 2011
 
 
-
-! Purpose
-! =======
-!
-! Linear model fitter using a QR (or LQ if m<n) decomposition.
-!
-!
-! Arguments
-! =========
-!
-! m, n      (input) integer
-!           The number of rows and columns of the data matrix a.
-! 
-! nrhs      (input) integer
-!           The number of 'right hand sides', i.e. the number of 
-!           columns of b.  nrhs>=0.
-! 
-! a         (input/output) double precision array, dimension (m,n).
-!           On entry, the input data matrix.  On exit, the output
-!           of a lapack QR factorization is stored for a.
-! 
-! b         (input) double precision array, dimension (m,nrhs).
-!           The response variable.
-! 
-! lda, ldb  (input) integer
-!           Leading dimension of a and b respectively.
-! 
-! tol       (input) double precision
-!           Numerical tolerance.
-! 
-! coef      (output) double precision array, dimension (m,nrhs)
-!           The coefficients array ("beta").
-! 
-! eff       (output) double precision array, dimension (m,nrhs)
-!           The "effects" array, namely eff := Q^T * b.
-! 
-! ft        (output) double precision array, dimension (m,nrhs)
-!           The "fitted" values, namely ft := Q*(R*b)
-! 
-! rsd       (output) double precision array, dimension (m,nrhs)
-!           The residuals.
-! 
-! tau       
-!           
-! 
-! jpvt      
-!           
-! 
-! rank      (input/output) integer
-!           On input, controls whether numerical rank should be checked
-!           (-1 no check, otherwise check). On output, the estimated
-!           numerical (columns) rank is returned.
-! 
-! info      (output) integer
-!           = 0: successful exit.
-!           < 0: if info = -i, the i-th argument had an illegal value.
 
 subroutine rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
                   jpvt, rank, work, lwork, info) &
