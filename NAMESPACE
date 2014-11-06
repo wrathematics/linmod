@@ -1,3 +1,4 @@
+import(RNACI)
 useDynLib(linmod, R_LM_FIT, R_GLM_FIT)
 
-exportPattern("^[[:alpha:]]+") 
+export(lm_fit, glm_fit)
