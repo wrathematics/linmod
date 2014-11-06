@@ -1,4 +1,4 @@
-lm_fit <- function(x, y, offset=NULL, tol=1e-7,  check.rank=TRUE, ...)
+lm_fit <- function(x, y, offset=NULL, tol=1e-07, singular.ok=TRUE, check.rank=TRUE, ...)
 {
   if (!is.double(x))
     storage.mode(x) <- "double"
@@ -17,7 +17,7 @@ lm_fit <- function(x, y, offset=NULL, tol=1e-7,  check.rank=TRUE, ...)
       storage.mode(offset) <- "double"
   }
   
-  fit <- .Call(R_LM_FIT, x, y, offset=offset, tol, check.rank)
+  fit <- .Call(R_LM_FIT, x, y, offset=offset, tol, as.integer(singular.ok), check.rank)
   
   attr(fit$qr, "class") <- "qr"
   

@@ -7,7 +7,7 @@
   SET_VECTOR_ELT(X, 1, RNULL); \
   setAttrib(Z, R_DimNamesSymbol, X);
 
-SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP checkrank)
+SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP checkrank)
 {
   R_INIT;
   int i, j;
@@ -78,7 +78,8 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP checkrank)
           DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), 
           &info);
   
-  printf("a");
+  if (!INT(singular_ok) && INT(rank) < n)
+    error("singular fit encountered");
   
   if (info != 0)
     Rprintf("WARNING : returned info = %d\n", info);
