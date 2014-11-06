@@ -1,3 +1,11 @@
-== Library ==
+# Known Bugs
+
+
+## Library
 * lm_fit: work array allocation is borked
 * dlacpy_omp bug (expressed in lm_fit_utils)
+
+
+
+## Misc.
+* Compilation frequently, randomly breaks with -j > 1.  I have no idea why.
