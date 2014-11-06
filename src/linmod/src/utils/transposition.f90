@@ -86,8 +86,7 @@ module transposition
   ! ACM Algorithm 467 -- Transposition of a rectangular matrix in situ.
   ! by Norman Brenner, mit, 1/72.  cf. alg. 380, cacm, 5/70.
   ! Modified to allocate its own workspace, moved square transposition
-  subroutine xpose_nonsquare(n1, n2, a) &
-    bind(c, name='xpose_')
+  subroutine xpose_nonsquare(n1, n2, a)
         ! in/out
         integer(kind=c_int), intent(in) :: n1, n2
         real(kind=c_double), intent(inout) :: a(*)
@@ -187,7 +186,8 @@ module transposition
   
   
   
-  subroutine xpose(m, n, a)
+  subroutine xpose(m, n, a) &
+  bind(c, name='xpose')
     ! in/out
     integer, intent(in) :: m, n
     double precision, intent(inout) :: a(m, n)
