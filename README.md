@@ -159,6 +159,35 @@ Drew Schmidt:
 
 
 
+## Q&A
+
+* Why cmake?
+  - Fundamentally, this is a Fortran library, and I make extensive
+    use of some of the nice F95 standard features (plus a few from
+    F2003).  Using standard make (this ends up including R's 
+    Makevars), it becomes an incredibly tedious chore to manage
+    Fortran module dependencies.  Because cmake has been
+    competently engineered in almost every way, Fortran module
+    dependencies are automatically discovered.
+* Will this ever be on CRAN?
+  - I highly doubt it.  The Mac and Windows CRAN machines do
+    not support cmake, which is very much needed to build the
+    underlying Fortran library.  Additionally, CRAN in general
+    frowns on Fortran other than F77.  Honestly, it's not really
+    worth the trouble to me.
+* Why R bindings?
+  - R is what I know and love.  Although I do like to gaze longingly
+    at Julia, for the time being, I'm still committed to R.
+* Why Fortran?
+  - Because it offers the high-level stuff I want, and unlike C++,
+    Fortran doesn't constantly compromise on performance (shots
+    fired!).  Also, the linear model fitter is a bunch of modifications
+    to LAPACK routines, so it was going to include a lot of Fortran
+    regardless.
+
+
+
+
 ## Testing
 
 I have rigorously tested this package with the following software/versions:
