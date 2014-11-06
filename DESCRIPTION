@@ -4,8 +4,8 @@ Description: This package provides a set of wrappers for the linmod library
       (included in this package). This allows the user to 
 Version: 0.1.0
 Depends: R (>= 2.14.0)
-LazyLoad: yes
-LazyData: yes
+NeedsCompilation: Yes
+ByteCompile: yes
 Imports: RNACI
 LinkingTo: RNACI
 Enhances: RcppEigen
@@ -13,4 +13,4 @@ SystemRequirements: cmake (http://www.cmake.org)
 Authors@R: c(person("Drew", "Schmidt", role = c("aut", "cre"), email =
         "wrathematics@gmail.com"))
 License: Mozilla Public License 2.0
-NeedsCompilation: Yes
+
