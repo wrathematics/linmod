@@ -1,5 +1,5 @@
 #!/bin/sh
 
-export OMP_NUM_THREADS=$1
+export OMP_NUM_THREADS=$2
 
-Rscript $2
+Rscript $1

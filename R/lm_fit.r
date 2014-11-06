@@ -1,4 +1,5 @@
-lm_fit <- function(x, y, tol=1e-7, check.rank=TRUE)
+## TODO use offset
+lm_fit <- function(x, y, tol=1e-7, offset=NULL, check.rank=TRUE, ...)
 {
   if (!is.double(x))
     storage.mode(x) <- "double"
