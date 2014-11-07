@@ -67,12 +67,8 @@ obvious benefit is that the library itself does not even need R, while R's
 lm.fit() and glm.fit() do indeed depend quite heavily on R.
 
 
-Early benchmarking shows a ~15% performance gain over R's lm.fit() at
-modestly sized problems when using the rank-revealing method, and a 200% 
-performance gain when assuming the model is of full column rank.
-
 Matrices in this library are assumed to be column-major. Use the provided 
-transpose functions to convert between the two storage formats as needed.
+transpose functions to convert between the two storage formats if/as needed.
 
 
 
@@ -92,43 +88,41 @@ To install, you will need:
 
 * cmake >= 2.8.1
 * A Fortran 2003 compatible compiler with OpenMP support.
-* A C99 compatible compiler
-* LAPACK and BLAS libraries (not needed if installing the R package)
-* R >= 2.14.0 and the RNACI package (if installing the R package)
+* A C99 compatible compiler (I really recommend clang).
+* LAPACK and BLAS libraries (not needed if installing the R package).
+* R >= 2.14.0 and the RNACI R package (if installing the R package).
 
 Both the R package and the standalone library require cmake, because if you
 so much as think the word "autotools" around me, I'll punch you in the 
 stomach.
 
-To install the R package, simply execute:
+To install the R package, assuming you have all of the necessary
+system dependencies (stated above), the easiest way to build the
+linmod R package is to use the devtools package.
 
-```
-R CMD INSTALL linmod_0.1.0.tar.gz
+```r
+devtools::install_github("wrathematics/linmod")
 ```
 
-To build just the shared library, in your terminal, execute:
+To build just the standalone library without the R package, in your
+terminal, execute:
 
 ```
 cd linmod/src/linmod/ 
 make
 ```
 
-A static and dynamic library will be placed in the
-
-```
-linmod/src/linmod/build
-```
-
-tree.
+A static and dynamic library will be placed in the 
+`linmod/src/linmod/build` tree.
 
 
 
-## Usage 
+## Usage and Interfaces
 
-If using the R package, simply use lm_fit() and glm_fit() *exactly* as you
-would use lm.fit() and glm.fit().  There are some caveats for the glm fitter;
-specifically, the family and link have to each be available to Fortran (R is
-slightly more flexible).  Currently, the supported families and 
+If using the R package, simply use `lm_fit()` and `glm_fit()` *exactly* as you
+would use `lm.fit()` and `glm.fit()`.  There are some caveats for the glm
+fitter; specifically, the family and link have to each be available to Fortran
+(R is slightly more flexible).  Currently, the supported families and 
 their associated links are:
 
 * Binomial: cloglog, log, logit, probit, cauchit
@@ -148,19 +142,17 @@ TODO: say more about interfaces
 
 
 
-## Contact
-
-Drew Schmidt:
-
-* Project home: https://github.com/wrathematics/linmod
-* Bug reports: https://github.com/wrathematics/linmod/issues
-* Email: wrathematics .AT. gmail.com
-* Twitter: @wrathematics
-
-
-
 ## Q&A
 
+* Why R bindings?
+  - R is what I know and love.  Although I do like to gaze longingly
+    at Julia, for the time being, I'm still committed to R.
+* Will this ever be on CRAN?
+  - I highly doubt it.  The Mac and Windows CRAN machines do
+    not support cmake, which is very much needed to build the
+    underlying Fortran library.  Additionally, CRAN in general
+    frowns on Fortran other than F77.  Honestly, it's not really
+    worth the trouble to me.
 * Why cmake?
   - Fundamentally, this is a Fortran library, and I make extensive
     use of some of the nice F95 standard features (plus a few from
@@ -169,22 +161,17 @@ Drew Schmidt:
     Fortran module dependencies.  Because cmake has been
     competently engineered in almost every way, Fortran module
     dependencies are automatically discovered.
-* Will this ever be on CRAN?
-  - I highly doubt it.  The Mac and Windows CRAN machines do
-    not support cmake, which is very much needed to build the
-    underlying Fortran library.  Additionally, CRAN in general
-    frowns on Fortran other than F77.  Honestly, it's not really
-    worth the trouble to me.
-* Why R bindings?
-  - R is what I know and love.  Although I do like to gaze longingly
-    at Julia, for the time being, I'm still committed to R.
 * Why Fortran?
-  - Because it offers the high-level stuff I want, and unlike C++,
-    Fortran doesn't constantly compromise on performance (shots
-    fired!).  Also, the linear model fitter is a bunch of modifications
+  - Because it offers the high-level stuff I want, and it tends to
+    perform much better than even other so-called high performance
+    languages.  Also, the linear model fitter is a bunch of modifications
     to LAPACK routines, so it was going to include a lot of Fortran
     regardless.
-
+* Why C99?
+  - For `stdbool.h`, probably some other stuff.
+* Is this production ready?
+  - Hell no; it's not even done.  Even the (library) interfaces may change
+    somewhat over the next few releases.
 
 
 
@@ -198,4 +185,15 @@ I have rigorously tested this package with the following software/versions:
 * R: 3.1.1
 
 Reports from other software/versions (with success or failure) are most welcome.
+
+
+
+## Contact
+
+Drew Schmidt:
+
+* Project home: https://github.com/wrathematics/linmod
+* Bug reports: https://github.com/wrathematics/linmod/issues
+* Email: wrathematics .AT. gmail.com
+* Twitter: @wrathematics
 

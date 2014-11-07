@@ -1,7 +1,7 @@
 == Library ==
 * Use lm_fit in glm_fit (instead of dgels); return effects, residuals, etc.
 * Handle m < n case in lm_fit.
-* Compute deviance residuals.
+* Compute deviance residuals in glm.
 
 
 == Misc library crap ==
