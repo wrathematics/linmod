@@ -23,3 +23,11 @@ lm_fit <- function(x, y, offset=NULL, tol=1e-07, singular.ok=TRUE, check.rank=TR
   
   return(fit)
 }
+
+
+
+.lm_fit <- function(x, y, tol=1e-07, check.rank=TRUE)
+{
+  lm_fit(x=x, y=y, offset=NULL, tol=tol, singular.ok=TRUE, check.rank=check.rank)
+}
+

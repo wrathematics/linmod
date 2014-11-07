@@ -3,6 +3,7 @@
 
 
 #include <RNACI.h> 
+#include <stdbool.h>
 #include "linmod/src/c_interface/linmod.h"
 #include "linmod/src/c_interface/lapack.h"
 

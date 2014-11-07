@@ -2,6 +2,8 @@
 #define __LINMOD_H_
 
 
+#include <stdbool.h>
+
 typedef struct qr_t
 {
   int p;
@@ -17,9 +19,9 @@ void rdgels(int *m, int *n, int *nrhs, double *a, double *b, double *tol,
   double *coef, double *eff, double *ft, double *rsd, double *tau, 
   int *jpvt, int *rank, double *work, int *lwork, int *info);
 
-void lm_fit(int *m, int *n, int *nrhs, double *a, double *b, 
-  double *tol, double *coef, double *eff, double *ft, double *rsd,
-  double *tau, int *jpvt, int *rank, int *info);
+void lm_fit(bool *use_offset, int *m, int *n, int *nrhs, double *a, double *b, 
+  double *offset, double *tol, double *coef, double *eff, double *ft, 
+  double *rsd, double *tau, int *jpvt, int *rank, int *info);
 
 void glm_fit(int *family, int *link, int *intercept, int *stoprule,
   int *n, int *p, double *x, double *y, double *beta, double *wt,

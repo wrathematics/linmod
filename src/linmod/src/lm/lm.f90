@@ -63,36 +63,64 @@
 !           < 0: if info = -i, the i-th argument had an illegal value.
 
 
-
-!!! TODO: s/m/n/, s/n/p/, s/a/x/ s/b/y/
 module lm
+  use, intrinsic :: iso_c_binding
+  use :: distributions, only : true, false
   implicit none
   
   
   contains
   
-  subroutine lm_fit(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
+  subroutine lm_fit(use_offset, n, p, nrhs, x, y, offset, tol, coef, eff, ft, rsd, tau, &
                     jpvt, rank, info) &
   bind(c, name='lm_fit')
-    integer, intent(in) :: m, n, nrhs
-    integer, intent(out) :: info, jpvt(n)
+    logical(kind=c_bool) :: use_offset
+    integer, intent(in) :: n, p, nrhs
+    integer, intent(out) :: info, jpvt(p)
     integer, intent(inout) :: rank
-    double precision, intent(in) :: tol
-    double precision, intent(out) :: coef(n, *), tau(*)
-    double precision, intent(out), dimension(m, *) :: ft, eff, rsd
-    double precision, intent(inout) :: a(m, *), b(m, *)
+    double precision, intent(in) :: offset(n), tol
+    double precision, intent(out) :: coef(p, nrhs), tau(*)
+    double precision, intent(out), dimension(n, nrhs) :: ft, eff, rsd
+    double precision, intent(inout) :: x(n, p), y(n, nrhs)
     ! local
-    integer :: lwork
+    integer :: lwork, i, j
     double precision :: tmp(1)
     double precision, allocatable :: work(:)
     
     
     lwork = -1
-    call dgels('n', m, n, nrhs, a, m, b, m, tmp, lwork, info)
+    call dgels('n', n, p, nrhs, x, n, y, n, tmp, lwork, info)
     lwork = int(tmp(1))
     allocate(work(lwork))
     
-    call rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, jpvt, rank, work, lwork, info)
+    
+    if (use_offset .eqv. true) then
+      !$omp parallel if(n*nrhs > 5000) private(i, j) default(shared) 
+      !$omp do 
+        do j = 1, nrhs
+          do i = 1, n
+            y(i, j) = y(i, j) - offset(i)
+          end do
+        end do
+      !$omp end do
+      !$omp end parallel
+    end if
+    
+    
+    call rdgels(n, p, nrhs, x, y, tol, coef, eff, ft, rsd, tau, jpvt, rank, work, lwork, info)
+    
+    
+    if (use_offset .eqv. true) then
+      !$omp parallel if(n*nrhs > 5000) private(i, j) default(shared) 
+      !$omp do 
+        do j = 1, nrhs
+          do i = 1, n
+            ft(i, j) = ft(i, j) + offset(i)
+          end do
+        end do
+      !$omp end do
+      !$omp end parallel
+    end if
     
     if (allocated(work)) deallocate(work)
     

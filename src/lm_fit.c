@@ -1,4 +1,7 @@
+// Copyright 2014, Schmidt
+
 #include "linmod.h"
+#include <stdbool.h>
 
 
 #define setDimNames(X, Y, Z) \
@@ -16,6 +19,8 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
   int nrhs = ncols(b);
   char trans = 'n';
   int info = 0;
+  bool use_offset;
+  double *offsetptr;
   
   SEXP ret, ret_names;
   SEXP qr, qr_names;
@@ -26,11 +31,17 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
   SEXP ft, rsd, tau, jpvt, qraux;
   SEXP dimnames, effdimnames;
   
+  if (!isNull(offset))
+  {
+    use_offset = true;
+    offsetptr = DBLP(offset);
+  }
+  else
+    use_offset = false;
+  
   newRvec(rank, 1, "int");
   newRvec(df_residual, 1, "int");
-  
   newRmat(a_out, m, n, "dbl");
-  memcpy(DBLP(a_out), DBLP(a), m*n*sizeof(double));
   
   if (nrhs == 1)
   {
@@ -53,18 +64,8 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
   newRvec(jpvt, n, "int");
   
   
-  if (!isNull(offset))
-  {
-    for (j=0; j<nrhs; j++)
-    {
-      for (i=0; i<m; i++)
-        DBL(b_out, i+j*m) = DBL(b, i+j*m) - DBL(offset, i);
-    }
-  }
-  else
-  {
-    memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
-  }
+  memcpy(DBLP(a_out), DBLP(a), m*n*sizeof(double));
+  memcpy(DBLP(b_out), DBLP(b), m*nrhs*sizeof(double));
   
   
   if (INT(checkrank) == 0)
@@ -74,9 +75,9 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
   
   
   // Fit y~x
-  lm_fit(&m, &n, &nrhs, DBLP(a_out), DBLP(b_out), DBLP(tol), DBLP(coef), 
-          DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), INTP(jpvt), INTP(rank), 
-          &info);
+  lm_fit(&use_offset, &m, &n, &nrhs, DBLP(a_out), DBLP(b_out), offsetptr, 
+          DBLP(tol), DBLP(coef), DBLP(eff), DBLP(ft), DBLP(rsd), DBLP(tau), 
+          INTP(jpvt), INTP(rank), &info);
   
   if (!INT(singular_ok) && INT(rank) < n)
     error("singular fit encountered");
@@ -106,14 +107,6 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
     setDimNames(effdimnames, eff_names, eff);
   }
   
-  if (!isNull(offset))
-  {
-    for (j=0; j<nrhs; j++)
-    {
-      for (i=0; i<m; i++)
-        DBL(ft, i+j*m) += DBL(offset, i);
-    }
-  }
   
   ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "df.residual");
   ret = make_list(ret_names, 8, coef, rsd, eff, rank, ft, RNULL, qr, df_residual);

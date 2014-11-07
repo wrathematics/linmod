@@ -29,9 +29,9 @@ bind(c, name='rdgels_')
   integer, intent(out) :: info, jpvt(n)
   integer, intent(inout) :: rank
   double precision, intent(in) :: tol
-  double precision, intent(out) :: coef(n, *), tau(*), work(*)
-  double precision, intent(out), dimension(m, *) :: ft, eff, rsd
-  double precision, intent(inout) :: a(m, *), b(m, *)
+  double precision, intent(out) :: coef(n, nrhs), tau(*), work(lwork)
+  double precision, intent(out), dimension(m, nrhs) :: ft, eff, rsd
+  double precision, intent(inout) :: a(m, n), b(m, nrhs)
   ! FIXME
   double precision :: qraux1
   ! local
