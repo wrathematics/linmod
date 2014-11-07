@@ -1,35 +1,53 @@
 library(linmod)
 
-m <- 10
-n <- 5
 
-#n <- 10
-#m <- 5
+printlmtest <- function(nrhs, rank, test)
+{
+  printtest <- if (test) "TRUE" else "FALSE"
+  cat(sprintf("%s:  nrhs=%d, rank=%d\n", printtest, nrhs, rank))
+}
 
-bigtest <- function(seed, verbose, check.rank)
+bigtest <- function(m, n, seed, verbose, check.rank)
 {
   NRHS <- 1:2
   RUNS <- 1:5
+  offsets <- list(NULL, rep(1, m))
   
-  for (nrhs in NRHS)
+  for (offset in offsets)
   {
-    for (run in RUNS)
+    for (nrhs in NRHS)
     {
+      ### Assume full rank
       set.seed(seed)
       x <- matrix(rnorm(m*n), m, n)
       y <- matrix(rnorm(m*nrhs), m, nrhs)
+      test <- linmod:::lmfit_test(x=x, y=y, offset=offset, check.rank=FALSE, verbose=verbose)
+      printlmtest(nrhs, -1, test)
       
-      if (run == 2)       x[, 5] <- x[, 4]
-      else if (run == 3)  x[, 3] <- x[, 2]
-      else if (run == 4)  x[, 4] <- x[, 3] <- x[, 2]
-      else if (run == 5)  x[, 4] <- x[, 3] <- x[, 2] <- x[, 1]
-#      else if (run == 6) x[, 5] <- x[, 4] <- x[, 3] <- x[, 2] <- x[, 1]
       
-      print(linmod:::lmfit_test(x=x, y=y, check.rank=check.rank, verbose=verbose))
+      ### Don't (and might not be)
+      for (run in RUNS)
+      {
+        if (run == 2)       x[, 5] <- x[, 4]
+        else if (run == 3)  x[, 3] <- x[, 2]
+        else if (run == 4)  x[, 4] <- x[, 3] <- x[, 2]
+        else if (run == 5)  x[, 4] <- x[, 3] <- x[, 2] <- x[, 1]
+  #      else if (run == 6) x[, 5] <- x[, 4] <- x[, 3] <- x[, 2] <- x[, 1]
+        
+        test <- linmod:::lmfit_test(x=x, y=y, offset=offset, check.rank=TRUE, verbose=verbose)
+        printlmtest(nrhs, n-run+1, test)
+      }
     }
   }
   
   invisible()
 }
 
-bigtest(seed=1234, verbose=FALSE, check.rank=TRUE)
+
+m <- 10
+n <- 5
+
+#n <- 10
+#m <- 5
+
+bigtest(m=m, n=n, seed=1234, verbose=FALSE)

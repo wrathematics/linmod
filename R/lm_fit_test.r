@@ -27,13 +27,13 @@ lmfit_test_checker <- function(mdl1, mdl2, which, whichprint)
 
 
 
-lmfit_test <- function(x, y, check.rank=FALSE, whichprint=NULL, verbose=FALSE)
+lmfit_test <- function(x, y, offset, check.rank=FALSE, whichprint=NULL, verbose=FALSE)
 {
   if (verbose)
     cat("-------------------------------------------------------\n\n")
   
-  mdl1 <- stats::lm.fit(x, y)
-  mdl2 <- linmod::lm_fit(x, y, check.rank=check.rank)
+  mdl1 <- stats::lm.fit(x=x, y=y, offset=offset)
+  mdl2 <- linmod::lm_fit(x=x, y=y, offset=offset, check.rank=check.rank)
   
   ### QR storage will almost certainly be different because of the
   ### way the algorithms differ
