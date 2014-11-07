@@ -1,4 +1,5 @@
 library(linmod, quiet=TRUE)
+glm_test <- linmod:::glm_test
 
 ### TODO use canonical link to generate starting values for the other bullshits
 
