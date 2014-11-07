@@ -1,3 +1,5 @@
+// Copyright 2014, Schmidt
+
 #include <string.h>
 #include "linmod.h"
 #include "linmod/src/c_interface/glm_defines.h"

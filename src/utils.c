@@ -1,3 +1,5 @@
+// Copyright 2014, Schmidt
+
 #include "linmod.h"
 #include <math.h>
 
