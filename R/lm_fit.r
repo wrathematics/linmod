@@ -35,7 +35,7 @@ lm_fit <- function(x, y, offset=NULL, tol=1e-07, singular.ok=TRUE, check.rank=TR
     names(fit$effects) <- colnames(x)
   }
   
-  if (!is.null(fit$assign <- attr(x, "assign")))
+  if (!is.null(attr(x, "assign")))
   {
     attr(fit$qr$qr, "assign") <- attr(x, "assign")
     fit$assign <- attr(x, "assign")
