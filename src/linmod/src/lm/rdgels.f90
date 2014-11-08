@@ -11,10 +11,8 @@
 !  -- april 2011
 
 
-
 subroutine rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
                   jpvt, rank, work, lwork, info) &
-!function lm_fit(m, n, nrhs, a, b, coef, rsd, eff, ft, qrlist) &
 bind(c, name='rdgels_')
   use :: lapack
   use :: lapack_omp
@@ -149,7 +147,7 @@ bind(c, name='rdgels_')
   
   
   if (m >= n) then
-    call rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
+    call rdgels_qr(m, n, mn, nrhs, a, b, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
     
     if (info > 0) then
@@ -198,19 +196,19 @@ bind(c, name='rdgels_')
   
   
   ! undo scaling
-  if(iascl == 1) then
-     call dlascl('g', 0, 0, anrm, smlnum, scllen, nrhs, b, ldb, info)
+  if (iascl == 1) then
+    call dlascl('g', 0, 0, anrm, smlnum, scllen, nrhs, b, ldb, info)
   else if(iascl == 2) then
-     call dlascl('g', 0, 0, anrm, bignum, scllen, nrhs, b, ldb, info)
+    call dlascl('g', 0, 0, anrm, bignum, scllen, nrhs, b, ldb, info)
   end if
-  if(ibscl == 1) then
-     call dlascl('g', 0, 0, smlnum, bnrm, scllen, nrhs, b, ldb, info)
+  if (ibscl == 1) then
+    call dlascl('g', 0, 0, smlnum, bnrm, scllen, nrhs, b, ldb, info)
   else if(ibscl == 2) then
-     call dlascl('g', 0, 0, bignum, bnrm, scllen, nrhs, b, ldb, info)
+    call dlascl('g', 0, 0, bignum, bnrm, scllen, nrhs, b, ldb, info)
   end if
   
   
-50 continue
+  50 continue
 !!!!!!  work(1) = dble(wsize)
   work(1) = qraux1
   

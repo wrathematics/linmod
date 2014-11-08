@@ -4,7 +4,7 @@
 
 ! Copyright 2014, Schmidt
 
-
+! Extremely modified from LAPACK routine dgeqpf, original copyright:
 !  -- lapack deprecated driver routine (version 3.1) --
 !     univ. of tennessee, univ. of california berkeley and nag ltd..
 !     november 2006

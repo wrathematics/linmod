@@ -14,16 +14,16 @@ module lm_fit_utils
   
   contains
   
-  subroutine rdgels_qr(m, n, mn, nrhs, a, lda, b, ldb, work, lwork, info, &
+  subroutine rdgels_qr(m, n, mn, nrhs, a, b, work, lwork, info, &
                     tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
     ! in/out
-    integer, intent(in) :: m, n, mn, nrhs, lda, ldb, lwork
+    integer, intent(in) :: m, n, mn, nrhs, lwork
     integer, intent(out) :: info, jpvt(n)
     integer, intent(inout) :: rank
     double precision, intent(in) :: tol
-    double precision, intent(out) :: work(*), coef(n, *), tau(*)
-    double precision, intent(out), dimension(ldb, *) :: ft, eff, rsd
-    double precision, intent(inout) :: a(lda, *), b(ldb, *)
+    double precision, intent(out) :: work(lwork), coef(n, nrhs), tau(*)
+    double precision, intent(out), dimension(m, nrhs) :: ft, eff, rsd
+    double precision, intent(inout) :: a(m, n), b(m, nrhs)
     double precision, intent(out) :: qraux1
     ! local
     integer i, j
@@ -32,7 +32,7 @@ module lm_fit_utils
     ! Assume model matrix is full rank
     if (rank == -1) then 
       rank = n
-      call dgeqrf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
+      call dgeqrf(m, n, a, m, work(1), work(mn+1), lwork-mn, info)
       
       do i = 1, n
         jpvt(i) = i
@@ -40,17 +40,16 @@ module lm_fit_utils
       
     ! RRQR
     else
-  !      call rdgeqpf(m, n, a, lda, jpvt, work(1), work(mn+1), tol, rank, info)
-      call rdgeqp3(m, n, a, lda, jpvt, work(1), work(mn+1), 3*n+1, tol, rank, info)
+      call rdgeqp3(m, n, a, m, jpvt, work(1), work(mn+1), 3*n+1, tol, rank, info)
     end if
     
     
     ! least-squares problem min || a * x - b ||
     !  b(1:m,1:nrhs) := q**t * b(1:m,1:nrhs)
-    call dormqr('left', 'transpose', m, nrhs, rank, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
+    call dormqr('left', 'transpose', m, nrhs, rank, a, m, work(1), b, m, work(mn+1), lwork-mn, info)
     
     ! Store "effects"
-!    call dlacpy_omp('All', m, nrhs, b, ldb, eff, ldb)
+!    call dlacpy_omp('All', m, nrhs, b, m, eff, m)
     eff(1:m, 1:nrhs) = b(1:m, 1:nrhs)
     
     
@@ -59,7 +58,7 @@ module lm_fit_utils
     
     ! workspace at least nrhs, optimally nrhs*nb
     ! b(1:n,1:nrhs) := inv(r) * b(1:n,1:nrhs)
-    call dtrtrs('upper', 'no transpose', 'non-unit', rank, nrhs, a, lda, b, ldb, info)
+    call dtrtrs('upper', 'no transpose', 'non-unit', rank, nrhs, a, m, b, m, info)
     
     
     !!! Produce fitted.values = Ax = Q*(R*x)
@@ -81,15 +80,15 @@ module lm_fit_utils
     
     
     ! Compute fitted FT = Q*(R*fitted)
-    call dtrmm('L', 'U', 'N', 'N', mn, nrhs, 1.0d0, a, lda, ft, ldb)
+    call dtrmm('L', 'U', 'N', 'N', mn, nrhs, 1.0d0, a, m, ft, m)
     
     tau(1:mn) = work(1:mn)
-    call dormqr('L', 'N', m, nrhs, mn, a, lda, tau, ft, ldb, work, lwork, info)
+    call dormqr('L', 'N', m, nrhs, mn, a, m, tau, ft, m, work, lwork, info)
     
     
     !!! FIXME dlacpy_omp doesn't copy beyond first column correctly ?!
     ! Compute residual RSD = B - FT
-!    call dgeadd_omp('N', m, nrhs, -1.0d0, ft, ldb, 1.0d0, rsd, ldb)
+!    call dgeadd_omp('N', m, nrhs, -1.0d0, ft, m, 1.0d0, rsd, m)
     rsd(1:m, 1:nrhs) = rsd(1:m, 1:nrhs) - ft(1:m, 1:nrhs)
     
     ! Coefficients are stored in the first RANK elements of B
@@ -103,7 +102,7 @@ module lm_fit_utils
   
   
   subroutine rdgels_lq()
-    
+    !!! TODO
   end subroutine
   
   
