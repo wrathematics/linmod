@@ -101,6 +101,7 @@ system dependencies (stated above), the easiest way to build the
 linmod R package is to use the devtools package.
 
 ```r
+devtools::install_github("wrathematics/RNACI") # dependency
 devtools::install_github("wrathematics/linmod")
 ```
 
