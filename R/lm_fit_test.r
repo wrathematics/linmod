@@ -62,6 +62,9 @@ lmfit_test <- function(x, y, offset, check.rank=FALSE, whichprint=NULL, verbose=
       print(res)
     }
     
+    print(mdl1$qr$pivot)
+    print(mdl2$qr$pivot)
+    
     return(FALSE)
   }
 }

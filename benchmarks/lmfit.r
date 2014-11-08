@@ -26,7 +26,8 @@ y <- rnorm(m)
 
 cat("------------------ RRQR ------------------\n")
 
-benchmark(fastLm(X=x,  y=y, method=0), 
+benchmark(
+          fastLm(X=x,  y=y, method=0), 
           lm_fit(x=x, y=y, check.rank=TRUE),
           lm.fit(x=x, y=y),
           replications=10,

@@ -87,7 +87,6 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
   
   INT(df_residual) = m - INT(rank);
   
-  // FIXME qraux == work(1:rank)
   
   // Manage return
   qr_names = make_list_names(5, "qr", "qraux", "pivot", "tol", "rank");
