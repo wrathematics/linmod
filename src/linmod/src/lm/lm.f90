@@ -83,13 +83,14 @@ module lm
     double precision, intent(out), dimension(n, nrhs) :: ft, eff, rsd
     double precision, intent(inout) :: x(n, p), y(n, nrhs)
     ! local
-    integer :: lwork, i, j
+    integer :: np_max, lwork, i, j
     double precision :: tmp(1)
     double precision, allocatable :: work(:)
     
     
+    np_max = max(1, n, p) ! FIXME why the HELL is this needed?!
     lwork = -1
-    call dgels('n', n, p, nrhs, x, n, y, n, tmp, lwork, info)
+    call dgels('n', n, p, nrhs, x, n, y, np_max, tmp, lwork, info)
     lwork = int(tmp(1))
     allocate(work(lwork))
     
