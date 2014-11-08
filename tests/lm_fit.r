@@ -27,7 +27,7 @@ y <- matrix(rnorm(m*nrhs), m, nrhs)
 #whichprint <- NULL
 whichprint <- c("coefficients")
 
-linmod:::lmfit_test(x, y, TRUE, whichprint)
+linmod:::lmfit_test(x, y, offset=NULL, TRUE, whichprint)
 #f(x, y, FALSE)
 
 #stats::lm.fit(x, y)
