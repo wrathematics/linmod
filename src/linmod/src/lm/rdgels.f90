@@ -13,7 +13,7 @@
 
 subroutine rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
                   jpvt, rank, work, lwork, info) &
-bind(c, name='rdgels_')
+bind(c, name='rdgels')
   use :: lapack
   use :: lapack_omp
   use :: lm_fit_utils
@@ -146,53 +146,18 @@ bind(c, name='rdgels_')
   !$omp end parallel do
   
   
+  ! Fit the linear model, do all the extra value wrangling
   if (m >= n) then
     call rdgels_qr(m, n, mn, nrhs, a, b, work, lwork, info, &
                   tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
-    
-    if (info > 0) then
-       return
-    end if
-    
-    scllen = n
-  
-  
-  ! ----------- Compute LQ factorization of A
-  ! TODO
   else
-  
-!!!     call dgelqf(m, n, a, lda, work(1), work(mn+1), lwork-mn, info)
-!!!!
-!!!!        workspace at least m, optimally m*nb.
-!!!!
-!!!!
-!!!!           underdetermined system of equations a * x = b
-!!!!
-!!!!           b(1:m,1:nrhs) := inv(l) * b(1:m,1:nrhs)
-!!!!
-!!!      call dtrtrs('lower', 'no transpose', 'non-unit', m, nrhs, a, lda, b, ldb, info)
-!!!!
-!!!      if(info > 0) then
-!!!         return
-!!!      end if
-!!!!
-!!!!           b(m+1:n,1:nrhs) = 0
-!!!!
-!!!      do j = 1, nrhs
-!!!         do i = m + 1, n
-!!!            b(i, j) = 0.0d0
-!!!         end do
-!!!      end do
-!!!!
-!!!!           b(1:n,1:nrhs) := q(1:n,:)**t * b(1:m,1:nrhs)
-!!!!
-!!!      call dormlq('l', 't', n, nrhs, m, a, lda, work(1), b, ldb, work(mn+1), lwork-mn, info)
-!!!!
-!!!!           workspace at least nrhs, optimally nrhs*nb
-!!!!
-!!!      scllen = n
-!
+    call rdgels_lq(m, n, mn, nrhs, a, b, work, lwork, info, &
+                  tol, coef, eff, ft, rsd, tau, jpvt, rank, qraux1)
   end if
+  
+  if (info > 0) return
+  
+  scllen = n
   
   
   ! undo scaling
