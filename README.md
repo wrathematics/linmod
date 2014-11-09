@@ -120,11 +120,8 @@ A static and dynamic library will be placed in the
 
 ## Usage and Interfaces
 
-If using the R package, simply use `lm_fit()` and `glm_fit()` *exactly* as you
-would use `lm.fit()` and `glm.fit()`.  There are some caveats for the glm
-fitter; specifically, the family and link have to each be available to Fortran
-(R is slightly more flexible).  Currently, the supported families and 
-their associated links are:
+For GLM's, the currently supported families and their associated 
+links are:
 
 * Binomial: cloglog, log, logit, probit, cauchit
 * Gamma: identity, inverse, log
@@ -132,14 +129,16 @@ their associated links are:
 * Poisson: identity, log, sqrt
 * Inverse gaussian: inverse, log, identity, "1/mu^2"
 
-Some notable families and links available to R's glm.fit() are missing; those 
-will eventually be supported.  But my opinion is that the most important/common
-families and links are already supported.
+#### R Bindings
 
-If using the shared library, most of the above applies to you, so you would
-do well to read it anyway.  Here, there are both C and Fortran interfaces.
+Simply use `lm_fit()` and `glm_fit()` as you would R's own
+`lm.fit()` and `glm.fit()` respectively.  For a higher level
+interface (like `lm()` and `glm()`), see the Rglm2 package.
 
-TODO: say more about interfaces
+#### C/Fortran Interface
+
+Ironically, this is fairly unpolished at the moment.  More information
+will become available when the interface finalizes.
 
 
 
