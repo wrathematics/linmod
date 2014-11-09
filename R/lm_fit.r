@@ -1,3 +1,9 @@
+set_lm_names <- function()
+{
+  
+}
+
+
 lm_fit <- function(x, y, offset=NULL, tol=1e-07, singular.ok=TRUE, check.rank=TRUE, ...)
 {
   if (!is.double(x))
@@ -17,7 +23,9 @@ lm_fit <- function(x, y, offset=NULL, tol=1e-07, singular.ok=TRUE, check.rank=TR
       storage.mode(offset) <- "double"
   }
   
-  fit <- .Call(R_LM_FIT, x, y, offset=offset, tol, as.integer(singular.ok), check.rank)
+  hasnames <- !is.null(colnames(x))
+  
+  fit <- .Call(R_LM_FIT, x, y, offset=offset, tol, as.integer(singular.ok), check.rank, hasnames)
   attr(fit$qr, "class") <- "qr"
   
   if (!is.null(rownames(x)))
@@ -27,7 +35,6 @@ lm_fit <- function(x, y, offset=NULL, tol=1e-07, singular.ok=TRUE, check.rank=TR
     names(fit$fitted.values) <- rownames(x)
   }
   
-  ### FIXME don't fit the other ones in the first place...
   if (!is.null(colnames(x)))
   {
     colnames(fit$qr$qr) <- colnames(x)

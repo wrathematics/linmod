@@ -10,7 +10,7 @@
   SET_VECTOR_ELT(X, 1, RNULL); \
   setAttrib(Z, R_DimNamesSymbol, X);
 
-SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP checkrank)
+SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP checkrank, SEXP hasnames)
 {
   R_INIT;
   int i, j;
@@ -92,20 +92,22 @@ SEXP R_LM_FIT(SEXP a, SEXP b, SEXP offset, SEXP tol, SEXP singular_ok, SEXP chec
   qr_names = make_list_names(5, "qr", "qraux", "pivot", "tol", "rank");
   qr = make_list(qr_names, 5, a_out, tau, jpvt, tol, rank);
   
-  coef_names = make_lmfit_default_rownames(n);
-  eff_names = make_lmfit_default_effectnames(m, n, INT(rank), INTP(jpvt));
-  
-  if (nrhs == 1)
+  if (!INT(hasnames))
   {
-    setAttrib(coef, R_NamesSymbol, coef_names);
-    setAttrib(eff, R_NamesSymbol, eff_names);
+    coef_names = make_lmfit_default_rownames(n);
+    eff_names = make_lmfit_default_effectnames(m, n, INT(rank), INTP(jpvt));
+    
+    if (nrhs == 1)
+    {
+      setAttrib(coef, R_NamesSymbol, coef_names);
+      setAttrib(eff, R_NamesSymbol, eff_names);
+    }
+    else
+    {
+      setDimNames(dimnames, coef_names, coef);
+      setDimNames(effdimnames, eff_names, eff);
+    }
   }
-  else
-  {
-    setDimNames(dimnames, coef_names, coef);
-    setDimNames(effdimnames, eff_names, eff);
-  }
-  
   
   ret_names = make_list_names(8, "coefficients", "residuals", "effects", "rank", "fitted.values", "assign", "qr", "df.residual");
   ret = make_list(ret_names, 8, coef, rsd, eff, rank, ft, RNULL, qr, df_residual);
