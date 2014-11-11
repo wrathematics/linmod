@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_Fortran_MODULE_DIRECTORY "include/")
 
 ### Flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O3 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O3 -mtune=native -fPIC")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wfatal-errors -O3 -fPIC")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -58,8 +58,6 @@ set(CINTERFACE_FILES
 )
 
 set(LAPACK_FILES
-	src/lapack/dgeadd_omp.f90
-	src/lapack/dlacpy_omp.f90
 	src/lapack/lapack.f90
 	src/lapack/lapack_omp.f90
 )
@@ -67,7 +65,7 @@ set(LAPACK_FILES
 set(LM_FILES
 	src/lm/lm.f90
 	src/lm/rdgels.f90
-	src/lm/lm_fit_utils.f90
+	src/lm/rdgels_utils.f90
 	src/lm/rdgeqpf.f90
 	src/lm/rdormqr.f90
 	src/lm/rdgeqp3.f90
@@ -90,6 +88,7 @@ set(UTILS_FILES
 	src/utils/string_tools.f90
 	src/utils/swaps.f90
 	src/utils/transposition.f90
+	src/utils/linmod_omp.f90
 )
 
 

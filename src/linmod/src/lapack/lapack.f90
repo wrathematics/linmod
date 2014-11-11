@@ -6,7 +6,6 @@
 
 
 module lapack
-  use :: lapack_omp
   use :: iso_c_binding
   implicit none
   
