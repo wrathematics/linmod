@@ -2,9 +2,8 @@
 
 
 ## Library
-* lm_fit: work array allocation is borked
-* dlacpy_omp bug (expressed in lm_fit_utils)
-
+* n<p doesn't work in lm_fit.
+* glm_fit hasn't integrated lm_fit yet.
 
 
 ## Misc.
