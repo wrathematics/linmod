@@ -5,4 +5,4 @@ p <- 300
 
 family <- binomial(logit)
 
-glm_test(n, p, family, verbose=TRUE, timings=TRUE)
+linmod:::glm_test(n, p, family, verbose=TRUE, timings=TRUE)
