@@ -17,8 +17,12 @@ burnin <- function(reps=10)
 }
 burnin()
 
-m <- 10000
+
+reps <- 10
+
+m <- 6000
 n <- 250
+
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
 
@@ -27,9 +31,9 @@ y <- rnorm(m)
 cat("------------------ RRQR ------------------\n")
 
 benchmark(
-          fastLm(X=x,  y=y, method=0), 
+#          fastLm(X=x,  y=y, method=0), 
           lm_fit(x=x, y=y, check.rank=TRUE),
           lm.fit(x=x, y=y),
-          replications=10,
+          replications=reps,
           columns=c("test", "replications", "elapsed", "relative")
 )
