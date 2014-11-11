@@ -8,7 +8,7 @@
 module glm_link_utils
   use :: glm_constants
   use :: distributions
-  use :: iso_c_binding
+  use, intrinsic :: iso_c_binding
   use :: linmod_omp
   implicit none
   
