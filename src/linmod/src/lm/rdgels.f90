@@ -139,7 +139,7 @@ bind(c, name='rdgels_')
   ! Copy B over to RSD for later residual calculation
   call dlacpy_omp('All', m, nrhs, b, m, rsd, m)
   
-  !$omp parallel do if(n > 5000) private(i) default(shared) 
+  !$omp parallel do if(n > linmod_omp_minsize) private(i) default(shared) 
     do i = 1, n
       jpvt(i) = 0
     end do

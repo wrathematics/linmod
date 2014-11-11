@@ -7,6 +7,7 @@
 
 module transposition
   use, intrinsic :: iso_c_binding
+  use :: linmod_omp
   implicit none
   
   private :: factor, xpose_square, xpose_nonsquare
@@ -67,7 +68,7 @@ module transposition
     double precision :: tmp
     
     
-    !$omp parallel if(n*n > 5000) private(i, j, tmp) default(shared) 
+    !$omp parallel if(n*n > linmod_omp_minsize) private(i, j, tmp) default(shared) 
     !$omp do 
     do j = 1, n
       do i = 1, j-1

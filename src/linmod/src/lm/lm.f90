@@ -65,6 +65,7 @@
 
 module lm
   use, intrinsic :: iso_c_binding
+  use :: linmod_omp
   use :: distributions, only : true, false
   implicit none
   
@@ -96,7 +97,7 @@ module lm
     
     
     if (use_offset .eqv. true) then
-      !$omp parallel if(n*nrhs > 5000) private(i, j) default(shared) 
+      !$omp parallel if(n*nrhs > linmod_omp_minsize) private(i, j) default(shared) 
       !$omp do 
         do j = 1, nrhs
           do i = 1, n
@@ -112,7 +113,7 @@ module lm
     
     
     if (use_offset .eqv. true) then
-      !$omp parallel if(n*nrhs > 5000) private(i, j) default(shared) 
+      !$omp parallel if(n*nrhs > linmod_omp_minsize) private(i, j) default(shared) 
       !$omp do 
         do j = 1, nrhs
           do i = 1, n
