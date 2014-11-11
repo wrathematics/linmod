@@ -82,7 +82,7 @@ the project to a more permissive license when the library becomes more mature.
 
 
 
-## Requirements and Installation
+## System Requirements
 
 To install, you will need: 
 
@@ -95,6 +95,20 @@ To install, you will need:
 Both the R package and the standalone library require cmake, because if you
 so much as think the word "autotools" around me, I'll punch you in the 
 stomach.
+
+Some effort has been made to make the library build with a Fortran
+compiler that doesn't have OpenMP support.  I have serious doubts 
+that it will actually work, however, and recommend you just
+use a remotely recent compiler instead.  
+
+At the moment, the C compiler does not need OpenMP support, 
+basically because I don't want to deal with headaches on the Mac.
+Over time, this will probably change (primarily affecting the R
+bindings); hopefully clang can get its act together by then.
+
+
+
+## Installation
 
 To install the R package, assuming you have all of the necessary
 system dependencies (stated above), the easiest way to build the
