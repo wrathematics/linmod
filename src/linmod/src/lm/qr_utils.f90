@@ -6,6 +6,7 @@
 
 
 module qr_utils
+  use :: linmod_omp
   implicit none
   
   
@@ -90,7 +91,7 @@ module qr_utils
     ! local
     integer :: i, j
     
-    !$omp parallel do if(n*n > 5000) private(i, j) default(shared)
+    !$omp parallel do if(n*n > linmod_omp_minsize) private(i, j) default(shared)
       do j = 1, n
         do i = 1, n
           R(i, j) = QR(i, j)

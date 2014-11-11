@@ -98,6 +98,7 @@
 
 module glm
   use :: lapack
+  use :: linmod_omp
   use :: glm_check
   use :: glm_loglik_utils
   use :: glm_family_utils
@@ -183,26 +184,24 @@ module glm
     
     
     ! initialize
-    !$omp parallel if (n > 5000) private(i) default(shared) 
+    !$omp parallel if (n > linmod_omp_minsize) private(i) default(shared) 
     !$omp do
-    do i = 1, p
-      beta_old(i) = 0.0d0
-    end do
+      do i = 1, p
+        beta_old(i) = 0.0d0
+      end do
     !$omp end do
     
     !$omp do
-    do i = 1, n
-      wt(i) = 1.0d0
-    end do
+      do i = 1, n
+        wt(i) = 1.0d0
+      end do
     !$omp end do
     !$omp end parallel
     
     dev = 0.0d0
     
     
-    !!! main loop
     IRLS_LOOP: do iter = 0, maxiter
-      
       
       ! compute eta = x*beta and mu = linkinv(eta) <==> link(mu) = eta
       if (iter == 0) then

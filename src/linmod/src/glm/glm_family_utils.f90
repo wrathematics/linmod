@@ -7,7 +7,7 @@
 module glm_family_utils
   use :: lapack
   use :: glm_constants
-  
+  use :: linmod_omp
   implicit none
   
   
@@ -59,7 +59,7 @@ module glm_family_utils
     integer :: i
     
     
-    !$omp parallel if(n > 5000) private(i) default(shared) 
+    !$omp parallel if(n > linmod_omp_minsize) private(i) default(shared) 
     if (family == glm_family_binomial) then
       !$omp do
         do i = 1, n
@@ -102,7 +102,7 @@ module glm_family_utils
     double precision :: tmp
     
     
-    !$omp parallel if(n > 5000) private(i, tmp) default(shared) 
+    !$omp parallel if(n > linmod_omp_minsize) private(i, tmp) default(shared) 
     if (family == glm_family_binomial) then
       !$omp do
         do i = 1, n

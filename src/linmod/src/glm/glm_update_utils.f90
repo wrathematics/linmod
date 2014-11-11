@@ -8,6 +8,7 @@
 module glm_update_utils
   use :: lm
   use :: lapack, only : dgels, disnan
+  use :: linmod_omp
   use :: glm_constants
   use :: glm_family_utils
   use :: glm_link_utils
@@ -69,7 +70,7 @@ module glm_update_utils
     
     call glm_linkinv_deriv(link, n, eta, rtwt)
     
-    !$omp parallel if (n*p > 5000) private(i, j) default(shared) 
+    !$omp parallel if (n*p > linmod_omp_minsize) private(i, j) default(shared) 
     !$omp do
       do i = 1, n
         rtwt(i) = rtwt(i) / dsqrt(wt(i))
@@ -108,7 +109,7 @@ module glm_update_utils
     !                 = rtwt * eta + 1/rtwt*(y-mu)
     call glm_linkinv_deriv(link, n, eta, z)
     
-    !$omp parallel if (n > 5000) private(i, tmp) default(shared) 
+    !$omp parallel if (n > linmod_omp_minsize) private(i, tmp) default(shared) 
     !$omp do
       do i = 1, n
         eta(i) = eta(i) + offset(i)

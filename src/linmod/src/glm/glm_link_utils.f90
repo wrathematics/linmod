@@ -9,6 +9,7 @@ module glm_link_utils
   use :: glm_constants
   use :: distributions
   use :: iso_c_binding
+  use :: linmod_omp
   implicit none
   
   contains
@@ -27,7 +28,7 @@ module glm_link_utils
     intrinsic :: dlog, dsqrt
     
     
-    !$omp parallel if(n > 5000) private(i, tmp) default(shared) 
+    !$omp parallel if(n > linmod_omp_minsize) private(i, tmp) default(shared) 
     if (link == glm_link_cloglog) then
       !$omp do
         do i = 1, n
@@ -115,7 +116,7 @@ module glm_link_utils
     intrinsic           dexp, dsqrt
     
     
-    !$omp parallel if(n > 5000) private(i, tmp) default(shared) 
+    !$omp parallel if(n > linmod_omp_minsize) private(i, tmp) default(shared) 
     if (link == glm_link_cloglog) then
       !$omp do
         do i = 1, n
@@ -208,7 +209,7 @@ module glm_link_utils
     intrinsic           dexp, dsqrt
     
     
-    !$omp parallel if(n > 5000) private(i, tmp) default(shared) 
+    !$omp parallel if(n > linmod_omp_minsize) private(i, tmp) default(shared) 
     if (link == glm_link_cloglog) then
       !$omp do
         do i = 1, n
@@ -298,7 +299,7 @@ module glm_link_utils
     intrinsic           dexp
     
     
-    !$omp parallel if(n > 5000) private(i, tmp) default(shared) 
+    !$omp parallel if(n > linmod_omp_minsize) private(i, tmp) default(shared) 
     if (link == glm_link_cloglog) then
       !$omp do
         do i = 1, n
