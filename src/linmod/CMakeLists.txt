@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 project(linmod)
 enable_language(C Fortran)
 
@@ -18,11 +18,7 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(LAPACK REQUIRED)
 find_package(BLAS REQUIRED)
 
-#find_package(Check)
-#find_package(Cobra)
-
 find_package(OpenMP)
-
 
 if (OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -66,7 +62,6 @@ set(LM_FILES
 	src/lm/lm.f90
 	src/lm/rdgels.f90
 	src/lm/rdgels_utils.f90
-	src/lm/rdgeqpf.f90
 	src/lm/rdormqr.f90
 	src/lm/rdgeqp3.f90
 	src/lm/rdlaqp2.f90
@@ -110,17 +105,5 @@ else(NOT WIN32)
   install(TARGETS linmod RUNTIME DESTINATION ${CMAKE_SOURCE_DIR})
 endif(NOT WIN32)
 
-
-#if (CHECK_FOUND OR COBRA_FOUND)
-#	enable_testing()
-
-#	if(CHECK_FOUND)
-#		add_subdirectory(test)
-#	endif()
-
-#	if(COBRA_FOUND)
-#		add_subdirectory(bench)
-#	endif()
-#endif()
 
 #INSTALL(FILES build/libglm.so DESTINATION lib)
