@@ -44,9 +44,9 @@ bigtest <- function(m, n, seed, verbose, check.rank)
 }
 
 
-## TODO
-#n <- 10
-#m <- 5
 
 bigtest(m=10, n=5, seed=1234, verbose=FALSE)
 bigtest(m=10, n=10, seed=1234, verbose=FALSE)
+#bigtest(m=5, n=10, seed=1234, verbose=FALSE) ### TODO
+
+
