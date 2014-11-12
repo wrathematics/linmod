@@ -16,22 +16,14 @@
 subroutine rdgeqp3(m, n, a, lda, jpvt, tau, work, lwork, tol, rank, info)
   use :: qr_utils, only : rdlaqp2
   use :: lapack
-  
   integer, intent(out) :: rank
   double precision, intent(in) :: tol
-  
-  
-  ! .. scalar arguments ..
   integer          info, lda, lwork, m, n
-  ! ..
-  ! .. array arguments ..
   integer          jpvt(*)
   double precision   a(lda, *), tau(*), work(*)
-  ! ..
   ! .. parameters ..
   integer          inb, inbmin, ixover
   parameter        (inb = 1, inbmin = 2, ixover = 3)
-  ! ..
   ! .. local scalars ..
   logical          lquery
   integer          fjb, iws, j, jb, lwkopt, minmn, minws, na, nb, &

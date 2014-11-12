@@ -10,55 +10,10 @@
 !     november 2006
 
 
-!  purpose
-!  =======
 !  dlaqp2 computes a qr factorization with column pivoting of
 !  the block a(offset+1:m,1:n).
 !  the block a(1:offset,1:n) is accordingly pivoted, but not factorized.
 !  arguments
-!  =========
-!  m       (input) integer
-!          the number of rows of the matrix a. m >= 0.
-!  n       (input) integer
-!          the number of columns of the matrix a. n >= 0.
-!  offset  (input) integer
-!          the number of rows of the matrix a that must be pivoted
-!          but no factorized. offset >= 0.
-!  a       (input/output) double precision array, dimension (lda,n)
-!          on entry, the m-by-n matrix a.
-!          on exit, the upper triangle of block a(offset+1:m,1:n) is 
-!          the triangular factor obtained; the elements in block
-!          a(offset+1:m,1:n) below the diagonal, together with the
-!          array tau, represent the orthogonal matrix q as a product of
-!          elementary reflectors. block a(1:offset,1:n) has been
-!          accordingly pivoted, but no factorized.
-!  lda     (input) integer
-!          the leading dimension of the array a. lda >= max(1,m).
-!  jpvt    (input/output) integer array, dimension (n)
-!          on entry, if jpvt(i)  /=  0, the i-th column of a is permuted
-!          to the front of a*p (a leading column); if jpvt(i) = 0,
-!          the i-th column of a is a free column.
-!          on exit, if jpvt(i) = k, then the i-th column of a*p
-!          was the k-th column of a.
-!  tau     (output) double precision array, dimension (min(m,n))
-!          the scalar factors of the elementary reflectors.
-!  vn1     (input/output) double precision array, dimension (n)
-!          the vector with the partial column norms.
-!  vn2     (input/output) double precision array, dimension (n)
-!          the vector with the exact column norms.
-!  work    (workspace) double precision array, dimension (n)
-!  further details
-!  ===============
-!  based on contributions by
-!    g. quintana-orti, depto. de informatica, universidad jaime i, spain
-!    x. sun, computer science dept., duke university, usa
-!  partial column norm updating strategy modified by
-!    z. drmac and z. bujanovic, dept. of mathematics,
-!    university of zagreb, croatia.
-!    june 2006.
-!  for more details see lapack working note 176.
-!  =====================================================================
-
 
 
 subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
@@ -111,7 +66,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
     
     
     ! generate elementary reflector h(i).
-    if(offpi < m) then
+    if (offpi < m) then
       call dlarfg(m-offpi+1, a(offpi, i), a(offpi+1, i), 1, tau(i))
     else
       call dlarfg(1, a(m, i), a(m, i), 1, tau(i))
@@ -129,7 +84,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
     
     ! update partial column norms.
     do j = i + 1, n
-      if(vn1(j) /= 0.0d0) then
+      if (vn1(j) /= 0.0d0) then
         ! note: the following 4 lines follow from the analysis in
         ! lapack working note 176.
         temp = 1.0d0 - (dabs(a(offpi, j)) / vn1(j))**2
@@ -137,7 +92,7 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
         temp2 = temp*(vn1(j) / vn2(j))**2
         
         if (temp2 <= tol) then
-          if(offpi < m) then
+          if (offpi < m) then
             vn1(j) = dnrm2(m-offpi, a(offpi+1, j), 1)
             vn2(j) = vn1(j)
           else
@@ -167,9 +122,6 @@ subroutine rdlaqp2(m, n, offset, a, lda, jpvt, tau, vn1, vn2, work, tol, rank)
   if (jpvt(n) == n .and. vn1(n) > tol) rank = rank + 1
   
   if (rank == 0) rank = 1
-  
-!  print *, jpvt(1:n)
-!  print *, rank
   
   return
 end subroutine
