@@ -70,6 +70,22 @@ module lm
   implicit none
   
   
+  interface
+    subroutine rdgels(m, n, nrhs, a, b, tol, coef, eff, ft, rsd, tau, &
+                      jpvt, rank, work, lwork, info) &
+    bind(c, name='rdgels_')
+      integer, intent(in) :: m, n, nrhs, lwork
+      integer, intent(out) :: info, jpvt(n)
+      integer, intent(inout) :: rank
+      double precision, intent(in) :: tol
+      double precision, intent(out) :: coef(n, nrhs), tau(*), work(lwork)
+      double precision, intent(out), dimension(m, nrhs) :: ft, eff, rsd
+      double precision, intent(inout) :: a(m, n), b(m, nrhs)
+    end subroutine
+  end interface
+  
+  
+  
   contains
   
   subroutine lm_fit(use_offset, n, p, nrhs, x, y, offset, tol, coef, eff, ft, rsd, tau, &
@@ -93,7 +109,7 @@ module lm
     lwork = -1
     call dgels('n', n, p, nrhs, x, n, y, np_max, tmp, lwork, info)
     lwork = int(tmp(1))
-    allocate(work(lwork))
++    allocate(work(lwork))
     
     
     if (use_offset .eqv. true) then
