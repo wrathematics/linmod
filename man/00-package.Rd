@@ -3,7 +3,10 @@
 \docType{package}
 \title{Linear and Generalized Linear Moddels}
 \description{
-  TODO
+  The linmod package contains wrappers of the linmod library, a
+  collection of utilities for fitting linear and generalized linear
+  models.  These use modified versions of LAPACK routines (compared
+  to R's use of LINPACK routines).
 }
 \details{
 \tabular{ll}{
