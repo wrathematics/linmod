@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.8)
 project(linmod)
 enable_language(C Fortran)
 
@@ -8,8 +8,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_Fortran_MODULE_DIRECTORY "include/")
 
 ### Flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O2 -mtune=native -fPIC")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wfatal-errors -O3 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O3 -fPIC")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wfatal-errors -O3 -mtune=native -fPIC")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -91,8 +91,10 @@ set(LINMOD_FILES ${UTILS_FILES} ${DISTRIBUTIONS_FILES} ${LAPACK_FILES} ${LM_FILE
 
 
 ### Make and install
-add_library(linmod SHARED ${LINMOD_FILES})
-add_library(linmod_static STATIC ${LINMOD_FILES})
+add_library(linmod_objs OBJECT ${LINMOD_FILES})
+
+add_library(linmod SHARED $<TARGET_OBJECTS:linmod_objs>)
+add_library(linmod_static STATIC $<TARGET_OBJECTS:linmod_objs>)
 
 
 target_link_libraries (linmod ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
