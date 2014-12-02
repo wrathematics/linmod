@@ -109,7 +109,7 @@ module lm
     lwork = -1
     call dgels('n', n, p, nrhs, x, n, y, np_max, tmp, lwork, info)
     lwork = int(tmp(1))
-+    allocate(work(lwork))
+    allocate(work(lwork))
     
     
     if (use_offset .eqv. true) then
