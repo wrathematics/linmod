@@ -20,7 +20,7 @@ burnin()
 
 reps <- 10
 
-m <- 6000
+m <- 2500
 n <- 250
 
 x <- matrix(rnorm(m*n), m, n)
@@ -37,3 +37,5 @@ benchmark(
           replications=reps,
           columns=c("test", "replications", "elapsed", "relative")
 )
+
+

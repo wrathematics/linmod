@@ -1,6 +1,6 @@
 library(linmod, quietly=TRUE)
 
-n <- 50000
+n <- 5000
 p <- 300
 
 family <- binomial(logit)

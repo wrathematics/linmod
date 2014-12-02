@@ -17,7 +17,7 @@ burnin <- function(reps=10)
 }
 burnin()
 
-m <- 10000
+m <- 6000
 n <- 250
 x <- matrix(rnorm(m*n), m, n)
 y <- rnorm(m)
@@ -26,7 +26,8 @@ y <- rnorm(m)
 
 cat("------------ Assume full rank ------------\n")
 
-benchmark(fastLm(X=x,  y=y, method=1), 
+benchmark(
+#          fastLm(X=x,  y=y, method=1), 
           lm_fit(x=x, y=y, check.rank=FALSE),
           lm.fit(x=x, y=y),
           replications=10,
