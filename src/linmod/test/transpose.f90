@@ -1,18 +1,18 @@
 subroutine print_matrix(m, n, a)
-    integer, intent(in) :: m, n
-    double precision, intent(in) :: a(m, n)
-    integer :: i, j
-    
-    
-    do j = 1, n
-      do i = 1, m
-        write(*, '(1000F14.2)', advance="no")( real(a(i, j)) )
-      end do
-      print *, ""
+  integer, intent(in) :: m, n
+  double precision, intent(in) :: a(m, n)
+  integer :: i, j
+  
+  
+  do j = 1, n
+    do i = 1, m
+      write(*, '(1000F14.2)', advance="no")( real(a(i, j)) )
     end do
-    
-    return
-  end subroutine
+    print *, ""
+  end do
+  
+  return
+end subroutine
 
 
 
