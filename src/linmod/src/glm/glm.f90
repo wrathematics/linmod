@@ -130,6 +130,9 @@ module glm
     double precision, allocatable :: rtwt(:)
     double precision, allocatable :: x_tw(:,:)
     double precision, allocatable :: work(:)
+    
+    !!! FIXME
+    double precision, allocatable :: ft(:)
     ! intrinsic
     intrinsic :: min, max, dble, dsqrt
     
@@ -156,6 +159,10 @@ module glm
     if (allocerr /= 0) goto 1
     allocate(z(n), stat=allocerr)
     if (allocerr /= 0) goto 1
+    
+    allocate(ft(n), stat=allocerr)
+    if (allocerr /= 0) goto 1
+    
     
     ! allocate workspace for linear models
     lwork = min(n, p) + max(1, n, p)
@@ -230,8 +237,7 @@ module glm
       
       
       ! fit z ~ x_tw
-      call glm_update_beta(n, p, beta, beta_old, x_tw, z, work, lwork, info)
-      
+      call glm_update_beta(n, p, beta, beta_old, x_tw, z, offset, ft, work, lwork, info)
       
       ! check for convergence
       if (iter > 0) then
@@ -276,6 +282,8 @@ module glm
     if (allocated(z)) deallocate(z)
     if (allocated(work)) deallocate(work)
     
+    !!! FIXME
+    deallocate(ft)
     
     return
   end subroutine

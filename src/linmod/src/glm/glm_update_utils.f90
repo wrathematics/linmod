@@ -20,34 +20,53 @@ module glm_update_utils
   contains
   
   ! Linear model iteration
-  subroutine glm_update_beta(n, p, beta, beta_old, x, y, work, lwork, info)
+  subroutine glm_update_beta(n, p, beta, beta_old, x, y, offset, ft, work, lwork, info)
     ! in/out
     integer, intent(in) :: n, p, lwork
     integer, intent(out) :: info
-    double precision, intent(in) :: x(n, p)
+    double precision, intent(in) :: x(n, p), offset(n)
     double precision, intent(inout) :: y(n)
     double precision, intent(out) :: beta(p), beta_old(p), work(lwork)
+    double precision, intent(out) :: ft(n)
     ! local
     integer :: k, i
     ! external
     intrinsic :: min
     
     
+    !$omp parallel if(n > linmod_omp_minsize) private(i) default(shared) 
+    !$omp do 
+      do i = 1, n
+        y(i) = y(i) - offset(i)
+      end do
+    !$omp end do
+    !$omp end parallel
+    
+    
+!    call rdgels(n, p, 1, x, y, tol, coef, eff, ft, rsd, tau, &
+!                jpvt, rank, work, lwork, info)
     call dgels('n', n, p, 1, x, n, y, n, work, lwork, info)
-!    call lm_fit(n, p, 1, x, y, tol, coef, eff, &
-!                  ft, rsd, tau, jpvt, rank, info) &
     
     k = min(n, p)
     
-    !$omp parallel do private(i) default(shared)
+    
+    !$omp parallel if(n*p > linmod_omp_minsize) private(i) default(shared) 
+!!    !$omp do 
+!!      do i = 1, n
+!!        ft(i) = ft(i) + offset(i)
+!!      end do
+!!    !$omp end do
+      
+    !$omp do
       do i = 1, k
         beta_old(i) = beta(i)
         beta(i) = y(i)
       end do
-    !$omp end parallel do
+    !$omp end do
+    !$omp end parallel
     
     return
-  end
+  end subroutine
   
   
   
@@ -183,6 +202,6 @@ module glm_update_utils
     end if
     
     return
-  end
+  end function
   
 end module
