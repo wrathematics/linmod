@@ -1,7 +1,9 @@
+library(memuse)
 library(linmod)
 #library(RcppArmadillo)
 library(RcppEigen)
 library(rbenchmark)
+library(microbenchmark)
 
 
 burnin <- function(reps=10)
@@ -18,9 +20,9 @@ burnin <- function(reps=10)
 burnin()
 
 
-reps <- 10
+reps <- 15
 
-m <- 2500
+m <- 5000
 n <- 250
 
 x <- matrix(rnorm(m*n), m, n)
@@ -29,13 +31,24 @@ y <- rnorm(m)
 
 
 cat("------------------ RRQR ------------------\n")
+cat(paste0("Data size:  ", object.size(x)+object.size(y), "\n"))
+cat(paste0("L3 cache size:  ", Sys.cachesize()$L3, "\n"))
 
-benchmark(
-#          fastLm(X=x,  y=y, method=0), 
+
+#benchmark(
+#          lm.fit(x=x, y=y),
+#          lm_fit(x=x, y=y, check.rank=TRUE),
+##          RcppEigen::fastLm(X=x,  y=y, method=0), 
+#          replications=reps,
+#          columns=c("test", "replications", "elapsed", "relative")
+#)
+
+
+microbenchmark(
           lm_fit(x=x, y=y, check.rank=TRUE),
           lm.fit(x=x, y=y),
-          replications=reps,
-          columns=c("test", "replications", "elapsed", "relative")
+#          RcppEigen::fastLm(X=x,  y=y, method=0), 
+          times=reps,
+          unit="s"
 )
-
 
