@@ -132,7 +132,8 @@ module glm
     double precision, allocatable :: work(:)
     
     !!! FIXME
-    double precision, allocatable :: ft(:)
+    double precision, allocatable :: ft(:), coef(:), eff(:), rsd(:), tau(:)
+    integer, allocatable :: jpvt(:)
     ! intrinsic
     intrinsic :: min, max, dble, dsqrt
     
@@ -160,8 +161,14 @@ module glm
     allocate(z(n), stat=allocerr)
     if (allocerr /= 0) goto 1
     
+    !!! FIXME
     allocate(ft(n), stat=allocerr)
     if (allocerr /= 0) goto 1
+    allocate(coef(p))
+    allocate(eff(n))
+    allocate(jpvt(p))
+    allocate(rsd(n))
+    allocate(tau(min(n,p)))
     
     
     ! allocate workspace for linear models
@@ -237,7 +244,9 @@ module glm
       
       
       ! fit z ~ x_tw
-      call glm_update_beta(n, p, beta, beta_old, x_tw, z, offset, ft, work, lwork, info)
+!      call glm_update_beta(n, p, beta, beta_old, x_tw, z, offset, ft, work, lwork, info)
+      call glm_update_beta(n, p, beta, beta_old, x_tw, z, offset, tol, coef, eff, &
+                             ft, rsd, tau, jpvt, rank, work, lwork, info)
       
       ! check for convergence
       if (iter > 0) then
@@ -284,6 +293,11 @@ module glm
     
     !!! FIXME
     deallocate(ft)
+    deallocate(coef)
+    deallocate(eff)
+    deallocate(jpvt)
+    deallocate(rsd)
+    deallocate(tau)
     
     return
   end subroutine

@@ -20,14 +20,19 @@ module glm_update_utils
   contains
   
   ! Linear model iteration
-  subroutine glm_update_beta(n, p, beta, beta_old, x, y, offset, ft, work, lwork, info)
+  subroutine glm_update_beta(n, p, beta, beta_old, x, y, offset, tol, coef, eff, &
+                             ft, rsd, tau, jpvt, rank, work, lwork, info)
     ! in/out
     integer, intent(in) :: n, p, lwork
     integer, intent(out) :: info
-    double precision, intent(in) :: x(n, p), offset(n)
-    double precision, intent(inout) :: y(n)
+    double precision, intent(in) :: offset(n)
+    double precision, intent(inout) :: x(n, p), y(n)
+    double precision, intent(in) :: tol
     double precision, intent(out) :: beta(p), beta_old(p), work(lwork)
-    double precision, intent(out) :: ft(n)
+    double precision, intent(out) :: coef(p), ft(n), eff(n), rsd(n)
+    double precision, intent(out) :: tau(*)
+    integer, intent(inout) :: rank
+    integer, intent(out) :: jpvt(p)
     ! local
     integer :: k, i
     ! external
@@ -42,10 +47,11 @@ module glm_update_utils
     !$omp end do
     !$omp end parallel
     
-    
-!    call rdgels(n, p, 1, x, y, tol, coef, eff, ft, rsd, tau, &
-!                jpvt, rank, work, lwork, info)
-    call dgels('n', n, p, 1, x, n, y, n, work, lwork, info)
+    !!! FIXME
+    rank = -1
+    call rdgels(n, p, 1, x, y, tol, coef, eff, ft, rsd, tau, &
+                jpvt, rank, work, lwork, info)
+!    call dgels('n', n, p, 1, x, n, y, n, work, lwork, info)
     
     k = min(n, p)
     
