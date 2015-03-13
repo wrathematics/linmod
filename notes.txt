@@ -1,0 +1,71 @@
+### .lm.fit
+
+$coefficients
+$residuals
+$effects
+$rank
+$fitted.values
+$assign
+$qr
+  $qr
+  $qraux
+  $pivot
+  $tol
+  $rank
+$df.residual
+
+
+
+
+
+$qr
+$coefficients
+$residuals
+$effects
+$rank
+$pivot
+$qraux
+$tol
+$pivoted
+
+
+
+### glm.fit output
+
+$coefficients
+$residuals
+$fitted.values
+$effects
+$R
+$rank
+$qr
+  $qr
+  $rank
+  $qraux
+  $pivot
+  $tol
+$family
+$linear.predictors
+$deviance
+$aic
+$null.deviance
+$iter
+$weights
+$prior.weights
+$df.residual
+$df.null
+$y
+$converged
+$boundary
+
+
+
+### glm todo's
+
+coef (beta)
+eff
+ft
+rsd
+tau
+jpvt
+rank
