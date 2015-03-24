@@ -22,7 +22,7 @@ burnin()
 
 reps <- 15
 
-m <- 5000
+m <- 12000
 n <- 250
 
 x <- matrix(rnorm(m*n), m, n)
@@ -35,7 +35,7 @@ cat(paste0("Data size:  ", object.size(x)+object.size(y), "\n"))
 cat(paste0("L3 cache size:  ", Sys.cachesize()$L3, "\n"))
 
 
-#benchmark(
+#bench <- benchmark(
 #          lm.fit(x=x, y=y),
 #          lm_fit(x=x, y=y, check.rank=TRUE),
 ##          RcppEigen::fastLm(X=x,  y=y, method=0), 
@@ -44,11 +44,16 @@ cat(paste0("L3 cache size:  ", Sys.cachesize()$L3, "\n"))
 #)
 
 
-microbenchmark(
-          lm_fit(x=x, y=y, check.rank=TRUE),
+control <- list(warmup=20, order="random")
+
+bench <- microbenchmark(
           lm.fit(x=x, y=y),
+          lm_fit(x=x, y=y, check.rank=TRUE),
 #          RcppEigen::fastLm(X=x,  y=y, method=0), 
           times=reps,
-          unit="s"
+          unit="s",
+          control=control
 )
+
+print(bench)
 

@@ -2,4 +2,4 @@
 
 export OMP_NUM_THREADS=$2
 
-Rscript $1
+r $1
