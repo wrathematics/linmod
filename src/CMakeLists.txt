@@ -18,10 +18,7 @@ find_library(LIB_LINMOD NAMES "liblinmod_static.a"
 )
 
 
-execute_process(COMMAND Rscript "-e" "RNACI:::cppflags(cmake=TRUE)"
-                OUTPUT_VARIABLE RNACI_CPPFLAGS)
-#execute_process(COMMAND echo ${RNACI_CPPFLAGS})
-include_directories(${RNACI_CPPFLAGS})
+include_directories("../inst/RNACI")
 execute_process(COMMAND Rscript "-e" "RNACI:::ldflags()"
                 OUTPUT_VARIABLE RNACI_LDFLAGS)
 
@@ -55,4 +52,3 @@ if(NOT WIN32)
 else(NOT WIN32)
   install(TARGETS linmod RUNTIME DESTINATION ${CMAKE_SOURCE_DIR})
 endif(NOT WIN32)
-
