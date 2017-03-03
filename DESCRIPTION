@@ -3,16 +3,15 @@ Version: 0.1.0
 License: Mozilla Public License 2.0
 Title: Linear and Generalized Linear Model Fitters
 Description: The linmod package contains wrappers of the linmod library, a
-      collection of utilities for fitting linear and generalized linear
-      models.  These use modified versions of LAPACK routines (compared
-      to R's use of LINPACK routines).
-Depends: R (>= 2.14.0)
-Enhances: RcppEigen
-Imports: RNACI
-LinkingTo: RNACI
+    collection of utilities for fitting linear and generalized linear
+    models.  These use modified versions of LAPACK routines (compared
+    to R's use of LINPACK routines).
+Depends:
+    R (>= 2.14.0)
 NeedsCompilation: Yes
 ByteCompile: yes
 SystemRequirements: cmake (http://www.cmake.org)
 Authors@R: c(person("Drew", "Schmidt", role = c("aut", "cre"), email =
         "wrathematics@gmail.com"))
 Maintainer: Drew Schmidt <wrathematics@gmail.com>
+RoxygenNote: 5.0.1
